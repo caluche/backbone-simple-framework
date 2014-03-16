@@ -4,7 +4,7 @@ README
 simple framework draft
 (MVC - Plugin oriented)
 
-__dependencies__: backbone, requirejs, underscore, jquery
+__dependencies__: backbone, requirejs, underscore, jquery (other deps should be added through plugins)
 
 _inspired from Chaplin architecture_
 
