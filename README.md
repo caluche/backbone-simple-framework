@@ -19,7 +19,7 @@ $ node app.js
 
 ```
 
-the draft is in `public/js/main.js`
+the main file is `public/js/main.js`
 
 ## notes
 
