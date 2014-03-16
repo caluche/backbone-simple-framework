@@ -18,10 +18,6 @@
             backbone: {
                 deps: ['jquery', 'underscore'],
                 exports: 'Backbone'
-            },
-            elipse: {
-                deps: ['backbone'],
-                exports: 'Elipse'
             }
         },
         paths: {
