@@ -96,12 +96,13 @@ define(
                 this.initRouter();
                 this.initDispatcher();
 
-                if (options.appController) {
-                    this.setAppController(options.appController)
+                // optionnaly pass AppController and Layout as arguments
+                if (config.appController) {
+                    this.setAppController(config.appController)
                 }
 
-                if (options.layout) {
-                    this.setLayout();
+                if (config.layout) {
+                    this.setLayout(config.layout);
                 }
             },
 
