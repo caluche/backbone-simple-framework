@@ -33,7 +33,7 @@ define(
                     _.any(this.handlers, function(handler) {
                         if (handler.route.test(fragment)) {
                             // execute the callback
-                            console.log(handler);
+                            // console.log(handler);
                             handler.callback(fragment);
                             // return true;
                         }
@@ -43,9 +43,29 @@ define(
         };
         // */
 
-        // ---------------------------------------
-        // @TODO pubsub should also have a common pubsub api (alias backbone's method)
-        var pubsub = _.extend({}, Backbone.Events);
+        //  ---------------------------------------
+        //  @TODO    create a constructor to allow it being used in app
+        //  @API     rename to `com`
+        //  keep it external
+        var com = _.extend({}, Backbone.Events, {
+            publish: function() {
+                var args = Array.prototype.slice.call(arguments, 0);
+                this.trigger.apply(this, args);
+            },
+
+            subscribe: function() {
+                var args = Array.prototype.slice.call(arguments, 0);
+                this.on.apply(this, args);
+            },
+
+            unsubscribe: function() {
+                var args = Array.prototype.slice.call(arguments, 0);
+                this.off.apply(this, args)
+            },
+
+            // kind of log system
+            trace: function() {},
+        });
         // @TODO - get a log system
 
         /**
@@ -54,13 +74,32 @@ define(
         var GG = {
             initialize: function(options) {
                 this.config = options;
+                // @NOTE    maybe use a Backbone.Collection (needs use cases)
+
+                // install global services/plugin that could used in controllers
+                // allow plugin developpement and code reuse without altering the framework
+                // examples:
+                //      maybe a kind of window monitoring could be registered as a service or plugin
+                //      could be used to install proxies with third party services (asset loader, etc...)
+                // @NOTE    maybe redondant with `this.plugins`
+                this.plugins = {};
+                // this.services = {};
 
                 // create core objects
                 this.initRouter();
                 this.initDispatcher();
 
-                // call `this.AppController(options.appController)` to set a default one
+                if (options.appController) {
+                    this.setAppController(options.appController)
+                }
+
+                if (options.layout) {
+                    this.setLayout();
+                }
             },
+
+            // get a ref to com object (usefull for plugins API)
+            com: com,
 
             initRouter: function() {
                 this.router = new Router({
@@ -72,7 +111,9 @@ define(
                 // @MAYBE this should be a collection of smaller models - ??
                 this.dispatcher = new Dispatcher({
                     states: this.config.states,
-                    paths: this.config.paths
+                    paths: this.config.paths,
+                    // forward plugins and services to controller
+                    app : { plugins: this.plugins, services: this.services }
                 });
             },
 
@@ -89,22 +130,37 @@ define(
                 return routes;
             },
 
-            setAppController: function(constructor) {
-                // if `constructor` is undefined fallback to default AppController
-                // configure dispatcher to use `constructor`
+            //  helpers to configure framework
+            //  -----------------------------------------------------
+            setAppController: function(ctor) {
+                // if `ctor` is undefined fallback to default AppController
+                // configure dispatcher to use the given AppController extended obj
             },
 
-            setLayout: function(constructor) {
+            setLayout: function(ctor) {
 
             },
 
-            // give access to the entire framework and communications
-            installPlugin: function(ctor) {
-                var plugin = new ctor(this, pubsub);
+            //  @TODO   allow switch between service and plugin installation
+            //  or maybe it's just the same thing finally
+            //
+            //  @param pluginName <string> id of the plugin to get it back in controllers
+            //  @param pluginCtor <object>
+            //          constructor of the plugin
+            //          the current instance of the framework is passed as argument
+            install: function(pluginName, pluginCtor) {
+                // each plugins receive access to the whole
+                // framework, (communication are available through GG.com)
+                var plugin = new pluginCtor(this);
+                // add to collection
+                // services and plugins should be singletons
+                if (!this.plugins[pluginName]) {
+                    this.plugins[pluginName] = plugin;
+                }
             }
         };
 
-        GG.Utils = {
+        GG.utils = {
             /**
              *  @param obj <object>     object to test
              *  @param methods <string|array>   required api
@@ -127,13 +183,14 @@ define(
          *  @TODO   should have the ability to create urls from route and params
          *          will probably not work with regexps in routes
          *          add a catch all route (or do it in config finally)
-         *
+         *          should be able to create a real request object (Backbone Model)
          */
         var Router = Backbone.Router.extend({
             initialize: function() {
                 this.on('route', _.bind(this.forwardRequest, this));
             },
 
+            // count concurrent routes
             counter: 0,
             /**
              *  forward the request to the dispatcher
@@ -154,7 +211,7 @@ define(
                         controllers: that.counter
                     };
 
-                    pubsub.trigger('router:change', route, params, options);
+                    com.publish('router:change', route, params, options);
                     // reset counter
                     _.defer(function() { that.counter = 0 });
                 });
@@ -182,21 +239,23 @@ define(
         var Dispatcher = function(options) {
             this.states = options.states;
             this.paths = options.paths;
+            this.app = options.app; // store references to framework plugins and services
+
             this.previousCommand = {};
             this.previousController;
             this.isExecutionCanceled = false;
 
             // @EVENT : listen route:change
-            pubsub.on('router:change', this.dispatch, this);
+            com.subscribe('router:change', this.dispatch, this);
         }
 
         _.extend(Dispatcher.prototype, Backbone.Events, {
             dispatch: function(stateId, params, options) {
-                console.log(options);
+                // console.log(this.app);
                 // reset cancellation
                 this.isExecutionCanceled = false;
                 // @NOTE: param should already be an named object
-                var state = this.states[stateId];
+                var state = this.getState(stateId);
                 var parts = state.controller.split('::');
                 var command = {
                     controller: parts[0],
@@ -207,7 +266,7 @@ define(
                 // publish dispatch - this allow to alter `command`, `state`, `params` before actual dispatching
                 // could be used to monitor some global stuff (user access, ...)
                 // @TODO allow routing alteration
-                pubsub.trigger('dispatcher:beforeDispatch', state, params, this);
+                com.publish('dispatcher:beforeDispatch', state, params, this);
 
                 // dispatch event to allow loader plug-in
                 // load assets
@@ -215,6 +274,11 @@ define(
 
                 // this should async
                 this.execute(command, state, params);
+            },
+
+            //  @TODO - allow access to the controllers ?
+            getState: function(stateId) {
+                return this.states[stateId];
             },
 
             // should be able to cancel dispatching
@@ -250,6 +314,7 @@ define(
                     //    });
                     //    ```
                     //    ... dirty ...
+                    // `this.app.plugins` and `this.app.services` should be passed to the instance
                     instance = new Control2();
                 } else {
                     instance = this.previousController;
@@ -260,14 +325,14 @@ define(
                 this.previousController = instance;
 
                 // can be used in a controller to create repetive tasks
-                pubsub.trigger('dispatcher:dispatch', instance, action, state, params);
+                com.publish('dispatcher:dispatch', instance, action, state, params);
                 // call a specific controller::action
                 // @TODO should `utils.ensureApi`
                 //       if controller is not found redirect to not found
                 instance[action](state, params);
 
                 // @EVENTS - entry point
-                pubsub.trigger('dispatcher:afterDispatch', instance, action, state, params);
+                com.publish('dispatcher:afterDispatch', instance, action, state, params);
             },
 
             // execute all the registered methods for predispatch
@@ -341,12 +406,12 @@ define(
         var MyController = AbstractController.extend({
             // common
             initialize: function() {
-                pubsub.on('dispatcher:dispatch', this.doStuff, this);
+                com.subscribe('dispatcher:dispatch', this.doStuff, this);
             },
 
             // a default implementation should exists in AbstractController
             destroy: function() {
-                pubsub.off('dispatcher:dispatch', this.doStuff, this);
+                com.unsubscribe('dispatcher:dispatch', this.doStuff, this);
             },
 
             // each `action` method receive `state` and `params` objects as arguments
@@ -378,7 +443,26 @@ define(
         $('document').ready(function() {
             // intialize the framework
             GG.initialize(config, env /* specific env config from bootstrapping */);
-            // GG.setAppController(MyAppController)
+            // call these directly or through options in ctor
+            // GG.setLayout(MyAppLayout);
+            // GG.setAppController(MyAppController);
+
+            // install plugins
+            // GG.install('analytics', MyPluginCtor);
+
+            /**
+             *  // use
+             *  var PluginTest = function(GG, com) {
+             *      this.name = 'plugin-test';
+             *
+             *      GG.com.subscribe('router:change', function() {
+             *          console.log('   ->  from plugin', arguments, this)
+             *      }, this);
+             *  }
+             *
+             *  GG.install('plugin-test', PluginTest);
+             */
+
             // start the whole stuff
             Backbone.history.start();
         });
