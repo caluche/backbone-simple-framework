@@ -1,5 +1,12 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+  h1= 'Framework testing'
+
+  ul
+    li
+        a(href='#')= 'home'
+    li
+        a(href='#a/param-1')= 'route a'
+    li
+        a(href='#a/param-1|b/param-2')= 'multi-routing'
