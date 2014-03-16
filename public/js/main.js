@@ -13,7 +13,7 @@ define(
          */
 
         //  get environment globals from requirejs
-        //  @NOTE not documented in public API could break at any time
+        //  @WARNING is considered as a semi-private API could break at any time
         //  cf. https://groups.google.com/forum/#!topic/requirejs/4KXx7AoTDUs (check `context` option)
         var env = requirejs.s.contexts._.config.globals;
 
