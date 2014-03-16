@@ -5,16 +5,19 @@ define(
 
         'use strict';
 
-        console.log(require);
-
         /**
          *  @TODO
          *      create a scheme of architecture
          *      write docs / cookbook
          *      unit test
          */
-        var env = {};
 
+        //  get environment globals from requirejs
+        //  @NOTE not documented in public API could break at any time
+        //  cf. https://groups.google.com/forum/#!topic/requirejs/4KXx7AoTDUs (check `context` option)
+        var env = requirejs.s.contexts._.config.globals;
+
+        // hack Backbone.History
         if (config.useMultiRouting) {
             /**
              *  @OVERRIDE Backbone.History to allow multiple controler calls
@@ -74,8 +77,9 @@ define(
          *  Framework boostrapper
          */
         var GG = {
-            initialize: function(options) {
-                this.config = options;
+            initialize: function(config, env) {
+                this.config = config;
+                this.env = env;
                 // @NOTE    maybe use a Backbone.Collection (needs use cases)
 
                 // install global services/plugin that could used in controllers
@@ -445,7 +449,7 @@ define(
         // wait for the DOM
         $('document').ready(function() {
             // intialize the framework
-            GG.initialize(config, env /* specific env config from bootstrapping */);
+            GG.initialize(config, env);
             // call these directly or through options in ctor
             // GG.setLayout(MyAppLayout);
             // GG.setAppController(MyAppController);

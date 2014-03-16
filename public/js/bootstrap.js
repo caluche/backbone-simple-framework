@@ -2,13 +2,19 @@
 
     //  define environment configuration
     //  parse url, etc...
-    //  store some config for the app in require : http://requirejs.org/docs/api.html#config-moduleconfig ?
 
     //  init requirejs with env config
     requirejs.config({
-        env: {
-            // any env config usefull to the app
+        // store here env variable that can be usefull for the framework
+        globals: {
+            // any env config that could be usefull into the app
+            // stored in `requirejs.s.contexts._.config.globals`
+            env: 'dev',
+            debug: true,
+            minify: false
         },
+
+        // traditionnal requirejs config
         urlArgs: 'bust=' + new Date().getTime(),
         baseUrl: 'js',
         shim: {
@@ -30,11 +36,6 @@
             text: 'vendors/requirejs-text/text',
             elipse: 'vendors/elipse'
         },
-        config: {
-            main: {
-                // show some env variables to the app
-            }
-        }
     });
 
     require(['main'], function() {
