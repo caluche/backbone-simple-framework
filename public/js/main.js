@@ -33,7 +33,7 @@ define(
                     _.any(this.handlers, function(handler) {
                         if (handler.route.test(fragment)) {
                             // execute the callback
-                            // console.log(handler);
+                            console.log(handler);
                             handler.callback(fragment);
                             // return true;
                         }
@@ -97,6 +97,11 @@ define(
             setLayout: function(constructor) {
 
             },
+
+            // give access to the entire framework and communications
+            installPlugin: function(ctor) {
+                var plugin = new ctor(this, pubsub);
+            }
         };
 
         GG.Utils = {
@@ -121,6 +126,7 @@ define(
          *
          *  @TODO   should have the ability to create urls from route and params
          *          will probably not work with regexps in routes
+         *          add a catch all route (or do it in config finally)
          *
          */
         var Router = Backbone.Router.extend({
@@ -128,13 +134,30 @@ define(
                 this.on('route', _.bind(this.forwardRequest, this));
             },
 
+            counter: 0,
             /**
              *  forward the request to the dispatcher
              *  @EVENT global `route:change`
              */
             forwardRequest: function(route, params) {
                 // console.log('   => publish', route, params);
-                pubsub.trigger('router:change', route, params);
+
+                // this could wait for a next event
+                // console.log(this.index);
+                var that = this;
+                this.counter++;
+
+                // this allow to know if we are in multiple route configuration or not
+                // @TODO    need to be tested cross-browser, not sure it's really reliable
+                _.defer(function() {
+                    var options = {
+                        controllers: that.counter
+                    };
+
+                    pubsub.trigger('router:change', route, params, options);
+                    // reset counter
+                    _.defer(function() { that.counter = 0 });
+                });
             },
 
         });
@@ -168,7 +191,8 @@ define(
         }
 
         _.extend(Dispatcher.prototype, Backbone.Events, {
-            dispatch: function(stateId, params) {
+            dispatch: function(stateId, params, options) {
+                console.log(options);
                 // reset cancellation
                 this.isExecutionCanceled = false;
                 // @NOTE: param should already be an named object
@@ -189,6 +213,7 @@ define(
                 // load assets
                 // when done dispatch another event
 
+                // this should async
                 this.execute(command, state, params);
             },
 
@@ -346,7 +371,7 @@ define(
                 console.log('   =>  controller - beforeDispatch');
             }
         });
-
+        // test that `extend` is well transmitted from AbstractController
         var Control2 = MyController.extend({});
 
         // wait for the DOM
