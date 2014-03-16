@@ -168,6 +168,8 @@ define(
             }
         };
 
+        //  could be added to underscore: cf. _.mixin()
+        //  @NOTE   if in underscore method names should be configurable
         GG.utils = {
             /**
              *  @param obj <object>     object to test
@@ -175,6 +177,19 @@ define(
              *  @return bool
              */
             ensureApi: function(obj, methods) {},
+        }
+
+        // could be a Backbone.View with `window` as `$el` to have Backbone's jQuery instance
+        var AppLocker = function() {
+            //  subscribe to `app:lock` and `app:unlock` channels
+        }
+
+        UILocker.prototype = {
+            // lock interactions from the `window`
+            // app should be locked from Disptacher
+            lock: function() {},
+            // should be unlocked from the Layout (once all regions finished transitions)
+            unlock: function() {},
         }
 
         // once GG is called config.paths allow to map controller names with file system
