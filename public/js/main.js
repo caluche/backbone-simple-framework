@@ -1,15 +1,17 @@
 define(
     [
-        'backbone', 'underscore', 'jquery', 'config'
-    ], function(Backbone, _, $, config) {
+        'require', 'backbone', 'underscore', 'jquery', 'config'
+    ], function(require, Backbone, _, $, config) {
 
         'use strict';
 
+        console.log(require);
+
         /**
          *  @TODO
-         *      create an architecture scheme
-         *      unit testing
-         *      extend config ?
+         *      create a scheme of architecture
+         *      write docs / cookbook
+         *      unit test
          */
         var env = {};
 
@@ -82,6 +84,7 @@ define(
                 //      maybe a kind of window monitoring could be registered as a service or plugin
                 //      could be used to install proxies with third party services (asset loader, etc...)
                 // @NOTE    maybe redondant with `this.plugins`
+                // @IMPORTANT the asset loader must be a service/plugin
                 this.plugins = {};
                 // this.services = {};
 

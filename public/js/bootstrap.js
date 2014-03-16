@@ -2,10 +2,13 @@
 
     //  define environment configuration
     //  parse url, etc...
-    //  configure require
     //  store some config for the app in require : http://requirejs.org/docs/api.html#config-moduleconfig ?
 
+    //  init requirejs with env config
     requirejs.config({
+        env: {
+            // any env config usefull to the app
+        },
         urlArgs: 'bust=' + new Date().getTime(),
         baseUrl: 'js',
         shim: {
