@@ -179,9 +179,11 @@ define(
             ensureApi: function(obj, methods) {},
         }
 
-        // could be a Backbone.View with `window` as `$el` to have Backbone's jQuery instance
-        var AppLocker = function() {
+        // could be a Backbone.View with `window` as `$el` to use Backbone's jQuery instance
+        var UILocker = function() {
             //  subscribe to `app:lock` and `app:unlock` channels
+            this.subscribe('ui:lock', this.lock, this);
+            this.subscribe('ui:unlock', this.unlock, this);
         }
 
         UILocker.prototype = {
