@@ -186,12 +186,14 @@ define(
          *  maybe first just use it and then rewrite the usefull parts
          *  other parts could also be used as inspiration for the dispatcher
          *
+         *  should be able to map arguments their names (and then merge with defaults params)
+         *
          *  -------------------------------------------
          *
          *  @TODO   should have the ability to create urls from route and params
-         *          will probably not work with regexps in routes
+         *              - will probably not work with regexps in routes
          *          add a catch all route (or do it in config finally)
-         *          should be able to create a real request object (Backbone Model)
+         *          create a real request object (Backbone Model)
          */
         var Router = Backbone.Router.extend({
             initialize: function() {
@@ -232,9 +234,6 @@ define(
          *  DISPATCHER
          *  -------------------------------------------------------
          *  find the state and the according controller
-         *  how to map arguments with their name into the route
-         *  map arguments their param names (marge with defaults params)
-         *       => maybe override something or do it in backbone router
          *  destroy the previous controller if different
          *  instanciate the controller and call its action method
          *
