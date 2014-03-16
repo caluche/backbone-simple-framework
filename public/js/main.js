@@ -171,8 +171,7 @@ define(
             dispatch: function(stateId, params) {
                 // reset cancellation
                 this.isExecutionCanceled = false;
-                // test it the hard way, should be a kind of:
-                // param should be an anmed object around here
+                // @NOTE: param should already be an named object
                 var state = this.states[stateId];
                 var parts = state.controller.split('::');
                 var command = {
@@ -309,7 +308,8 @@ define(
             }
         });
 
-        // @TODO AppController to handle loader (through events), 404 fallbacks, globals behaviors
+        //  @TODO AppController to handle loader (through events), 404 fallbacks, globals behaviors
+        //  loader should also listen to custom events to allow it's control from a controller
 
         // --------------------------------------
         // dump controller for testing

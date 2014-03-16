@@ -1,8 +1,10 @@
 README
 =======================================================
 
-simple Backbone based framework draft
+simple framework draft
 (MVC - Plugin oriented)
+
+dependancies: backbone, requirejs
 
 inspired from Chaplin architecture
 
