@@ -1,8 +1,8 @@
 README
 =======================================================
 
-simple Backbone based js framework draft
-MCV - Plugin oriented
+simple Backbone based framework draft
+(MVC - Plugin oriented)
 
 inspired from Chaplin architecture
 
