@@ -4,7 +4,7 @@ README
 simple framework draft
 (MVC - Plugin oriented)
 
-dependancies: backbone, requirejs
+dependencies: backbone, requirejs
 
 inspired from Chaplin architecture
 
