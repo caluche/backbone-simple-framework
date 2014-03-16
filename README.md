@@ -15,6 +15,6 @@ $ npm install
 $ bower install
 $ node app.js
 
-``
+```
 
 the draft is in `public/js/main.js`
