@@ -331,6 +331,7 @@ define(
                 // publish dispatch - this allow to alter `command`, `state`, `params` before actual dispatching
                 // could be used to monitor some global stuff (user access, ...)
                 // @TODO allow routing alteration
+                // channel should be 'dispatcher:beforeLoad'
                 com.publish('dispatcher:beforeDispatch', state, params, this);
                 // if (this.isExecutionCanceled) { return; }
 
@@ -338,7 +339,7 @@ define(
                 // load assets
                 // when done dispatch another event
                 // ... this will be async (assets loading)
-                // @TODO params could added to the state
+                // @TODO params could added to the state at this point
                 this.execute(command, state, params);
             },
 
@@ -355,6 +356,8 @@ define(
             // compare new controller with previous one
             // destroy last one if differrent
             // execute the controller::action method
+            //
+            // @TODO - should be splitted in `findController` (return a Promise) then `execute` methods
             execute: function(command, state, params) {
                 if (this.isExecutionCanceled) { return; }
 
@@ -362,9 +365,6 @@ define(
                 var controller = command.controller;
                 var action = command.action;
 
-                //  @TODO
-                //      don't create a controller if it was already there
-                //      do something with this.previousCommand ?
                 //  console.log(this.previousCommand['controller'] === controller);
                 if (this.previousCommand['controller'] !== controller) {
                     // @TODO    this cannot work properly with multi routing
@@ -374,26 +374,29 @@ define(
 
                     //    should looks like:
                     //    ```
-                    //    require(this.paths['controllers'] + '/' + command[0], function(controller) {
-                    //        // do something with controller
-                    //        // command[0] : controller
-                    //        // command[1] : action
-                    //        // this.execute(command[0], command[1], state, params);
+                    //    require(this.paths['controllers'] + '/' + controller, function(Controller) {
+                    //        var controller = new Controller({
+                    //            services: app.services,
+                    //            layout: app.layout
+                    //        });
+                    //
+                    //        controller[action](state, params);
                     //    });
                     //    ```
-                    //    ... dirty ...
-                    // `this.app.plugins` and `this.app.services` should be passed to the instance
+                    //    ... dirty here
                     instance = new Control2();
                 } else {
                     instance = this.previousController;
                 }
 
+                // this can be async
                 // store infos
                 this.previousCommand = command;
                 this.previousController = instance;
 
                 // @EVENT - entry point
                 // can be used in a controller to create repetive tasks
+                // channel should be 'dispatcher:beforeDispatch'
                 com.publish('dispatcher:dispatch', instance, action, state, params);
                 // call a specific controller::action
                 // @TODO should `utils.ensureApi`
@@ -449,7 +452,7 @@ define(
         var AbstractController = function(options) {
             // set layout
             this.layout = options.layout;
-            this.state = options.state;
+            this.services = options.services;
 
             this.initialize(options);
         };
@@ -524,7 +527,7 @@ define(
         $('document').ready(function() {
             // intialize the framework
             GG.initialize(config, env);
-            // call these directly or through options in ctor
+            // call these directly or through config extend
             // GG.setLayout(MyAppLayout);
             // GG.setAppController(MyAppController);
 
@@ -532,16 +535,17 @@ define(
             // GG.install('analytics', MyPluginCtor);
 
             /**
-             *  // use
-             *  var PluginTest = function(GG, com) {
+             *  // example:
+             *  var TestPlugin = function(fw, com) {
              *      this.name = 'plugin-test';
              *
-             *      GG.com.subscribe('router:change', function() {
+             *      com.subscribe('router:change', function() {
              *          console.log('   ->  from plugin', arguments, this)
              *      }, this);
              *  }
              *
-             *  GG.install('plugin-test', PluginTest);
+             *  // install
+             *  GG.install('test-plugin', TestPlugin);
              */
 
             // start the whole stuff
