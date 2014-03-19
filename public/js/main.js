@@ -536,10 +536,10 @@ define(
 
             /**
              *  // example:
-             *  var TestPlugin = function(fw, com) {
+             *  var TestPlugin = function(options) {
              *      this.name = 'plugin-test';
              *
-             *      com.subscribe('router:change', function() {
+             *      options._com.subscribe('router:change', function() {
              *          console.log('   ->  from plugin', arguments, this)
              *      }, this);
              *  }
