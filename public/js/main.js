@@ -266,7 +266,7 @@ define(
                 this.counter++;
 
                 // this allow to know if we are currently in a multiple route configuration or not
-                // @TODO    need to be tested cross-browser, not sure it's really reliable
+                // @TODO    needs to be tested cross-browser, not sure it's really reliable
                 _.defer(function() {
                     var options = {
                         controllers: that.counter
@@ -327,7 +327,7 @@ define(
                     action: parts[1]
                 };
 
-                // @EVENTS - entry point
+                // @EVENT - entry point
                 // publish dispatch - this allow to alter `command`, `state`, `params` before actual dispatching
                 // could be used to monitor some global stuff (user access, ...)
                 // @TODO allow routing alteration
@@ -338,6 +338,7 @@ define(
                 // load assets
                 // when done dispatch another event
                 // ... this will be async (assets loading)
+                // @TODO params could added to the state
                 this.execute(command, state, params);
             },
 
@@ -391,6 +392,7 @@ define(
                 this.previousCommand = command;
                 this.previousController = instance;
 
+                // @EVENT - entry point
                 // can be used in a controller to create repetive tasks
                 com.publish('dispatcher:dispatch', instance, action, state, params);
                 // call a specific controller::action
@@ -398,7 +400,7 @@ define(
                 //       if controller is not found redirect to not found
                 instance[action](state, params);
 
-                // @EVENTS - entry point
+                // @EVENT - entry point
                 com.publish('dispatcher:afterDispatch', instance, action, state, params);
             },
 
@@ -423,7 +425,7 @@ define(
          *  -------------------------------------------------------
          *  application controllers should be extended from this object
          *  allows to have higher control of the current state and remove many logic from the view
-         *  finally allowing to use more efficient views
+         *  finally allowing to use more simple and efficient views
          *
          *  MyController = GG.AbstractController.extend({
          *      // action
@@ -445,7 +447,9 @@ define(
          *   });
          */
         var AbstractController = function(options) {
-            this.layout = undefined;
+            // set layout
+            this.layout = options.layout;
+            this.state = options.state;
 
             this.initialize(options);
         };
@@ -453,7 +457,7 @@ define(
         // install backbone's `extend` abillity
         // @TODO - check if there is no better way...
         AbstractController.extend = Backbone.View.extend;
-        // create common api
+        // create common API
         _.extend(AbstractController.prototype, Backbone.Events, {
             initialize: function() {},
 
@@ -463,9 +467,13 @@ define(
                 com.publish('ui:unlock');
             },
 
+            // keep it as the entry points
             destroy: function() {
-                // make a defaults cleanning (event listeners, subscribes)
+                this.removeAllHandlers();
             }
+
+            // make a default cleanning (event listeners, subscribes)
+            this.removeAllHandlers();
         });
 
         //  @TODO AppController to handle loader (through events), 404 fallbacks, globals behaviors
