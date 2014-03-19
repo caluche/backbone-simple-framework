@@ -116,9 +116,8 @@ define(
                 //      could be used to install proxies with third party services (asset loader, etc...)
                 // @NOTE    maybe redondant with `this.plugins`
                 //          maybe use a Backbone.Collection (needs use cases)
-                // @IMPORTANT   assetLoader, AutoLoader must be services
-                //              make a choice between `plugins` and `services`
-                //              (maybe `services` should be used for plugins needed by the framework and `plugins` elsewhere)
+                // @IMPORTANT   AssetLoader, ModuleAutoLoader must be services
+                //              make a choice between concept `plugins` and `services`
                 this.services = this.plugins = {};
 
                 // create core objects
@@ -136,7 +135,7 @@ define(
             },
 
             //  com : maybe keeping it external to GG object is more meaningfull
-            //        but maybe harder to trace/debug
+            //        but probably harder to trace/debug (tbd)
             //  get a reference to the `com` object (usefull for plugins construction, should not be used elsewhere)
             //  com: com,
 
@@ -185,18 +184,20 @@ define(
             //  @param pluginName <string> id of the plugin to get it back in controllers
             //  @param pluginCtor <object>
             //          constructor of the plugin
-            //          the current instance of the framework and coms is passed as argument
+            //          the current instance of the framework and `com` object are passed as argument
             //
             //  @TODO (maybe)   allow switch between service and plugin installation
-            install: function(pluginName, pluginCtor) {
-                // each plugins receive access to the whole framework and coms
-                // var plugin = new pluginCtor(this);
-                var plugin = pluginCtor(this, com); // maybe is better
-                // add to collection
-                // services and plugins should be singletons
-                if (!this.plugins[pluginName]) {
-                    this.plugins[pluginName] = plugin;
+            install: function(pluginName, pluginCtor, options) {
+                if (this.plugins[pluginName]) {
+                    return;
                 }
+
+                options = options || {};
+                // extends options with the framework and coms as parameters
+                options._core = this;
+                options._com = com;
+                // add a the new plugin to collection
+                this.plugins[pluginName] = pluginCtor(options);;
             }
         };
 
