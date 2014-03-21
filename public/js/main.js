@@ -467,7 +467,6 @@ define(
             // compare new controller with previous one
             // destroy last one if differrent
             findController: function(command, state, params) {
-
                 if (this.isExecutionCanceled) { return; }
 
                 var controller = command.controller;
@@ -601,6 +600,7 @@ define(
         // ---------------------------------------------
         // dump controller for testing (the one actually used is in app/controllers/app.js)
         // ---------------------------------------------
+        /*
         var MyController = AbstractController.extend({
             // common
             initialize: function() {
@@ -636,7 +636,7 @@ define(
         });
         // test that `extend` is well transmitted from AbstractController
         var Control2 = MyController.extend({});
-
+        */
 
         // ---------------------------------------------
         // wait for the DOM
