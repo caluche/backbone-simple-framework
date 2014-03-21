@@ -33,6 +33,11 @@ define(
         // hack Backbone.History
         if (config.useMultiRouting) {
             /**
+             *  this could be a simple way to handle common problems like
+             *  -   popins
+             *  -   particular state of a view not related to the current app state
+             *  needs to be discussed and tested
+             *
              *  @OVERRIDE Backbone.History to allow multiple controler calls
              *  @TODO check if `loadUrl` is the best entry point (maybe its callee)
              *  @NOTE not sure it still supports Backbone's regexp in url
