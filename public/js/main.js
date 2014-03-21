@@ -100,7 +100,10 @@ define(
             //      - ...
             trace: function(key) {},
             // remove all subscriptions of an object at once
-            removeHandler: function(obj) {}
+            removeHandler: function(obj) {
+                // needs to be tested
+                this.off(null, null, ctx);
+            }
         });
 
         /**
@@ -109,18 +112,67 @@ define(
          *  Basically a module loader wrapping `require`
          *  deps: com, require
          */
-        var ModuleAutoLoader = function(paths) {
-            this.paths = paths;
+        var ModuleAutoLoader = function(options) {
+            this.paths = options.paths;
+            // console.log(this.paths);
         };
 
         _.extend(ModuleAutoLoader.prototype, Backbone.Events, {
-            get: function() {
+
+            // @TODO moduleId can also be array
+            // execute the callback with loaded modules as arguments
+            get: function(moduleId, callback, ctx) {
+                // console.log(arguments);
+                // get the real module path (according to `config.paths`)
+                ctx = ctx || {};
+
+                var modulePath = this.findLocation(moduleId);
+                // create a deferred
                 var defer = new $.Deferred();
+
+                //
+                require([modulePath], function(module) {
+                    // console.log(module);
+                    defer.resolve(module)
+                }, function(err) {
+                    console.log(err)
+                    console.log('"' + moduleId + '" with path "' + modulePath + '" not found');
+                });
+
+                // on `resolve` execute the callback
+                // @NOTE    allow a more common API (moduleIds, callack) for the client
+                //          than returning the promise
+                defer.done(_.bind(callback, ctx));
             },
+
+            //  look if the filename contains some pattern from `config.path`
+            //
+            //  @param moduleId <string> name of module (the name can be namespaced '/')
+            //  @return  <string>   the full path of the file
+            findLocation: function(moduleId) {
+                // prefixes
+                for (var key in this.paths) {
+                    if (moduleId.indexOf(key) === 0) {
+                        // remove the key part from file Path
+                        var modulePath = moduleId.substr(key.length);
+                        // concatenate paths
+                        modulePath = this.paths[key] + modulePath;
+
+                        return modulePath;
+                    }
+                }
+
+                // no match found, moduleId is the path
+                return moduleId;
+            }
         });
 
-        var testLoader = new ModuleAutoLoader(config.paths);
-        console.log(testLoader);
+        // testing
+        // var testLoader = new ModuleAutoLoader(config.paths);
+        // use with a single moduleName
+        // testLoader.get('controllers/app', function(controller) {
+        //     console.log(controller);
+        // });
 
 
         // ---------------------------- CORE
@@ -143,13 +195,22 @@ define(
                 //          maybe use a Backbone.Collection (needs use cases)
                 // @IMPORTANT   AssetLoader, ModuleAutoLoader must be services
                 //              make a choice between concept `plugins` and `services`
-                this.services = this.plugins = {};
+                this.services = this.plugins = {
+                    get: function(id) {
+                        return this[id] || false;
+                    }
+                };
 
-                // create core objects
+                // install core services
+                this.initModuleLoader();
+
+                // create core middlewares
                 this.initRouter();
                 this.initDispatcher();
 
                 // optionnaly pass AppController and Layout as arguments
+
+                // allow service overriding in config
                 if (config.appController) {
                     this.setAppController(config.appController)
                 }
@@ -157,6 +218,9 @@ define(
                 if (config.layout) {
                     this.setLayout(config.layout);
                 }
+
+
+                // this.installFallbackServices();
             },
 
             //  com : maybe keeping it external to GG object is more meaningfull
@@ -164,6 +228,15 @@ define(
             //  get a reference to the `com` object (usefull for plugins construction, should not be used elsewhere)
             //  com: com,
 
+
+            //  init core services
+            //  core:services can be eseally overriden just by installing on the same serviceId
+            initModuleLoader: function() {
+                this.services['core:moduleLoader'] = new ModuleAutoLoader({ paths: this.config.paths });
+            },
+
+
+            // init core middlewares
             initRouter: function() {
                 this.router = new Router({
                     routes: this.getRoutes(this.config)
@@ -176,9 +249,10 @@ define(
                     states: this.config.states,
                     paths: this.config.paths,
                     // forward plugins and services to controller
-                    app : { plugins: this.plugins, services: this.services }
+                    services : this.services,
                 });
             },
+
 
             //  map `config.states` to Backbone.Router compliant routes
             getRoutes: function(config) {
@@ -222,26 +296,38 @@ define(
                 options._core = this;
                 options._com = com;
                 // add a the new plugin to collection
-                this.plugins[pluginName] = pluginCtor(options);;
-            }
+                // this.plugins[pluginName] = pluginCtor(options);;
+                this.services[plginName] = pluginCtor(options);
+            },
+
+            // keep get
+
+            // install everything as a service via `install` is maybe strange
+            // we know what core services needs
+            /*
+            installFallbackServices: function() {
+                // should kept private outside of BB (more readable)
+                var requiredServices = {
+                    // 'moduleLoader': ModuleAutoLoader,
+                };
+
+                _.forEach(neededServices, function(ctor, id) {
+                    if (!this.services[id]) {
+                        this.install(id, ctor)
+                    }
+                });
+            } */
         };
 
-        //  could/should be added to underscore: cf. _.mixin()
-        //  @NOTE   if in underscore, method names should be configurable
-        GG.utils = {
-            /**
-             *  @param obj <object>     object to test
-             *  @param methods <string|array>   required api
-             *  @return bool
-             */
-            ensureApi: function(obj, methods) {},
-        }
 
+        /**
+         *  UILocker
+         */
         // could be a Backbone.View with `window` or `document` as `$el` to use Backbone's jQuery instance
         var UILocker = function() {
             //  subscribe to `app:lock` and `app:unlock` channels
-            this.subscribe('ui:lock', this.lock, this);
-            this.subscribe('ui:unlock', this.unlock, this);
+            com.subscribe('ui:lock', this.lock, this);
+            com.subscribe('ui:unlock', this.unlock, this);
         }
 
         UILocker.prototype = {
@@ -328,7 +414,8 @@ define(
             this.paths = options.paths;
             //  store references to framework plugins and services
             //  allow controllers to use services
-            this.app = options.app;
+            //  @TODO   host `services`, `plugins` ... clean that
+            this.services = options.services;
 
             this.previousCommand = {};
             this.previousController;
@@ -356,8 +443,7 @@ define(
                 // publish dispatch - this allow to alter `command`, `state`, `params` before actual dispatching
                 // could be used to monitor some global stuff (user access, ...)
                 // @TODO allow routing alteration
-                // channel should be 'dispatcher:beforeLoad'
-                com.publish('dispatcher:beforeDispatch', state, params, this);
+                com.publish('dispatcher:beforeLoad', state, params, this);
                 // if (this.isExecutionCanceled) { return; }
 
                 // dispatch event to allow loader plug-in
@@ -365,7 +451,7 @@ define(
                 // when done dispatch another event
                 // ... this will be async (assets loading)
                 // @TODO params could added to the state at this point
-                this.execute(command, state, params);
+                this.findController(command, state, params);
             },
 
             //  @TODO - allow access to the controllers ?
@@ -380,49 +466,52 @@ define(
 
             // compare new controller with previous one
             // destroy last one if differrent
-            // execute the controller::action method
-            //
-            // @TODO - should be splitted in `findController` (return a Promise) then `execute` methods
-            execute: function(command, state, params) {
+            findController: function(command, state, params) {
+
                 if (this.isExecutionCanceled) { return; }
 
-                var instance;
                 var controller = command.controller;
-                var action = command.action;
-
-                //  console.log(this.previousCommand['controller'] === controller);
-                if (this.previousCommand['controller'] !== controller) {
+                // console.log(this.previousCommand.controller !== controller)
+                if (this.previousCommand.controller !== controller) {
                     // @TODO    this cannot work properly with multi routing
                     if (this.previousController) {
                         this.previousController.destroy();
                     }
 
-                    //    should looks like:
-                    //    ```
-                    //    require(this.paths['controllers'] + '/' + controller, function(Controller) {
-                    //        var controller = new Controller({
-                    //            services: app.services,
-                    //            layout: app.layout
-                    //        });
-                    //
-                    //        controller[action](state, params);
-                    //    });
-                    //    ```
-                    //    ... dirty here
-                    instance = new Control2();
-                } else {
-                    instance = this.previousController;
-                }
+                    var moduleLoader = this.services.get('core:moduleLoader');
 
+                    var execute = _.partial(this.execute, command, state, params);
+
+                    // create a new controller instance
+                    var instanciate = function(ctor) {
+                        var instance = new ctor({
+                            layout: this.layout,
+                            services: this.services
+                        });
+
+                        this.execute(instance, command, state, params);
+                    }
+
+                    moduleLoader.get(controller, instanciate, this);
+
+                } else {
+                    this.execute(this.previousController, command, state, params);
+                }
+            },
+
+            // actually execute controller:action command
+            execute: function(instance, command, state, params) {
                 // this can be async
                 // store infos
+                var action = command.action;
+
                 this.previousCommand = command;
                 this.previousController = instance;
 
                 // @EVENT - entry point
                 // can be used in a controller to create repetive tasks
                 // channel should be 'dispatcher:beforeDispatch'
-                com.publish('dispatcher:dispatch', instance, action, state, params);
+                com.publish('dispatcher:beforeDispatch', instance, action, state, params);
                 // call a specific controller::action
                 // @TODO should `utils.ensureApi`
                 //       if controller is not found redirect to not found
@@ -510,26 +599,26 @@ define(
         //  loader should also listen custom events to allow it's fine control from a controller
 
         // ---------------------------------------------
-        // dump controller for testing
+        // dump controller for testing (the one actually used is in app/controllers/app.js)
         // ---------------------------------------------
         var MyController = AbstractController.extend({
             // common
             initialize: function() {
-                com.subscribe('dispatcher:dispatch', this.doStuff, this);
+                com.subscribe('dispatcher:beforeDispatch', this.doStuff, this);
             },
 
             // a default implementation should exists in AbstractController
             destroy: function() {
-                com.unsubscribe('dispatcher:dispatch', this.doStuff, this);
+                com.unsubscribe('dispatcher:beforeDispatch', this.doStuff, this);
             },
 
             // each `action` method receive `state` and `params` objects as arguments
             home: function(state, params) {
-                console.log('   =>  controller::home', state, params);
+                // console.log('   =>  controller::home', state, params);
             },
 
             index: function(state, params) {
-                console.log('   =>  controller::index', state, params);
+                // console.log('   =>  controller::index', state, params);
                 // do stuff...
 
                 // unlock app
@@ -537,12 +626,12 @@ define(
             },
 
             content: function(state, params) {
-                console.log('   =>  controller::content', state, params);
+                // console.log('   =>  controller::content', state, params);
             },
 
             // clear console before each dispatching
             doStuff: function() {
-                console.log('   =>  controller - beforeDispatch');
+                // console.log('   =>  controller - beforeDispatch');
             }
         });
         // test that `extend` is well transmitted from AbstractController
