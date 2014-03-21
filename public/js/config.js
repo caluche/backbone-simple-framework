@@ -18,23 +18,23 @@ define([], function() {
                 // controller is the name of the file where the controller object can be found
                 // allow to create an autoload system with require
                 // example : 'path/to/controller::action'
-                controller: 'controller::home',
+                controller: 'app::home',
                 defaults: {}
             },
             a: {
                 route: 'a/:test',
                 // this controller tries to work
-                controller: 'controller::index',
+                controller: 'app::index',
                 defaults: {}
             },
             b: {
                 route: 'b/:niap',
-                controller: 'controller::content',
+                controller: 'app::content',
                 defaults: {}
             },
             shouldNotBeCalled: {
                 route: 'a/:test|b/:niap',
-                controller: 'controller::action',
+                controller: 'app::action',
                 defaults: {}
             }
         },

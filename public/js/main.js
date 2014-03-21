@@ -61,8 +61,10 @@ define(
         };
         // */
 
+        // ---------------------------- SERVICES
+
         /**
-         *  FRAMEWORK GLOBAL COMMUNICATION OBJECT
+         *  COMMUNICATIONS
          *
          *  basically a Backbone.Events with a pubsub interface (alias method signatures)
          *  (looks more meaningfull for this kind of functionnality)
@@ -102,6 +104,28 @@ define(
         });
 
         /**
+         *  MODULE AUTO LOADER
+         *
+         *  Basically a module loader wrapping `require`
+         *  deps: com, require
+         */
+        var ModuleAutoLoader = function(paths) {
+            this.paths = paths;
+        };
+
+        _.extend(ModuleAutoLoader.prototype, Backbone.Events, {
+            get: function() {
+                var defer = new $.Deferred();
+            },
+        });
+
+        var testLoader = new ModuleAutoLoader(config.paths);
+        console.log(testLoader);
+
+
+        // ---------------------------- CORE
+
+        /**
          *  bootstrap - init and configure core parts of the framework
          */
         var GG = {
@@ -109,6 +133,7 @@ define(
                 this.config = config;
                 this.env = env;
 
+                // @NOTE    maybe every parts could be installed has a service (cf. layout, appController)
                 // install global services/plugin that could used in controllers
                 // allow plugin developpement and code reuse without altering the framework
                 // examples:
@@ -450,6 +475,7 @@ define(
          *   });
          */
         var AbstractController = function(options) {
+            var options = options || {};
             // set layout
             this.layout = options.layout;
             this.services = options.services;
@@ -473,13 +499,14 @@ define(
             // keep it as the entry points
             destroy: function() {
                 this.removeAllHandlers();
-            }
+            },
 
             // make a default cleanning (event listeners, subscribes)
-            this.removeAllHandlers();
+            removeAllHandlers: function() {}
         });
 
-        //  @TODO AppController to handle loader (through events), 404 fallbacks, globals behaviors
+        //  @TODO   AppController to handle loader (through events), 404 fallbacks, globals behaviors
+        //  @NOTE   change the name, should be reserved for final user (find some other name)
         //  loader should also listen custom events to allow it's fine control from a controller
 
         // ---------------------------------------------
