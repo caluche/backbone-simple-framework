@@ -14,16 +14,22 @@ define(
          */
 
         /**
-         *  the following still needs to be implemented:
-         *      - a service wrapping require.js to load modules from `config.path`
+         *  NEXT STEPS
+         *
+         *  -   Explode files
+         *  -   make a test plugin with [https://github.com/ftlabs/fastclick](https://github.com/ftlabs/fastclick)
+         *
+         *  implements the following:
          *      - an asset loader acting as an interface between third party library and framework
-         *      - a layout object
-         *      - a region object also able to execute a transition between 2 views
-         *      - a view factory able to create and delete view objects (used in controllers)
+         *          cf. https://gist.github.com/b-ma/9456220
+         *      - a layout object (used in controllers) hosting regions, building and storing views
+         *          (view factory able to create, store and delete view objects)
+         *      - a region object able to execute transitions between 2 views
          *      - ...
+         *
+         *  DONE
+         *      - a service wrapping require.js to load modules from `config.path` - DONE
          */
-
-
 
         //  get environment globals from requirejs
         //  @WARNING is considered as a semi-private API, could break at any time
@@ -140,7 +146,7 @@ define(
                     // console.log(module);
                     defer.resolve(module)
                 }, function(err) {
-                    console.log(err)
+                    // console.log(err)
                     console.log('"' + moduleId + '" with path "' + modulePath + '" not found');
                 });
 
@@ -190,16 +196,16 @@ define(
                 this.config = config;
                 this.env = env;
 
-                // @NOTE    maybe every parts could be installed has a service (cf. layout, appController)
                 // install global services/plugin that could used in controllers
                 // allow plugin developpement and code reuse without altering the framework
                 // examples:
                 //      maybe a kind of window monitoring could be registered as a service or plugin
                 //      could be used to install proxies with third party services (asset loader, etc...)
-                // @NOTE    maybe redondant with `this.plugins`
-                //          maybe use a Backbone.Collection (needs use cases)
+                //
+                // @TODO    define which parts should be installed has a service (cf. layout, appController)
+                //
                 // @IMPORTANT   AssetLoader, ModuleAutoLoader must be services
-                //              make a choice between concept `plugins` and `services`
+                //              make a choice between concept `plugins` and `services` (`services` seems to win)
                 this.services = this.plugins = {
                     get: function(id) {
                         return this[id] || false;
@@ -223,9 +229,6 @@ define(
                 if (config.layout) {
                     this.setLayout(config.layout);
                 }
-
-
-                // this.installFallbackServices();
             },
 
             //  com : maybe keeping it external to GG object is more meaningfull
@@ -257,7 +260,6 @@ define(
                     services : this.services,
                 });
             },
-
 
             //  map `config.states` to Backbone.Router compliant routes
             getRoutes: function(config) {
@@ -375,9 +377,7 @@ define(
              */
             forwardRequest: function(route, params) {
                 // console.log('   => publish', route, params);
-
-                // this could wait for a next event
-                // console.log(this.index);
+                // console.time('start');
                 var that = this;
                 this.counter++;
 
@@ -433,7 +433,7 @@ define(
         _.extend(Dispatcher.prototype, Backbone.Events, {
             //  find the pair `controller.action` and execute it
             dispatch: function(stateId, params, options) {
-                // console.log(this.app);
+                console.log(options.controllers);
                 // reset cancel ability
                 this.isExecutionCanceled = false;
                 // @NOTE: param should already be an named object
@@ -470,14 +470,16 @@ define(
             },
 
             // compare new controller with previous one
-            // destroy last one if differrent
+            // destroy last one if different
             findController: function(command, state, params) {
                 if (this.isExecutionCanceled) { return; }
 
                 var controller = command.controller;
                 // console.log(this.previousCommand.controller !== controller)
                 if (this.previousCommand.controller !== controller) {
-                    // @TODO    this cannot work properly with multi routing
+                    // @NOTE    maybe could be more efficiant with multi-routing
+                    //          if multirouting :
+                    //              just instanciate controller, store their references only to destroy it
                     if (this.previousController) {
                         this.previousController.destroy();
                     }
@@ -495,10 +497,14 @@ define(
 
                         this.execute(instance, command, state, params);
                     }
-
+                    // as moduleLoader is async their is no garanty here that
+                    // execute will be executed in same order as routes
                     moduleLoader.get(controller, instanciate, this);
-
                 } else {
+                    //  @TODO
+                    //      check if this is exact same action with same params
+                    //      if same params : cancelExecution
+                    //      if not : give the info to the controller
                     this.execute(this.previousController, command, state, params);
                 }
             },
@@ -511,6 +517,7 @@ define(
 
                 this.previousCommand = command;
                 this.previousController = instance;
+                this.previousParams = params;
 
                 // @EVENT - entry point
                 // can be used in a controller to create repetive tasks

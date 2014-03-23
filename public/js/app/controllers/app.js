@@ -53,10 +53,12 @@ define([
 
             // each `action` method receive `state` and `params` objects as arguments
             home: function(state, params) {
+                // console.timeEnd('start');
                 console.log('   =>  controller::home', state, params);
             },
 
             index: function(state, params) {
+                // console.timeEnd('start');
                 console.log('   =>  controller::index', state, params);
                 // do stuff...
 
@@ -65,6 +67,7 @@ define([
             },
 
             content: function(state, params) {
+                // console.timeEnd('start');
                 console.log('   =>  controller::content', state, params);
             },
 
