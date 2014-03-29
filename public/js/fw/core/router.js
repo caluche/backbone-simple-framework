@@ -24,7 +24,9 @@ define([
          *          maybe create a real request object, extending `Backbone.Model` (see if it's usefull)
          */
         var Router = Backbone.Router.extend({
-            initialize: function() {
+            initialize: function(options) {
+                this.states = options.states;
+
                 this.on('route', _.bind(this.forwardRequest, this));
             },
 
@@ -35,36 +37,36 @@ define([
              *  forward the request to the dispatcher
              *  @EVENT global `route:change`
              */
-            forwardRequest: function(routeId, params) {
-
+            forwardRequest: function(route, params) {
                 var that = this;
+                var state = this.getState(route);
+
                 this.counter++;
 
-                var pattern = this.getPattern(routeId);
                 // this allow to know if we are currently in a multiple route configuration or not
                 // @TODO    needs to be tested cross-browser, not sure it's really reliable
                 _.defer(function() {
-                    var options = {
-                        controllers: that.counter
-                    };
-
-                    var req = new Request(pattern, params);
-
-                    com.publish('router:change', routeId, params, options);
+                    var request = new Request(state, params, that.counter);
+                    com.publish('router:change', request, request);
                     // reset counter
-                    _.defer(function() { that.counter = 0 });
+                    _.defer(function() { that.counter = 0; });
                 });
             },
 
-            getPattern: function(routeId) {
+            getPattern: function(route) {
                 for (var pattern in this.routes) {
-                    if (this.routes[pattern] === routeId) {
+                    if (this.routes[pattern] === route) {
                         return pattern;
                     }
                 }
 
                 return false;
-            }
+            },
+
+            //  @NOTE - allow access to the controllers ?
+            getState: function(stateId) {
+                return this.states[stateId];
+            },
 
         });
 

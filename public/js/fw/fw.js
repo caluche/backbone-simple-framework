@@ -149,7 +149,8 @@ define([
             // init core middlewares
             initRouter: function() {
                 this.router = new Router({
-                    routes: this.getRoutes(this.config)
+                    routes: this.getRoutes(this.config),
+                    states: this.config.states
                 });
             },
 

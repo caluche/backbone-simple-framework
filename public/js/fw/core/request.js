@@ -11,53 +11,52 @@ define(
          *  host and format informations about the request
          *  format Backbone's Router given information to create a named parameter
          *  object
-         *  should be able to create an url from a state config and given params ?
+         *  should be able to create a request and its url from parameters
          *
          *  should support at least namedParams, splatParams and optionnalParams
          *  (regexp support is not a priority)
-         *
-         *  @TODO should be constructed from `state` config and params
          */
-
         var optionalParam = /\((.*?)\)/g;
         var namedParam    = /(\(\?)?:\w+/g;
         var splatParam    = /\*\w+/g;
 
-        var Request = function(pattern, params, defaults) {
+        var Request = function(state, params, counter) {
+            // params can be Array or Object
+            // `mapRouteParameters` should be called only if Array
+            this.originalParams = params;
+            this.state = state;
+            this.controllers = counter;
+
             this.params = {};
             this.query = {};
+
             this.route = window.location.hash;
 
-            this.mapRouteParameters(pattern, params);
+            this.mapRouteParameters();
+            this.mapQueryParameters();
         };
 
         _.extend(Request.prototype, {
 
-            mapRouteParameters: function(pattern, params) {
+            /**
+             *  create a named param object from route and Backbone's params
+             */
+            mapRouteParameters: function() {
 
                 var extractedParameters = [];
-                // find namedParams
-                var res;
-                while ((res = namedParam.exec(pattern)) != null) {
-                    var param = {
-                        name: res[0].slice(1),
-                        index: res.index
-                    };
 
-                    extractedParameters.push(param);
-                }
+                _.each([namedParam, splatParam], function(regexp, index) {
+                    var res;
 
-                // find splatParams
-                var res;
-                while ((res = splatParam.exec(pattern)) != null) {
-                    var param = {
-                        name: res[0].slice(1),
-                        index: res.index
-                    };
+                    while ((res = regexp.exec(this.state.route)) != null) {
+                        var param = {
+                            name: res[0].slice(1),
+                            index: res.index
+                        };
 
-                    extractedParameters.push(param);
-                }
-                // define if optionnal
+                        extractedParameters.push(param);
+                    }
+                }, this);
 
                 // order by index
                 extractedParameters = extractedParameters.sort(function(a, b) {
@@ -65,23 +64,32 @@ define(
                 });
 
                 // map with `params`
-                for (var i = 0, l = extractedParameters.length; i < l; i++) {
-                    this.params[extractedParameters[i].name] = params[i];
-                }
+                _.each(extractedParameters, function(param, index) {
+                    this.params[param.name] = this.originalParams[index];
+                }, this);
 
                 // merge with defaults
-                console.log(extractedParameters);
-                console.log(this.params);
-
-                console.log('------------------------');
-
+                var defaults = this.state.defaults;
+                for (var prop in defaults) {
+                    if (!this.params[prop]) {
+                        this.params[prop] = defaults[prop];
+                    }
+                }
             },
 
             // parse window.location.query to map `query` attribute
-            mapQueryParameters: function() {},
+            mapQueryParameters: function() {
+                var query = window.location.search.slice(1);
+                var pairs = query.split('&');
 
-            // create a routing according to a pattern and given parameters
-            getUrl: function(absolute) {
+                _.each(pairs, function(pair) {
+                    pair = pair.split('=');
+                    this.query[pair[0]] = pair[1];
+                }, this);
+            },
+
+            // create a route according to a state and given parameters
+            getUrl: function(params, absolute) {
                 // @param absolute default false
             },
 

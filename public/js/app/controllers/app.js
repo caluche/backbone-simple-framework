@@ -19,23 +19,23 @@ define([
             },
 
             // each `action` method receive `state` and `params` objects as arguments
-            home: function(state, params) {
+            home: function(request) {
                 // console.timeEnd('start');
-                console.log('   =>  controller::home', state, params);
+                console.log('   =>  controller::home', request);
             },
 
-            index: function(state, params) {
+            index: function(request) {
                 // console.timeEnd('start');
-                console.log('   =>  controller::index', state, params);
+                console.log('   =>  controller::index', request);
                 // do stuff...
 
                 // unlock app should be done from layout
                 // this.resume();
             },
 
-            content: function(state, params) {
+            content: function(request) {
                 // console.timeEnd('start');
-                console.log('   =>  controller::content', state, params);
+                console.log('   =>  controller::content', request);
             },
 
             // clear console before each dispatching
