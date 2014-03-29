@@ -5,32 +5,37 @@ FW
 
 
 _services_
-    * PubSub
-    ModuleAutoLoader
-    * AbstractService
-    * AbstractLoader (maybe this should be kept external)
+
+    -   * PubSub
+    -   ModuleAutoLoader
+    -   * AbstractService
+    -   * AbstractLoader (maybe this should be kept external)
 
 _core_
-    com (* instance of PubSub)
-    Router
-    Dispatcher
-    * Request
+
+    -   com (* instance of PubSub)
+    -   Router
+    -   Dispatcher
+    -   * Request
 
 _components_
-    AbstractController
-    UILocker
-    * AbstractLayout
-    * AbstractRegion
-    * Transition
-    * LockedModel
+
+    -   AbstractController
+    -   UILocker
+    -   * AbstractLayout
+    -   * AbstractRegion
+    -   * Transition
+    -   * LockedModel
 
 _views_
-    * BaseView
-    * ModelView
-    * CollectionView
-    * ...
+
+    -   * BaseView
+    -   * ModelView
+    -   * CollectionView
+    -   * ...
 
 FW  -> contains:
+
         -   Backbone.History
         -   _.mixin
         -   return framework contructor
