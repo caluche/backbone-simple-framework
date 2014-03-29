@@ -53,16 +53,6 @@ define([
                 });
             },
 
-            getPattern: function(route) {
-                for (var pattern in this.routes) {
-                    if (this.routes[pattern] === route) {
-                        return pattern;
-                    }
-                }
-
-                return false;
-            },
-
             //  @NOTE - allow access to the controllers ?
             getState: function(stateId) {
                 return this.states[stateId];

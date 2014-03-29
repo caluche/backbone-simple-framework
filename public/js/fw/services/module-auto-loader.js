@@ -39,7 +39,7 @@ define(
                     defer.resolve(module)
                 }, function(err) {
                     // console.log(err)
-                    console.log('"' + moduleId + '" with path "' + modulePath + '" not found');
+                    console.error('"' + moduleId + '" with path "' + modulePath + '" not found');
                 });
 
                 // on `resolve` execute the callback
