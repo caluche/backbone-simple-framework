@@ -18,7 +18,7 @@ _core_
     -   com (* instance of PubSub)
     -   Router
     -   Dispatcher
-    -   * Request
+    -   Request
 
 _components_
 
