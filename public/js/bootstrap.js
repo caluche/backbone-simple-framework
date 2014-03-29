@@ -6,12 +6,14 @@
     //  init requirejs with env config
     requirejs.config({
         // store here env variable that can be usefull for the framework
-        globals: {
-            // any env config that could be usefull into the app
-            // stored in `requirejs.s.contexts._.config.globals`
-            env: 'dev',
-            debug: true,
-            minify: false
+        config: {
+            main: {
+                // any env config that could be usefull into the app
+                // stored in `requirejs.s.contexts._.config.globals`
+                env: 'dev',
+                debug: true,
+                minify: false
+            }
         },
 
         // traditionnal requirejs config
@@ -27,6 +29,9 @@
             backbone: {
                 deps: ['jquery', 'underscore'],
                 exports: 'Backbone'
+            },
+            fw: {
+                deps: ['backbone']
             }
         },
         paths: {
@@ -34,7 +39,7 @@
             underscore: 'vendors/underscore/underscore',
             backbone: 'vendors/backbone/backbone',
             text: 'vendors/requirejs-text/text',
-            elipse: 'vendors/elipse'
+            fw: 'fw'
         },
     });
 

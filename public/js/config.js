@@ -22,10 +22,12 @@ define([], function() {
                 defaults: {}
             },
             a: {
-                route: 'a/:test',
+                route: 'a/:test1(/*test2)',
                 // this controller tries to work
                 controller: 'controllers/app::index',
-                defaults: {}
+                defaults: {
+                    test2: 'default-value'
+                }
             },
             b: {
                 route: 'b/:niap',

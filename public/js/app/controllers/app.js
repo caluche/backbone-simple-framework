@@ -1,41 +1,8 @@
 define([
-        'backbone'
-    ], function(Backone) {
+        'fw/components/abstract-controller'
+    ], function(AbstractController) {
 
         'use strict';
-
-        var AbstractController = function(options) {
-            var options = options || {};
-            // set layout
-            this.layout = options.layout;
-            this.services = options.services;
-
-            this.initialize(options);
-        };
-
-        // copy AbstarctController for testing for now
-        // install backbone's `extend` abillity
-        // @TODO - check if there is no better way...
-        AbstractController.extend = Backbone.View.extend;
-        // create common API
-        _.extend(AbstractController.prototype, Backbone.Events, {
-            initialize: function() {},
-
-            resume: function() {
-                // publish 'something' to unlock the app
-                // console.log('   => unlock app');
-                // com.publish('ui:unlock');
-            },
-
-            // keep it as the entry points
-            destroy: function() {
-                this.removeAllHandlers();
-            },
-
-            // make a default cleanning (event listeners, subscribes)
-            removeAllHandlers: function() {}
-        });
-
 
         // ---------------------------------------------
         // dump controller for testing
