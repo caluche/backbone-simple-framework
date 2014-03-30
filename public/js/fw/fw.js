@@ -20,7 +20,6 @@ define([
         /**
          *  NEXT STEPS
          *
-         *  -   Explode files
          *  -   make a test plugin with [https://github.com/ftlabs/fastclick](https://github.com/ftlabs/fastclick)
          *
          *  implements the following:

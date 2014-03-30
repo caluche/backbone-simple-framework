@@ -26,6 +26,8 @@ define(
 
                 prevView.fadeTo(300, 0, function() {
                     prevView.close();
+
+                    nextView.fadeIn
                 });
             }
         });

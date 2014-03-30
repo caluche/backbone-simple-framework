@@ -6,7 +6,7 @@ define([], function() {
         useMultiRouting: true, // usefull for popins
         // multiRouteSeparator: '|' // optionnal - '|' is default
         // `paths` allow to map the filesystem with controller folders
-        // could also be used to install plugins
+        // could also be used to install plugins ?
         // suggest a default one
         paths: {
             // paths to app modules that needs to be loaded by the framework
@@ -18,25 +18,25 @@ define([], function() {
                 // controller is the name of the file where the controller object can be found
                 // allow to create an autoload system with require
                 // example : 'path/to/controller::action'
-                controller: 'controllers/app::home',
+                controller: 'controllers/myController::home',
                 defaults: {}
             },
             a: {
                 route: 'a/:test1(/*test2)',
                 // this controller tries to work
-                controller: 'controllers/app::index',
+                controller: 'controllers/myController::index',
                 defaults: {
                     test2: 'default-value'
                 }
             },
             b: {
                 route: 'b/:niap',
-                controller: 'controllers/app::content',
+                controller: 'controllers/myController::content',
                 defaults: {}
             },
             shouldNotBeCalled: {
                 route: 'a/:test|b/:niap',
-                controller: 'controllers/app::action',
+                controller: 'controllers/myController::action',
                 defaults: {}
             }
         },

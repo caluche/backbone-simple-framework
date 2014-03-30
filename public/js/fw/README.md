@@ -1,6 +1,8 @@
 FW
 ============================================
 
+__Should be to into `vendors` (easier for now...)__
+
 ## object list
 
 _objects with '*' still have to be implemented_
@@ -36,8 +38,9 @@ _views_
     -   * CollectionView
     -   * ...
 
-FW  -> contains:
+fw.js
 
-        -   Backbone.History
-        -   _.mixin
-        -   return framework contructor
+    -   Backbone.History
+    -   _.mixin
+    -   return framework contructor
+    -   should namespace to all framework constructors
