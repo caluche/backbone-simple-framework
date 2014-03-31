@@ -12,7 +12,7 @@ define(
          *      var myAsset = this.assets.get('myAsset');
          *
          *      // params: name of the transition method, autoHide
-         *      var transition = myRegion.makeTransition('myTransition', false);
+         *      var transition = myRegion.createTransition('myTransition', false);
          *      transition.hide();
          *
          *      // this.assets.on('load') should also be trigerred
@@ -23,10 +23,10 @@ define(
          *              model: myModel
          *          });
          *
-         *           // is actually an internal call to `defer.resolve` in `transition`
-         *           transition.show(myView);
-         *       }, this);
-         *   }
+         *          // is actually an internal call to `defer.resolve` in `transition`
+         *          transition.show(myView);
+         *      }, this);
+         *  }
          */
 
         /**
@@ -48,6 +48,13 @@ define(
          *      when the controller is called... must find a solution for
          *      that problem
          */
+
+        // ------------------------------------------
+
+
+
+        // ------------------------------------------
+
         function Region(options) {
             this.el = options.el;
             this.currentView = undefined;
@@ -65,7 +72,7 @@ define(
             },
 
             // main public API
-            makeTransition: function(method, loadingDeferred) {
+            createTransition: function(method, loadingDeferred) {
                 var that = this;
 
                 this.ensureEl();
@@ -83,11 +90,12 @@ define(
             },
 
 
-
+            /*
             next: function(callback) {
                 this.state = 'pending';
                 this.onLoaded = callback;
             }
+            */
 
         });
 
