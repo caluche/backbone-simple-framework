@@ -28,6 +28,21 @@ define([
             routeB: function(request) {
                 console.log('   =>  MyController::routeB', request);
             },
+
+            /*
+                // these methods should be called with an apply
+                // to set `this` to the controller
+                // if update does not exists, do nothing
+                home: {
+                    action: function() {
+                        // load assets, create model and views,
+                        // update regions, etc...
+                    },
+                    update: function() {
+                        // load assets, update models
+                    }
+                }
+            */
         });
 
         return MyController;
