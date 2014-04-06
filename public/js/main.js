@@ -7,6 +7,7 @@ define(
         'fw/views/base-view'
     ], function(module, config, FW, Region, BaseView) {
 
+        console.log('test');
         'use strict';
 
         var MyView1 = BaseView.extend({
