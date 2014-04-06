@@ -7,6 +7,11 @@ define(
         /*
          *  AbstractController
          *  -------------------------------------------------------
+         *
+         *  @TODO
+         *      must have the ability to call some kind of `update` stuff
+         *      when same route is called with different params
+         *
          *  application controllers should be extended from this object
          *  allows to have higher control of the current state and remove many logic from the view
          *  finally allowing to use more simple and efficient views
@@ -21,12 +26,6 @@ define(
          *
          *          // build models according to params
          *          // get views from the factory (use requirejs path as id)
-         *
-         *          // use a promise like pattern to build the
-         *          // transition between views in each regions
-         *          // the regions could expose a default transition system
-         *
-         *          // call `this.resume()` when all is done to unlock the app
          *       }
          *   });
          */
@@ -46,11 +45,13 @@ define(
         _.extend(AbstractController.prototype, Backbone.Events, {
             initialize: function() {},
 
+            /*
             resume: function() {
                 // publish 'something' to unlock the app
                 // console.log('   => unlock app');
                 com.publish('ui:unlock');
             },
+            */
 
             // keep it as the entry points
             destroy: function() {

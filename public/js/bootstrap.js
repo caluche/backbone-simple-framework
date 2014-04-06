@@ -39,7 +39,8 @@
             underscore: 'vendors/underscore/underscore',
             backbone: 'vendors/backbone/backbone',
             text: 'vendors/requirejs-text/text',
-            fw: 'fw'
+            fw: 'fw',
+            templates: '../templates'
         },
     });
 

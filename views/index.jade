@@ -3,18 +3,12 @@ extends layout
 block content
   h1= 'Framework testing'
 
-  ul
-    li
-        a(href='#')= 'home'
-    li
-        a(href='#a/param-1')= 'route a'
-    li
-        a(href='#a/param-1|b/param-2')= 'multi-routing'
-
-  div#test-region
+  div#header
 
   ul
     li
         a(href='#', class='view1')= 'view 1'
     li
         a(href='#', class='view2')= 'view 2'
+
+   div#test-region

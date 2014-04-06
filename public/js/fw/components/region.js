@@ -45,6 +45,9 @@ define(
          *      see if Transition could be a reduce to the 2 methods: `show` and `hide`
          *      _decide later as it is an API problem too..._
          *
+         *  @QUESTION
+         *      must be able to know if `prevView` and `nextView` are
+         *      the same objects ?
          */
         function Region(options) {
             this.el = options.el;
@@ -67,19 +70,26 @@ define(
                 }
             },
 
+            isEmpty: function() {
+                return this.currentView = undefined;
+            },
+
             // methods called internally from the transition
             setCurrentView: function(view) {
                 this.currentView = view;
-            }
+            },
 
             endTransition: function() {
                 // trigger an event to let the app know
                 console.log('   => "region" - end transition');
-            }
+            },
 
             // PUBLIC API
             // is absically a factory method to create Transitions
+            // @NOTE    if alternate API - this should be renamed `configure`
             createTransition: function(transitionCtor, autohide) {
+                this.ensureEl();
+
                 switch (arguments.length) {
                     case 0:
                         transitionCtor = DefaultTransition;
@@ -102,7 +112,7 @@ define(
                 }
 
                 return transition;
-            },
+            }
 
         });
 

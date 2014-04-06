@@ -137,7 +137,7 @@ define(
                 // call a specific controller::action
                 // @TODO should `utils.ensureApi`
                 //       if controller is not found redirect to not found
-                instance[action](request);
+                instance[action](request); // should also pass the last request
 
                 // @EVENT - entry point
                 com.publish('dispatcher:afterDispatch', command, instance, request);

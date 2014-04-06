@@ -40,11 +40,11 @@ define([
             forwardRequest: function(route, params) {
                 var that = this;
                 var state = this.getState(route);
-
                 this.counter++;
 
                 // this allow to know if we are currently in a multiple route configuration or not
                 // @TODO    needs to be tested cross-browser, not sure it's really reliable
+                //          in case of multi-request, each request should have a ref to the other
                 _.defer(function() {
                     var request = new Request(state, params, that.counter);
                     com.publish('router:change', request, request);

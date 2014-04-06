@@ -2,7 +2,6 @@ define([
         'backbone',
         'underscore',
         'jquery'
-        // 'fw/core/com'
     ], function(Backbone, _, $) {
 
         'use strict';
@@ -11,12 +10,12 @@ define([
          *  Transition
          *
          *  allow to simply manage transitions between 2 views in a region
-         *  single use object (maybe think Object Pool for these)
+         *  single use object (maybe think Object Pool or something)
          *  is highly coupled with the Region object
          *
          *  @NOTE
-         *      maybe the whoole logic except `doShow` and `doHide`
-         *      can be moved into the Region
+         *      maybe the whole logic except `doShow` and `doHide`
+         *      could be moved into the Region
          */
         function Transition(region, prevView) {
             this.region = region;
@@ -97,7 +96,7 @@ define([
             //
             // @param   receive `this.prevView` as argument for API consistency
             doHide: function(prevView) {
-                prevView.$el.fadeTo(300, 0, _.bind(function() {
+                prevView.$el.fadeTo(200, 0, _.bind(function() {
                     prevView.$el.remove();
                     prevView.close();
 
@@ -110,7 +109,7 @@ define([
                 nextView.$el.hide();
                 nextView.$el.appendTo(this.$el);
 
-                nextView.$el.fadeTo(300, 1, _.bind(function() {
+                nextView.$el.fadeTo(200, 1, _.bind(function() {
                     this.resume();
                 }, this));
             }

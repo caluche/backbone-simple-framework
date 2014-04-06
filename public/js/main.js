@@ -4,9 +4,8 @@ define(
         'config',
         'fw/fw',
         'fw/components/region',
-        'fw/components/transition',
         'fw/views/base-view'
-    ], function(module, config, FW, Region, Transition, BaseView) {
+    ], function(module, config, FW, Region, BaseView) {
 
         'use strict';
 
@@ -18,65 +17,12 @@ define(
             template: '<h1 id="second-view">My Second View</h1>',
         });
 
-        // lyout could have a region
-        var MyRegion = Region.extend({
-            defaultTransition: function(prevView, loaderView) {
-                var that = this;
-
-                prevView.$el.fadeTo(300, 0, function() {
-                    // clean prevView
-                    prevView.$el.remove();
-                    prevView.close();
-                    // =>   show loaderView
-                });
-
-                // is executed from the loadingDeferred
-                that.next(function(newView) {
-                    newView.render(); // `onRender` is called when fragment ready
-                    newView.hide();
-                    // =>   hide loaderView
-                    that.$el.append(newView);
-                    // tells the app this region is ready: unlock the ui
-                    that.resume();
-                    newView.fadeIn(300);
-                });
-            },
-
-            states: ['hide', 'pending', 'show'],
-            state: undefined,
-            counter: 0,
-
-            resume: function(callback) {
-                this.counter += 1;
-                this.state = this.states[this.counter];
-                console.log(this.state);
-            }
-            /*
-            show: function(newView) {
-                // render the next view
-                nextView.render(); // calls the `onRender` method when html fragment is ready
-                nextView.$el.hide();
-                this.$el.append(nextView.$el);
-                // show
-                nextView.$el.fadeIn();
-                this.resume();
-            },
-
-            hide: function(prevView) {
-                prevView.$el.fadeTo(300, 0, function() {
-                    // clean prevView
-                    prevView.$el.remove();
-                    prevView.close();
-
-                    this.resume();
-                });
-            }
-            */
-        });
-
         var doStuff = function() {
             // prepare
-            var container = $('#test-region');
+            var region = new Region({
+                el: '#test-region'
+            });
+
             var currentView = undefined;
 
             $('.view1, .view2').on('click', function(e) {
@@ -86,22 +32,16 @@ define(
                 var view = (classname == 'view1') ? new MyView1() : new MyView2();
 
                 // is single use
-                var transition = new Transition({
-                    $el: container
-                }, currentView);
-
+                var transition = region.createTransition();
                 transition.hide();
-                // transition.show(view);
 
-                //*
                 // mimic loading time
                 setTimeout(function() {
                     transition.show(view);
-                }, 3000);
-                // */
+                }, 100);
 
                 currentView = view;
-            })
+            });
         }
 
         //  get env config from requirejs
@@ -114,6 +54,7 @@ define(
             // call these directly or through config extend
             // FW.setLayout(MyAppLayout);
             // FW.setAppController(MyAppController);
+            // FW.registerCommonController(HeaderController)
 
             // install plugins
             // FW.install('analytics', MyPluginCtor);

@@ -21,17 +21,17 @@ define([], function() {
                 controller: 'controllers/myController::home',
                 defaults: {}
             },
-            a: {
-                route: 'a/:test1(/*test2)',
+            routeA: {
+                route: 'route-a/:id(/*slug)',
                 // this controller tries to work
-                controller: 'controllers/myController::index',
+                controller: 'controllers/myController::routeA',
                 defaults: {
-                    test2: 'default-value'
+                    'slug': 'default-value'
                 }
             },
-            b: {
-                route: 'b/:niap',
-                controller: 'controllers/myController::content',
+            routeB: {
+                route: 'route-b/:id',
+                controller: 'controllers/myController::routeB',
                 defaults: {}
             },
             shouldNotBeCalled: {

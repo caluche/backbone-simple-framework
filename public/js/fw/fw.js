@@ -11,9 +11,10 @@ define([
 
         /**
          *  @TODO
+         *      create a dummy App with 3 states (home, content, popin)
          *      create a scheme of architecture
          *      write docs
-         *      write a cookbook (to test api as well as a list of how to)
+         *      write a cookbook (to test api as well as a list of howTo)
          *      unit tests
          */
 
@@ -90,6 +91,8 @@ define([
             initialize: function(config, env) {
                 this.config = config;
                 this.env = env;
+
+                this.formatStates();
 
                 if (this.config.useMultiRouting) {
                     allowMultiRouting(config);
@@ -176,6 +179,14 @@ define([
                 return routes;
             },
 
+            // add the entry `id` with their respective `key` as value in states definitions
+            formatStates: function() {
+                this.config.states = _.map(this.config.states, function(state, key) {
+                    state.id = key;
+                    return state;
+                });
+            },
+
             //  helpers to configure framework
             //  -----------------------------------------------------
             setAppController: function(ctor) {
@@ -183,6 +194,13 @@ define([
                 // configure dispatcher to use the given AppController extended obj
             },
 
+            // allow to register controllers that will be called for each request
+            // usefull to manage common parts of the site
+            setCommonController: function() {
+
+            },
+
+            // the main layout of the application
             setLayout: function(ctor) {
 
             },
