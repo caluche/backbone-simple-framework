@@ -13,6 +13,10 @@ define([
          *  allow to simply manage transitions between 2 views in a region
          *  single use object (maybe think Object Pool for these)
          *  is highly coupled with the Region object
+         *
+         *  @NOTE
+         *      maybe the whoole logic except `doShow` and `doHide`
+         *      can be moved into the Region
          */
         function Transition(region, prevView) {
             this.region = region;
