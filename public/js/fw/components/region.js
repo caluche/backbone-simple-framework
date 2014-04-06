@@ -2,8 +2,9 @@ define(
     [
         'backbone',
         'underscore',
-        'jquery'
-    ], function(Backbone, _, $) {
+        'jquery',
+        'fw/components/transition'
+    ], function(Backbone, _, $, DefaultTransition) {
 
         'use strict';
         /**
@@ -41,7 +42,7 @@ define(
          *  kind of finite state machine : 'hide', 'pending', 'show'
          *
          *  @IMPORTANT:
-         *      this implementation is a test and a filed one
+         *      this implementation is a test and a failled one
          *      the controller must be able to create it's views
          *      in some way (even from a factory)
          *      as the loading is async the new view cannot be created
@@ -51,14 +52,12 @@ define(
 
         // ------------------------------------------
 
-
-
         // ------------------------------------------
 
         function Region(options) {
             this.el = options.el;
+            this.com = options.com;
             this.currentView = undefined;
-            // should implement a kind of `strategy pattern` to allow multiple kind of transitionning
         }
 
         // steal Backbone's `extend` ability
@@ -67,35 +66,51 @@ define(
         _.extend(Region.prototype, {
 
             ensureEl: function() {
-                if (this.$el) { return; }
+                if (this.$el) return;
+
                 this.$el = $(this.el);
+
+                if (!this.$el.length) {
+                    throw new Error('selector "' + this.$el + '" match no element');
+                }
             },
 
-            // main public API
-            createTransition: function(method, loadingDeferred) {
-                var that = this;
-
-                this.ensureEl();
-                this.counter = 0;
-                this.state = 'hide';
-                // find the transition method
-                this[method](this.currentView);
-                // lock $el
-                // newView has been created for a factory when
-                loadingDeferred.done(function(newView) {
-
-                });
-
-                // should return a deferred object
-            },
-
-
-            /*
-            next: function(callback) {
-                this.state = 'pending';
-                this.onLoaded = callback;
+            // methods called internally from the transition
+            setCurrentView: function(view) {
+                this.currentView = view;
             }
-            */
+
+            endTransition: function() {
+                // trigger an event to let the app know
+                console.log('   => "region" - end transition');
+            }
+
+            // PUBLIC API
+            // is absically a factory method to create Transitions
+            createTransition: function(transitionCtor, autohide) {
+                switch (arguments.length) {
+                    case 0:
+                        transitionCtor = DefaultTransition;
+                        autohide = false;
+                        break;
+                    case 1:
+                        if (_.isBoolean(transitionCtor)) {
+                            autohide = transitionCtor;
+                            transitionCtor = DefaultTransition;
+                        } else {
+                            autohide = false;
+                        }
+                        break;
+                }
+
+                var transition = new transitionCtor(this, this.currentView);
+
+                if (autohide) {
+                    transition.hide();
+                }
+
+                return transition;
+            },
 
         });
 

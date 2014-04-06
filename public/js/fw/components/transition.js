@@ -22,14 +22,14 @@ define([
             // create promises
             this.hidePromise = this.createHidePromise();
             this.showPromise = this.createShowPromise();
-            // state machine with two states ['hide', 'show']
+            // kind of state machine with two states ['hide', 'show']
             // this just allow to share the `resume` API
-            this.state = 'hide',
+            this.state = 'hide';
             // the `doShow` method should be called only when
             // the `hideDeferred` and `showDeferred` are resolved
-            // show promise must be the first one to keep correct param order
-            $.when(this.showPromise, this.hidePromise)
-             .done(_.bind(this.doShow, this));
+            // showPromise is called first in order to keep correct param order
+            var show = _.bind(this.doShow, this);
+            $.when(this.showPromise, this.hidePromise).done(show);
         }
 
         Transition.extend = Backbone.View.extend;
@@ -65,13 +65,12 @@ define([
                         this.hideDeferred.resolve();
                         break;
                     case 'show' :
-                        console.log('   => unlock ui');
+                        this.region.endTransition();
                         break;
                 }
             },
 
             hide: function() {
-                console.log('   => lock ui');
                 if (!this.prevView) {
                     // resume now
                     this.resume();
@@ -83,12 +82,16 @@ define([
 
             // this call resolve the showPromise with `nextView`
             show: function(nextView) {
+                this.region.setCurrentView(nextView);
                 this.showDeferred.resolve(nextView);
             },
 
-            // @TODO maybe rename
-            // methods to override
-            // receive `this.prevView` as argument for API consistency
+
+            // @OVERRIDE METHODS
+            // override the two following methods to
+            // create user defined transitions
+            //
+            // @param   receive `this.prevView` as argument for API consistency
             doHide: function(prevView) {
                 prevView.$el.fadeTo(300, 0, _.bind(function() {
                     prevView.$el.remove();
