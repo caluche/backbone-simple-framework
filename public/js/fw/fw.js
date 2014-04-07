@@ -11,11 +11,17 @@ define([
 
         /**
          *  @TODO
-         *      create a dummy App with 3 states (home, content, popin)
+         *      create a dummy App with at least 3 states (home, content, popin)
          *      create a scheme of architecture
          *      write docs
          *      write a cookbook (to test api as well as a list of howTo)
          *      unit tests
+         */
+
+        /**
+         *  ON PROGRESS
+         *      commonControllers registration
+         *      needs a better controller definition
          */
 
         /**
@@ -29,20 +35,13 @@ define([
          *          the loader should also listen custom events to allow it's fine control from a controller
          *      - a layout object (used in controllers) hosting regions, building and storing views
          *          (view factory able to create, store and delete view objects)
-         *      - a region object able to execute transitions between 2 views
-         *      - a real req object parsing the url (req.params, req.query) (see. express);
-         *      - ...
-         *      - an `AppController` to handle loader (through events), 404 fallbacks, globals behaviors
-         *          @NOTE   `AppController` should be reserved for final user (find some other name)
-         *
-         *  DONE
-         *      - a service wrapping require.js to load modules from `config.path` - DONE
+         *      - an Default AppController` to handle loader (through events), 404 fallbacks, globals behaviors
          */
 
         /**
          *  Multi-routing
          */
-        var allowMultiRouting = function(config) {
+        var allowMultiRouting = function(separator) {
             /**
              *  this could be a simple way to handle common problems like
              *  -   popins
@@ -53,7 +52,7 @@ define([
              *  @TODO check if `loadUrl` is the best entry point (maybe its callee)
              *  @NOTE not sure it still supports Backbone's regexp in url
              */
-            Backbone.History.prototype.multiRouteSeparator = config.multiRouteSeparator || '|';
+            Backbone.History.prototype.multiRouteSeparator = separator || '|';
 
             Backbone.History.prototype.loadUrl = function(fragment) {
                 fragment = this.fragment = this.getFragment(fragment);
@@ -92,10 +91,10 @@ define([
                 this.config = config;
                 this.env = env;
 
-                this.formatStates();
+                this.identify(this.config.states, 'id');
 
                 if (this.config.useMultiRouting) {
-                    allowMultiRouting(config);
+                    allowMultiRouting(this.config.multiRouteSeparator);
                 }
 
                 // install global services/plugin that could used in controllers
@@ -110,11 +109,21 @@ define([
                 //
                 // @IMPORTANT   AssetLoader, ModuleAutoLoader must be services
                 //              make a choice between concept `plugins` and `services` (`services` seems to win)
-                this.services = this.plugins = {
-                    get: function(id) {
-                        return this[id] || false;
-                    }
+
+                // convenience method - public API
+                // `set` is not needed as it's should be kept internal through `this`
+                var _getItem = function(id) {
+                    return this[id] || false;
                 };
+
+                // stores - object bags
+                this.services = this.plugins = {
+                    get: _getItem
+                };
+
+                this.commonControllers = {
+                    get: _getItem
+                }
 
                 // install core services
                 this.initModuleLoader();
@@ -157,6 +166,7 @@ define([
             },
 
             initDispatcher: function() {
+                console.log('init dipatcher');
                 // @NOTE - maybe should be a collection of smaller models - ??
                 this.dispatcher = new Dispatcher({
                     states: this.config.states,
@@ -179,25 +189,30 @@ define([
                 return routes;
             },
 
-            // add the entry `id` with their respective `key` as value in states definitions
-            formatStates: function() {
-                this.config.states = _.map(this.config.states, function(state, key) {
-                    state.id = key;
-                    return state;
-                });
+            /**
+             *  add an entry to each object of the given `obj`
+             *  with `attrName` setted to its key
+             *  => could be an underscore mixin
+             */
+            identify: function(obj, attrName) {
+                for (var key in obj) {
+                    obj[key][attrName] = key;
+                }
+                return obj;
             },
 
             //  helpers to configure framework
             //  -----------------------------------------------------
             setAppController: function(ctor) {
                 // if `ctor` is undefined fallback to default AppController
-                // configure dispatcher to use the given AppController extended obj
+                // configure dispatcher to use the given AppController
             },
 
             // allow to register controllers that will be called for each request
-            // usefull to manage common parts of the site
-            setCommonController: function() {
-
+            // usefull to manage common parts of the site (header, footer)
+            addCommonController: function(id, ctor) {
+                var instance = this.dispatcher.installController(ctor);
+                this.commonController[id] = instance;
             },
 
             // the main layout of the application

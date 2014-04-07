@@ -7,14 +7,18 @@ define([
         'use strict';
 
         // dummy controller for testing
-        var MyController = AbstractController.extend({
+        var MainController = AbstractController.extend({
             // common
             initialize: function() {
 
             },
 
             // a default implementation should exists in AbstractController
-            destroy: function() {},
+            // the public API should be `remove` (clean stored object, etc...)
+            destroy: function() {
+                // com.removeHandlers(this)
+                this.remove();
+            },
 
             // each `action` method receive `state` and `params` objects as arguments
             home: function(request) {
@@ -29,22 +33,38 @@ define([
                 console.log('   =>  MyController::routeB', request);
             },
 
-            /*
+
+            actions: {
                 // these methods should be called with an apply
                 // to set `this` to the controller
                 // if update does not exists, do nothing
                 home: {
-                    action: function() {
+                    show: function() {
                         // load assets, create model and views,
                         // update regions, etc...
+                        console.log(this, 'homeShow');
                     },
                     update: function() {
                         // load assets, update models
+                        console.log(this, 'homeUpdate');
                     }
-                }
-            */
+                },
+
+                test: {
+                    show: function() {
+                        // load assets, create model and views,
+                        // update regions, etc...
+                        console.log(this, 'testShow');
+                    },
+                    update: function() {
+                        // load assets, update models
+                        console.log(this, 'testUpdate');
+                    }
+                },
+            }
+
         });
 
-        return MyController;
+        return MainController;
     }
 );

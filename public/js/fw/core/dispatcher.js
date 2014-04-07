@@ -32,35 +32,34 @@ define(
             this.services = options.services;
 
             this.previousCommand = {};
-            this.previousController;
-            this.isExecutionCanceled = false;
+            this.previousControllerInstance;
+            this.previousRequest;
 
-            // @EVENT : listen route:change
+            this.isExecutionCanceled = false;
+            this.commonControllers = [];
+
+            // @EVENT : listen `route:change` from router
             com.subscribe('router:change', this.dispatch, this);
         }
 
         _.extend(Dispatcher.prototype, Backbone.Events, {
-            //  find the pair `controller.action` and execute it
-            dispatch: function(request) {
-                // reset cancel ability
-                this.isExecutionCanceled = false;
+            // factory method to instanciate a controller
+            createController: function(ctor) {
+                var instance = new ctor({
+                    layout: this.layout,
+                    services: this.services
+                });
 
-                // process the command for controller::action
-                var command = this.getCommand(request.state.controller);
+                return instance;
+            },
 
-                // @EVENT - entry point
-                // publish dispatch - this allow to alter `command`, `state`, `params` before actual dispatching
-                // could be used to monitor some global stuff (user access, ...)
-                // @TODO allow routing alteration
-                com.publish('dispatcher:beforeLoad', command, request, this);
-                // if (this.isExecutionCanceled) { return; }
-
-                // dispatch event to allow loader plug-in
-                // load assets
-                // when done dispatch another event
-                // ... this will be async (assets loading)
-                // @TODO params could added to the state at this point
-                this.findController(command, request);
+            // install controllers to be called on each route
+            // `action` once then `update` for the whole time
+            installController: function(ctor) {
+                var instance = this.createController(ctor);
+                this.commonControllers.push(instance);
+                // return the instance to the framework
+                return instance;
             },
 
             // returns the command from a 'controller::action' pattern
@@ -78,20 +77,36 @@ define(
                 this.isExecutionCanceled = true;
             },
 
-            // @TODO handle 404 not found
-            // compare new controller with previous one
-            // destroy last one if different
+            //  find the pair `controller.action` and execute it
+            dispatch: function(request) {
+                // reset cancel ability
+                this.isExecutionCanceled = false;
+
+                // process the command for controller::action
+                var command = this.getCommand(request.state.controller);
+
+                // @EVENT - entry point
+                // publish dispatch
+                // could be used to monitor some global stuff (user access, ...)
+                // @TODO check for routing alteration possibility
+                com.publish('dispatcher:beforeLoad', command, request, this);
+                // if (this.isExecutionCanceled) { return; }
+                this.findController(command, request);
+            },
+
+            // compare the new controller with previous one
+            // loads the new controller object and destroy last one if needed
             findController: function(command, request) {
                 if (this.isExecutionCanceled) { return; }
 
                 var controller = command.controller;
-                // console.log(this.previousCommand.controller !== controller)
+
                 if (this.previousCommand.controller !== controller) {
-                    // @NOTE    maybe could be more efficiant with multi-routing
-                    //          if multirouting :
-                    //              just instanciate controller, store their references only to destroy it
-                    if (this.previousController) {
-                        this.previousController.destroy();
+                    // @NOTE    if multirouting :
+                    //          just instanciate the second controller,
+                    //          store their references only to destroy it cleanly
+                    if (this.previousControllerInstance) {
+                        this.previousControllerInstance.destroy();
                     }
 
                     /**
@@ -99,11 +114,7 @@ define(
                      *  inject all usefull services to controller
                      */
                     var createController = function(ctor) {
-                        var instance = new ctor({
-                            layout: this.layout,
-                            services: this.services
-                        });
-
+                        var instance = this.createController(ctor);
                         this.execute(instance, command, request);
                     };
 
@@ -116,7 +127,7 @@ define(
                     //      check if this is exact same action with same params
                     //      if same params : cancelExecution
                     //      if not : give the info to the controller
-                    this.execute(this.previousController, command, request);
+                    this.execute(this.previousControllerInstance, command, request);
                 }
             },
 
@@ -127,22 +138,33 @@ define(
                 var action = command.action;
 
                 this.previousCommand = command;
-                this.previousController = instance;
-                this.previousRequest = request;
+                this.previousControllerInstance = instance;
 
                 // @EVENT - entry point
-                // can be used in a controller to create repetive tasks
+                // could be used in a plugin/service to create repetive tasks
                 // channel should be 'dispatcher:beforeDispatch'
-                com.publish('dispatcher:beforeDispatch', command, instance, request);
+                com.publish('dispatcher:beforeDispatch', request, this.previousRequest);
                 // call a specific controller::action
                 // @TODO should `utils.ensureApi`
                 //       if controller is not found redirect to not found
-                instance[action](request); // should also pass the last request
+                this.executeCommonControllers(request, this.previousRequest);
+                instance[action](request, this.previousRequest); // should also pass the last request
 
                 // @EVENT - entry point
-                com.publish('dispatcher:afterDispatch', command, instance, request);
+                com.publish('dispatcher:afterDispatch', request, this.previousRequest);
+
+                this.previousRequest = request;
             },
 
+            // ugly but will work for now
+            // @TODO    refactor
+            isFirstCall: true,
+            executeCommonControllers: function(request, prevRequest) {
+                _.forEach(this.commonControllers, function(controller, index) {
+                    // var actionType = this.isFirstCall ? 'show' : 'update';
+                    // controller[action][actionType].call(controller, request, prevRequest)
+                });
+            },
 
             // the following is redondant with event system...
 

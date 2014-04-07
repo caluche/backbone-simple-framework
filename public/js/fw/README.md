@@ -1,9 +1,11 @@
 FW
 ============================================
 
-__Should be to into `vendors` (easier for now...)__
+__Should be locate into `vendors` (easier for now...)__
 
-## todos
+
+todos
+--------------------------------------------
 
 _today : create a real dump app_
 
@@ -15,7 +17,8 @@ _add a wrapper for commonJS and AMD compatibility_
 _install grunt for build step_
 
 
-## object list
+object list
+--------------------------------------------
 
 _objects with '*' still have to be implemented_
 
@@ -39,14 +42,13 @@ _components_
     -   AbstractController
     -   UILocker
     -   * AbstractLayout
-    -   * AbstractRegion
     -   DefaultTransition
     -   Region
-    -   * LockedModel
+    -   * LockedModel (is this usefull ?)
 
 _views_
 
-    -   * BaseView
+    -   BaseView
     -   * ModelView
     -   * CollectionView
     -   * ...

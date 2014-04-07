@@ -4,11 +4,18 @@ define(
         'config',
         'fw/fw',
         'fw/components/region',
-        'fw/views/base-view'
-    ], function(module, config, FW, Region, BaseView) {
+        'fw/views/base-view',
+        'app/controllers/mainController',
+        'underscore'
+    ], function(module, config, FW, Region, BaseView, MainController, _) {
 
-        console.log('test');
         'use strict';
+
+        _.mixin({
+            capitalize: function(str) {
+                return str.charAt(0).toUpperCase() + str.slice(1);
+            }
+        })
 
         var MyView1 = BaseView.extend({
             template: '<h1 id="first-view">My First View</h1>',
@@ -45,6 +52,29 @@ define(
             });
         }
 
+        // take the [show, update] of each action
+        // if this is ketp, a cache system really must be implemented
+        // operations must be done on an instance and transfered to the prototype
+        // or maybe it makes no sens, just apply the instance to the method
+        var mutateController = function(ctor) {
+            var actions = ctor.actions;
+            console.log(ctor.actions);
+            console.log(new ctor);
+            // ctor.action === undefined;
+            for (var action in actions) {
+                for (var method in actions[action]) {
+                    var finalMethodName = '_' + action + _.capitalize(method);
+                    console.log(finalMethodName);
+                    ctor[finalMethodName] = function() {
+                        return this.actions.action.method.apply(this, arguments);
+                    }
+                    console.log(ctor);
+                }
+            }
+
+            console.log(ctor);
+            return;
+        }
         //  get env config from requirejs
         var env = module.config();
         // ---------------------------------------------
@@ -59,6 +89,7 @@ define(
 
             // install plugins
             // FW.install('analytics', MyPluginCtor);
+            // FW.addController('commonController', CommonController)
 
             /**
              *  // example:
@@ -77,7 +108,11 @@ define(
             // start the whole stuff
             Backbone.history.start();
 
+            // testing transitions
             doStuff();
+            // test controller.actions mutation
+            mutateController(MainController);
+            console.log(MainController)
         });
     }
 );
