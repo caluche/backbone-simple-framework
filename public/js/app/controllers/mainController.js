@@ -39,24 +39,24 @@ define([
                 // to set `this` to the controller
                 // if update does not exists, do nothing
                 home: {
-                    show: function() {
+                    show: function(request, prevRequest) {
                         // load assets, create model and views,
                         // update regions, etc...
                         console.log(this, 'homeShow');
                     },
-                    update: function() {
+                    update: function(request, prevRequest) {
                         // load assets, update models
                         console.log(this, 'homeUpdate');
                     }
                 },
 
                 test: {
-                    show: function() {
+                    show: function(request, prevRequest) {
                         // load assets, create model and views,
                         // update regions, etc...
                         console.log(this, 'testShow');
                     },
-                    update: function() {
+                    update: function(request, prevRequest) {
                         // load assets, update models
                         console.log(this, 'testUpdate');
                     }
