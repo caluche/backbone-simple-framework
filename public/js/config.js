@@ -21,6 +21,13 @@ define([], function() {
                 controller: 'controllers/mainController::home',
                 defaults: {}
             },
+
+            content: {
+                route: 'content(/:id)',
+                controller: 'controllers/mainController::content',
+                defaults: { id: 25 }
+            }
+            /*
             routeA: {
                 route: 'route-a/:id(/*slug)',
                 // this controller tries to work
@@ -39,6 +46,7 @@ define([], function() {
                 controller: 'controllers/mainController::action',
                 defaults: {}
             }
+            */
         },
         assets: {
             globals: [],

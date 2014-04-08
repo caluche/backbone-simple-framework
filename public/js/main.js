@@ -6,12 +6,10 @@ define(
         'fw/components/region',
         'fw/views/base-view',
         'app/controllers/mainController',
+        'app/controllers/commonController',
         'underscore',
         'es6-promise'
-    ], function(module, config, FW, Region, BaseView, MainController, _, Promise) {
-
-        console.log(window.Promise);
-        console.log(Promise);
+    ], function(module, config, FW, Region, BaseView, MainController, CommonController, _, Promise) {
 
         'use strict';
 
@@ -95,7 +93,7 @@ define(
 
             // install plugins
             // FW.install('analytics', MyPluginCtor);
-            // FW.addController('commonController', CommonController)
+            FW.addCommonController('commonController', CommonController);
 
             /**
              *  // example:

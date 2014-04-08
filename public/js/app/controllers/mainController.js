@@ -20,20 +20,7 @@ define([
                 this.remove();
             },
 
-            // each `action` method receive `state` and `params` objects as arguments
-            home: function(request) {
-                console.log('   =>  MainController::home', request);
-            },
-
-            routeA: function(request) {
-                console.log('   =>  MainController::routeA', request);
-            },
-
-            routeB: function(request) {
-                console.log('   =>  MainController::routeB', request);
-            },
-
-
+            // define all actions
             actions: {
                 // these methods should be called with an apply
                 // to set `this` to the controller
@@ -42,11 +29,11 @@ define([
                     show: function(request, prevRequest) {
                         // load assets, create model and views,
                         // update regions, etc...
-                        console.log(this, 'home Show');
+                        console.log('home Show', this);
                     },
                     update: function(request, prevRequest) {
                         // load assets, update models
-                        console.log(this, 'home Update');
+                        console.log('home Update', this);
                     }
                 },
 
@@ -54,11 +41,11 @@ define([
                     show: function(request, prevRequest) {
                         // load assets, create model and views,
                         // update regions, etc...
-                        console.log(this, 'content Show');
+                        console.log('content Show', this);
                     },
                     update: function(request, prevRequest) {
                         // load assets, update models
-                        console.log(this, 'content Update');
+                        console.log('content Update', this);
                     }
                 },
             }

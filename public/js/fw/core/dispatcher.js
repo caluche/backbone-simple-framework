@@ -31,9 +31,9 @@ define(
             //  @TODO   host `services`, `plugins` ... clean that
             this.services = options.services;
 
-            this.previousCommand = {};
-            this.previousControllerInstance;
-            this.previousRequest;
+            this.prevCommand = {};
+            this.prevControllerInstance;
+            this.prevRequest;
 
             this.isExecutionCanceled = false;
             this.commonControllers = [];
@@ -102,12 +102,12 @@ define(
             findController: function(command, request) {
                 if (this.isExecutionCanceled) { return; }
 
-                if (this.previousCommand.controller !== command.controller) {
-                    // cannot be an update while
-                    command.method = 'show'
+                if (this.prevCommand.controller !== command.controller) {
+                    // cannot be an 'update' while its's a new controller
+                    command.method = 'show';
 
-                    if (this.previousControllerInstance) {
-                        this.previousControllerInstance.destroy();
+                    if (this.prevControllerInstance) {
+                        this.prevControllerInstance.destroy();
                     }
 
                     // is executed in moduleloader
@@ -121,51 +121,62 @@ define(
                     var moduleLoader = this.services.get('core:moduleLoader');
                     moduleLoader.get(command.controller, createController);
                 } else {
-                    //  @TODO
-                    //      check if this is exact same action with same params
-                    //      if same params : cancelExecution
-                    //      if not : give the info to the controller
-                    this.execute(this.previousControllerInstance, command, request);
+                    // 'update' if same action as last one
+                    command.method = (this.prevCommand.action === command.action) ? 'update' : 'show';
+                    this.execute(this.prevControllerInstance, command, request);
                 }
             },
 
             // actually execute controller:action command
             execute: function(instance, command, request) {
-                // this can be async
-                // store infos
-                var action = command.action;
 
-                this.previousCommand = command;
-                this.previousControllerInstance = instance;
 
                 // @EVENT - entry point
                 // could be used in a plugin/service to create repetive tasks
                 // channel should be 'dispatcher:beforeDispatch'
-                com.publish('dispatcher:beforeDispatch', request, this.previousRequest);
+                com.publish('dispatcher:beforeDispatch', request, this.prevRequest);
                 // call a specific controller::action
                 // @TODO should `utils.ensureApi`
                 //       if controller is not found redirect to not found
-                this.executeCommonControllers(request, this.previousRequest);
-                instance[action](request, this.previousRequest); // should also pass the last request
+                this.executeCommonControllers(request, this.prevRequest);
+                // instance[action](request, this.prevRequest); // should also pass the last request
+                var actionMethod = instance.actions[command.action][command.method];
+
+                if (_.isFunction(actionMethod)) {
+                    instance.actions[command.action][command.method].call(instance, request, this.prevRequest);
+                }
 
                 // @EVENT - entry point
-                com.publish('dispatcher:afterDispatch', request, this.previousRequest);
+                com.publish('dispatcher:afterDispatch', request, this.prevRequest);
 
-                this.previousRequest = request;
+                this.prevCommand = command;
+                this.prevRequest = request;
+                this.prevControllerInstance = instance;
             },
 
             // ugly but will work for now
             // @TODO    refactor
             isFirstCall: true,
+
             executeCommonControllers: function(request, prevRequest) {
+                var method = this.isFirstCall ? 'show' : 'update';
+
                 _.forEach(this.commonControllers, function(controller, index) {
-                    // var actionType = this.isFirstCall ? 'show' : 'update';
-                    // controller[action][actionType].call(controller, request, prevRequest)
+                    var actions = controller.actions;
+
+                    _.forEach(actions, function(action) {
+                        var actionMethod = action[method];
+
+                        if (_.isFunction(actionMethod)) {
+                            actionMethod.call(controller, request, prevRequest);
+                        }
+                    });
                 });
+
+                this.isFirstCall = false;
             },
 
-            // the following is redondant with event system...
-
+            // the following is redondant with event system... keep it or not ?
             // execute all the registered methods for predispatch
             _preDispatch: function() {},
 

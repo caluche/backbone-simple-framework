@@ -66,7 +66,6 @@ define([
                     _.any(this.handlers, function(handler) {
                         if (handler.route.test(fragment)) {
                             // execute the callback
-                            // console.log(handler);
                             handler.callback(fragment);
                             // return true;
                         }
@@ -166,8 +165,6 @@ define([
             },
 
             initDispatcher: function() {
-                console.log('init dipatcher');
-                // @NOTE - maybe should be a collection of smaller models - ??
                 this.dispatcher = new Dispatcher({
                     states: this.config.states,
                     paths: this.config.paths,
@@ -212,7 +209,7 @@ define([
             // usefull to manage common parts of the site (header, footer)
             addCommonController: function(id, ctor) {
                 var instance = this.dispatcher.installController(ctor);
-                this.commonController[id] = instance;
+                this.commonControllers[id] = instance;
             },
 
             // the main layout of the application
