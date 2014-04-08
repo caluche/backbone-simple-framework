@@ -53,6 +53,9 @@ define(
             this.el = options.el;
             this.com = options.com;
             this.currentView = undefined;
+            // @note bad idea: will break code consumming it
+            // should lock UI instead...
+            // this.isTransitioning = false;
         }
 
         // steal Backbone's `extend` ability
@@ -80,7 +83,9 @@ define(
             },
 
             endTransition: function() {
-                // trigger an event to let the app know
+                // should clean the transition in a way
+                // maybe just a call to `this.transition.destroy()` (need to be tested)
+                // trigger an event to let the Layout know what appends
                 console.log('   => "region" - end transition');
             },
 

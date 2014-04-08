@@ -42,23 +42,23 @@ define([
                     show: function(request, prevRequest) {
                         // load assets, create model and views,
                         // update regions, etc...
-                        console.log(this, 'homeShow');
+                        console.log(this, 'home Show');
                     },
                     update: function(request, prevRequest) {
                         // load assets, update models
-                        console.log(this, 'homeUpdate');
+                        console.log(this, 'home Update');
                     }
                 },
 
-                test: {
+                content: {
                     show: function(request, prevRequest) {
                         // load assets, create model and views,
                         // update regions, etc...
-                        console.log(this, 'testShow');
+                        console.log(this, 'content Show');
                     },
                     update: function(request, prevRequest) {
                         // load assets, update models
-                        console.log(this, 'testUpdate');
+                        console.log(this, 'content Update');
                     }
                 },
             }

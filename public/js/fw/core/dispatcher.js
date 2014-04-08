@@ -96,32 +96,30 @@ define(
 
             // compare the new controller with previous one
             // loads the new controller object and destroy last one if needed
+            // @TODO    if multirouting (cannot work properly for now)
+            //          just instanciate the second controller,
+            //          store their references only to destroy it cleanly
             findController: function(command, request) {
                 if (this.isExecutionCanceled) { return; }
 
-                var controller = command.controller;
+                if (this.previousCommand.controller !== command.controller) {
+                    // cannot be an update while
+                    command.method = 'show'
 
-                if (this.previousCommand.controller !== controller) {
-                    // @NOTE    if multirouting :
-                    //          just instanciate the second controller,
-                    //          store their references only to destroy it cleanly
                     if (this.previousControllerInstance) {
                         this.previousControllerInstance.destroy();
                     }
 
-                    /**
-                     *  is executed in moduleloader
-                     *  inject all usefull services to controller
-                     */
-                    var createController = function(ctor) {
+                    // is executed in moduleloader
+                    var createController = _.bind(function(ctor) {
                         var instance = this.createController(ctor);
                         this.execute(instance, command, request);
-                    };
+                    }, this);
 
                     // as moduleLoader is async there is no garanty that
                     // controllers will be executed in same order as routes
                     var moduleLoader = this.services.get('core:moduleLoader');
-                    moduleLoader.get(controller, _.bind(createController, this));
+                    moduleLoader.get(command.controller, createController);
                 } else {
                     //  @TODO
                     //      check if this is exact same action with same params
