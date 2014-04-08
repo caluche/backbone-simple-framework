@@ -22,15 +22,15 @@ define([
 
             // each `action` method receive `state` and `params` objects as arguments
             home: function(request) {
-                console.log('   =>  MyController::home', request);
+                console.log('   =>  MainController::home', request);
             },
 
             routeA: function(request) {
-                console.log('   =>  MyController::routeA', request);
+                console.log('   =>  MainController::routeA', request);
             },
 
             routeB: function(request) {
-                console.log('   =>  MyController::routeB', request);
+                console.log('   =>  MainController::routeB', request);
             },
 
 

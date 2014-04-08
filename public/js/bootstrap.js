@@ -5,11 +5,10 @@
 
     //  init requirejs with env config
     requirejs.config({
-        // store here env variable that can be usefull for the framework
+        // store here env variable that could be usefull to the framework
         config: {
             main: {
-                // any env config that could be usefull into the app
-                // stored in `requirejs.s.contexts._.config.globals`
+                // can be accessed in `main.js` from `module.config()`
                 env: 'dev',
                 debug: true,
                 minify: false
@@ -28,7 +27,7 @@
             },
             'es6-promise': {
                 exports: 'Promise'
-            }
+            },
             'backbone': {
                 deps: ['jquery', 'underscore'],
                 exports: 'Backbone'

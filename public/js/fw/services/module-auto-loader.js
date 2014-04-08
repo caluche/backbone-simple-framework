@@ -1,11 +1,10 @@
 define(
     [
         'require',
-        'backbone',
-        'underscore',
-        'jquery'
+        'es6-promise',
+        'backbone'
     ],
-    function(require, Backbone, _, $) {
+    function(require, Promise, Backbone) {
 
         'use strict';
 
@@ -22,30 +21,24 @@ define(
 
         _.extend(ModuleAutoLoader.prototype, Backbone.Events, {
 
-            // @TODO moduleId can also be array
+            // @TODO moduleId could also be an array
             // execute the callback with loaded modules as arguments
-            get: function(moduleId, callback, ctx) {
-                // console.log(arguments);
+            get: function(moduleId, callback) {
                 // get the real module path (according to `config.paths`)
-                ctx = ctx || {};
-
                 var modulePath = this.findLocation(moduleId);
                 // create a deferred
-                var defer = new $.Deferred();
-
-                //
-                require([modulePath], function(module) {
-                    // console.log(module);
-                    defer.resolve(module)
-                }, function(err) {
-                    // console.log(err)
-                    console.error('"' + moduleId + '" with path "' + modulePath + '" not found');
+                var promise = new Promise(function(resolve, reject) {
+                    require([modulePath], function(module) {
+                        resolve(module)
+                    }, function(err) {
+                        reject(new Error('"' + moduleId + '" with path "' + modulePath + '" not found'));
+                    });
                 });
 
                 // on `resolve` execute the callback
-                // @NOTE    allow a more common API (moduleIds, callack) for the client
-                //          than returning the promise
-                defer.done(_.bind(callback, ctx));
+                // @NOTE    allow a more common API (moduleIds, callback) for consuming code
+                //          than returning directly the promise
+                promise.then(callback);
             },
 
             //  look if the filename contains some pattern from `config.path`

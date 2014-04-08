@@ -121,7 +121,7 @@ define(
                     // as moduleLoader is async there is no garanty that
                     // controllers will be executed in same order as routes
                     var moduleLoader = this.services.get('core:moduleLoader');
-                    moduleLoader.get(controller, createController, this);
+                    moduleLoader.get(controller, _.bind(createController, this));
                 } else {
                     //  @TODO
                     //      check if this is exact same action with same params
