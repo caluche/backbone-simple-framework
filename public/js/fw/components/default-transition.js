@@ -23,13 +23,13 @@ define([
             this.$el = region.$el;
             this.prevView = prevView;
 
-            // create promises
-            this.hidePromise = this.createHidePromise();
-            this.showPromise = this.createShowPromise();
-
             // kind of state machine with two states ['hide', 'show']
             // this just allow to share the `resume` API
             this.state = 'hide';
+
+            // create promises
+            this.hidePromise = this.createHidePromise();
+            this.showPromise = this.createShowPromise();
 
             // the `doShow` method should be called only when
             // the `hideDeferred` and `showDeferred` are resolved
