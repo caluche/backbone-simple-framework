@@ -6,8 +6,12 @@ define(
         'fw/components/region',
         'fw/views/base-view',
         'app/controllers/mainController',
-        'underscore'
-    ], function(module, config, FW, Region, BaseView, MainController, _) {
+        'underscore',
+        'es6-promise'
+    ], function(module, config, FW, Region, BaseView, MainController, _, Promise) {
+
+        console.log(window.Promise);
+        console.log(Promise);
 
         'use strict';
 
@@ -56,6 +60,7 @@ define(
         // if this is ketp, a cache system really must be implemented
         // operations must be done on an instance and transfered to the prototype
         // or maybe it makes no sens, just apply the instance to the method
+        /*
         var mutateController = function(ctor) {
             var actions = ctor.actions;
             console.log(ctor.actions);
@@ -75,6 +80,7 @@ define(
             console.log(ctor);
             return;
         }
+        */
         //  get env config from requirejs
         var env = module.config();
         // ---------------------------------------------
@@ -111,8 +117,8 @@ define(
             // testing transitions
             doStuff();
             // test controller.actions mutation
-            mutateController(MainController);
-            console.log(MainController)
+            // mutateController(MainController);
+            // console.log(MainController)
         });
     }
 );

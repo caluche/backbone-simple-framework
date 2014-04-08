@@ -20,27 +20,31 @@
         urlArgs: 'bust=' + new Date().getTime(),
         baseUrl: 'js',
         shim: {
-            jquery: {
+            'jquery': {
                 exports: '$'
             },
-            underscore: {
+            'underscore': {
                 exports: '_'
             },
-            backbone: {
+            'es6-promise': {
+                exports: 'Promise'
+            }
+            'backbone': {
                 deps: ['jquery', 'underscore'],
                 exports: 'Backbone'
             },
-            fw: {
-                deps: ['backbone']
+            'fw': {
+                deps: ['backbone', 'es-promise']
             }
         },
         paths: {
-            jquery: 'vendors/jquery/dist/jquery',
-            underscore: 'vendors/underscore/underscore',
-            backbone: 'vendors/backbone/backbone',
-            text: 'vendors/requirejs-text/text',
-            fw: 'fw',
-            templates: '../templates'
+            'jquery': 'vendors/jquery/dist/jquery',
+            'underscore': 'vendors/underscore/underscore',
+            'backbone': 'vendors/backbone/backbone',
+            'text': 'vendors/requirejs-text/text',
+            'es6-promise': 'vendors/es6-promise/promise',
+            'fw': 'fw',
+            'templates': '../templates'
         },
     });
 
