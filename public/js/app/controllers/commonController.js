@@ -1,8 +1,14 @@
 define([
         'fw/components/abstract-controller',
-    ], function(AbstractController) {
+        'fw/components/region',
+        'text!templates/common/header.tmpl'
+    ], function(AbstractController, Region, headerTmpl) {
 
         'use strict';
+
+        var headerRegion = new Region({
+            el: '#header'
+        });
 
         var CommonController = AbstractController.extend({
 

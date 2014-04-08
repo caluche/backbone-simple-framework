@@ -74,7 +74,7 @@ define(
             },
 
             isEmpty: function() {
-                return this.currentView = undefined;
+                return this.currentView === undefined;
             },
 
             // methods called internally from the transition
@@ -112,7 +112,7 @@ define(
 
                 var transition = new transitionCtor(this, this.currentView);
 
-                if (autohide) {
+                if (autohide || (this.currentView === undefined)) {
                     transition.hide();
                 }
 
