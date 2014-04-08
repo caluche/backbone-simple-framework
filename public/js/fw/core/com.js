@@ -1,52 +1,21 @@
 define(
     [
-        'backbone'
-    ], function(Backbone) {
+        'fw/services/pubsub'
+    ], function(PubSub) {
 
         'use strict';
 
         /**
-         *  COMMUNICATIONS
+         *  COMMUNICATION - FRAMEWORK'S EVENT AGREGATOR
          *
-         *  basically a Backbone.Events with a pubsub interface (alias method signatures)
-         *  (looks more meaningfull for this kind of functionnality)
-         *  allow decoupling as well as publishing the internal state of the framework for plugins
-         *
-         *  @TODO    create a constructor to allow it being used somewhere else in the application
+         *  is basically a Backbone.Events object mixed
+         *  with a PubSub interface
          */
-        var com = _.extend({}, Backbone.Events, {
-            // alias `trigger`
-            publish: function() {
-                var args = Array.prototype.slice.call(arguments, 0);
-                this.trigger.apply(this, args);
-            },
+        var com;
 
-            // alias `on`
-            subscribe: function() {
-                var args = Array.prototype.slice.call(arguments, 0);
-                this.on.apply(this, args);
-            },
-
-            // alias `off`
-            unsubscribe: function() {
-                var args = Array.prototype.slice.call(arguments, 0);
-                this.off.apply(this, args)
-            },
-
-            // added methods
-            // --------------------------------------------------------
-            // kind of log system should be able to :
-            //      - trace a route
-            //      - a specific object of the framework (a specific namespace)
-            //      - make a list of existing channels with their related subscriptions
-            //      - ...
-            trace: function(key) {},
-            // remove all subscriptions of an object at once
-            removeHandler: function(obj) {
-                // needs to be tested
-                this.off(null, null, ctx);
-            }
-        });
+        if (!com) {
+            com = new PubSub();
+        }
 
         return com;
     }

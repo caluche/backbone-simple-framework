@@ -29,11 +29,11 @@ define([
                     show: function(request, prevRequest) {
                         // load assets, create model and views,
                         // update regions, etc...
-                        console.log('home Show', this);
+                        console.log('home Show', this, arguments);
                     },
                     update: function(request, prevRequest) {
                         // load assets, update models
-                        console.log('home Update', this);
+                        console.log('home Update', this, arguments);
                     }
                 },
 
@@ -41,11 +41,11 @@ define([
                     show: function(request, prevRequest) {
                         // load assets, create model and views,
                         // update regions, etc...
-                        console.log('content Show', this);
+                        console.log('content Show', this, arguments);
                     },
                     update: function(request, prevRequest) {
                         // load assets, update models
-                        console.log('content Update', this);
+                        console.log('content Update', this, arguments);
                     }
                 },
             }

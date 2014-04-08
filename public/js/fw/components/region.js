@@ -90,7 +90,7 @@ define(
             },
 
             // PUBLIC API
-            // is absically a factory method to create Transitions
+            // is basically a factory method to create Transitions
             // @NOTE    if alternate API - this should be renamed `configure`
             createTransition: function(transitionCtor, autohide) {
                 this.ensureEl();
@@ -112,7 +112,7 @@ define(
 
                 var transition = new transitionCtor(this, this.currentView);
 
-                if (autohide || (this.currentView === undefined)) {
+                if (autohide/* || (this.currentView === undefined) */) {
                     transition.hide();
                 }
 

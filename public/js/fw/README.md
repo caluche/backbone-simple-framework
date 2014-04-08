@@ -7,8 +7,6 @@ __Should be locate into `vendors` (easier for now...)__
 todos
 --------------------------------------------
 
-_today : create a real dump app_
-
 maybe use `browserify` to create a standalone library (remove requirejs dependency)
 
 cf. [http://learnjs.io/blog/2014/02/06/creating-js-library-builds-with-browserify-and-other-npm-modules/](http://learnjs.io/blog/2014/02/06/creating-js-library-builds-with-browserify-and-other-npm-modules/)
@@ -36,6 +34,7 @@ _core_
     -   Router
     -   Dispatcher
     -   Request
+    -   * AssetManager
 
 _components_
 

@@ -20,8 +20,9 @@ define([
 
         /**
          *  ON PROGRESS
-         *      commonControllers registration
-         *      needs a better controller definition
+         *
+         *  @NOTE : having `com` separated from the framework is a mistake
+         *          it should be injected on other objects as a dependency
          */
 
         /**
@@ -37,6 +38,25 @@ define([
          *          (view factory able to create, store and delete view objects)
          *      - an Default AppController` to handle loader (through events), 404 fallbacks, globals behaviors
          */
+
+        /**
+         *  UNDERSCORE MIXINS
+         */
+        _.mixin({
+            capitalize: function(str) {
+                return str.charAt(0).toUpperCase() + str.slice(1);
+            },
+
+            //  add an entry to each object of the given `obj`
+            //  with `attrName` setted to its key
+            identify: function(obj, attrName) {
+                for (var key in obj) {
+                    obj[key][attrName] = key;
+                }
+
+                return obj;
+            }
+        });
 
         /**
          *  Multi-routing
@@ -90,7 +110,7 @@ define([
                 this.config = config;
                 this.env = env;
 
-                this.identify(this.config.states, 'id');
+                _.identify(this.config.states, 'id');
 
                 if (this.config.useMultiRouting) {
                     allowMultiRouting(this.config.multiRouteSeparator);
@@ -184,18 +204,6 @@ define([
                 }
 
                 return routes;
-            },
-
-            /**
-             *  add an entry to each object of the given `obj`
-             *  with `attrName` setted to its key
-             *  => could be an underscore mixin
-             */
-            identify: function(obj, attrName) {
-                for (var key in obj) {
-                    obj[key][attrName] = key;
-                }
-                return obj;
             },
 
             //  helpers to configure framework

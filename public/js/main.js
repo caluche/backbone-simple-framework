@@ -13,12 +13,6 @@ define(
 
         'use strict';
 
-        _.mixin({
-            capitalize: function(str) {
-                return str.charAt(0).toUpperCase() + str.slice(1);
-            }
-        })
-
         var MyView1 = BaseView.extend({
             template: '<h1 id="first-view">My First View</h1>',
         });
