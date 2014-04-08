@@ -1,8 +1,9 @@
 define([
         'backbone',
         'underscore',
-        'jquery'
-    ], function(Backbone, _, $) {
+        'jquery',
+        'es6-promise'
+    ], function(Backbone, _, $, Promise) {
 
         'use strict';
 
@@ -25,47 +26,56 @@ define([
             // create promises
             this.hidePromise = this.createHidePromise();
             this.showPromise = this.createShowPromise();
+
             // kind of state machine with two states ['hide', 'show']
             // this just allow to share the `resume` API
             this.state = 'hide';
+
             // the `doShow` method should be called only when
             // the `hideDeferred` and `showDeferred` are resolved
             // showPromise is called first in order to keep correct param order
-            var show = _.bind(this.doShow, this);
-            $.when(this.showPromise, this.hidePromise).done(show);
+            // @NOTE    create a wrapper to bind context and stick on `doShow` API
+            var show = _.bind(function(args) {
+                this.doShow.apply(this, args);
+            }, this);
+
+            Promise.all([this.showPromise, this.hidePromise]).then(show);
         }
 
         Transition.extend = Backbone.View.extend;
 
-        // the chain is :
-        //     hideDeferred -> then -> showDeferred
-        // need 2 parallel promises
-
         _.extend(Transition.prototype, {
-            // `hidePromise` whould be resolved
-            // when `this.resume` is called
-            // the first time
+            // `hidePromise` should be resolved when
+            // `this.resume` is called the first time
             createHidePromise: function() {
-                this.hideDeferred = new $.Deferred();
-                return this.hideDeferred.promise();
+                var promise = new Promise(_.bind(function(resolve, reject) {
+                    this.resolveHidePromise = function(prevView) {
+                        resolve(prevView);
+                    }
+                }, this));
+
+                return promise;
             },
 
-            // `showPromise` should be resolved
-            // when show is called
-            // - its value is the nextView object
+            // `showPromise` should be resolved when `show` is called
+            // its value is the nextView object
             // (we can assume this.method is called when assets are loaded)
             createShowPromise: function() {
-                this.showDeferred = new $.Deferred();
-                return this.showDeferred.promise();
+                var promise = new Promise(_.bind(function(resolve, reject) {
+                    this.resolveShowPromise = function(nextView) {
+                        resolve(nextView);
+                    }
+                }, this))
+
+                return promise;
             },
 
-            //  toggle behavior between states [hide, show]
+            //  toggle behavior between the 2 states : [hide, show]
             resume: function() {
-                // console.log('state:', this.state);
                 switch (this.state) {
                     case 'hide' :
                         this.state = 'show';
-                        this.hideDeferred.resolve();
+                        this.resolveHidePromise(this.prevView);
                         break;
                     case 'show' :
                         this.region.endTransition();
@@ -75,9 +85,7 @@ define([
 
             hide: function() {
                 if (!this.prevView) {
-                    // resume now
-                    this.resume();
-                    return;
+                    return this.resume();
                 }
 
                 this.doHide(this.prevView);
@@ -86,15 +94,15 @@ define([
             // this call resolve the showPromise with `nextView`
             show: function(nextView) {
                 this.region.setCurrentView(nextView);
-                this.showDeferred.resolve(nextView);
+                this.resolveShowPromise(nextView);
             },
 
 
             // @OVERRIDE METHODS
-            // override the two following methods to
-            // create user defined transitions
-            //
+            // override the two following methods to create user defined transitions
+
             // @param   receive `this.prevView` as argument for API consistency
+            //          the final user don't need to know that it's available as `this.prevView`
             doHide: function(prevView) {
                 prevView.$el.fadeTo(200, 0, _.bind(function() {
                     prevView.$el.remove();
@@ -104,7 +112,10 @@ define([
                 }, this));
             },
 
-            doShow: function(nextView) {
+            // allow to work both on `nextView` and `prevView` at the same time
+            // this allow to create personnalized transition without being forced
+            // to follow the 'hide' -> 'load' -> 'show' scheme
+            doShow: function(nextView, prevView) {
                 nextView.render();
                 nextView.$el.hide();
                 nextView.$el.appendTo(this.$el);

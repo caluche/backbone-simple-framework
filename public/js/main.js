@@ -50,7 +50,7 @@ define(
                 // mimic loading time
                 setTimeout(function() {
                     transition.show(view);
-                }, 100);
+                }, 1000);
 
                 currentView = view;
             });

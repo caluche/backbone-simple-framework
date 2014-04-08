@@ -1,10 +1,10 @@
 {
-  "name": "elipse-test",
+  "name": "backbone-simple-framework",
   "version": "0.0.0",
   "authors": [
     "b-ma <benjamin.matuszewski@gmail.com>"
   ],
-  "description": "testing application for elipse component",
+  "description": "test application for FW",
   "license": "MIT",
   "ignore": [
     "**/.*",
