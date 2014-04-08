@@ -6,6 +6,10 @@ simple framework draft
 
 __dependencies__: backbone, requirejs, underscore, jquery (other deps should be added through plugins)
 
+@TODO :
+- remove requirejs dependency
+- change jQuery Deferred to Promise polyfill
+
 _inspired from Chaplin architecture_
 
 ## install
