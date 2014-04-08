@@ -134,13 +134,8 @@ define([
                 };
 
                 // stores - object bags
-                this.services = this.plugins = {
-                    get: _getItem
-                };
-
-                this.commonControllers = {
-                    get: _getItem
-                }
+                this.services = this.plugins = { get: _getItem };
+                this.commonControllers = { get: _getItem };
 
                 // install core services
                 this.initModuleLoader();
@@ -148,17 +143,6 @@ define([
                 // create core middlewares
                 this.initRouter();
                 this.initDispatcher();
-
-                // optionnaly pass AppController and Layout as arguments
-
-                // allow service overriding in config
-                if (config.appController) {
-                    this.setAppController(config.appController)
-                }
-
-                if (config.layout) {
-                    this.setLayout(config.layout);
-                }
             },
 
             //  com : maybe keeping it external to FW object is more meaningfull
