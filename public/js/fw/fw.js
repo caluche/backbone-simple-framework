@@ -55,7 +55,13 @@ define([
                 }
 
                 return obj;
-            }
+            },
+
+            //  @TODO test
+            ensureApi: function(obj, api) {
+                var result = _.difference(api, _.functions(obj);
+                return !!result.length; // === 0 ? true : result;
+            },
         });
 
         /**
@@ -95,14 +101,6 @@ define([
         };
 
         /**
-         *  underscore's mixins (maybe create a dedicated file)
-         */
-        // _.mixin({
-        //     ensureApi: function(obj, api) {},
-        //     capitalize: function() {},
-        // });
-
-         /**
          *  bootstrap - init and configure core parts of the framework
          */
         var FW = {
