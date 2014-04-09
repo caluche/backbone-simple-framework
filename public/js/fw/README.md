@@ -23,7 +23,7 @@ _objects with '*' still have to be implemented_
 
 _services_
 
-    -   * PubSub
+    -   PubSub
     -   ModuleAutoLoader
     -   * AbstractService
     -   * AbstractLoader (maybe this should be kept external)

@@ -2,7 +2,6 @@
 
     //  define environment configuration
     //  parse url, etc...
-
     //  init requirejs with env config
     requirejs.config({
         // store here env variable that could be usefull to the framework
@@ -36,6 +35,9 @@
                 deps: ['backbone', 'es-promise']
             }
         },
+        packages: [
+            { name: 'when', location: 'vendors/when', main: 'when' }
+        ],
         paths: {
             'jquery': 'vendors/jquery/dist/jquery',
             'underscore': 'vendors/underscore/underscore',

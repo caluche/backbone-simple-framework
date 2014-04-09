@@ -15,7 +15,7 @@ define([], function() {
         states: {
             index: {
                 route: '(home)',
-                // controller is the name of the file where the controller object can be found
+                // controller is the name of the file where the controller object can be found,
                 // allow to create an autoload system with require
                 // example : 'path/to/controller::action'
                 controller: 'controllers/mainController::home',
@@ -57,6 +57,12 @@ define([], function() {
                 //
             }
         },
+        regions: {
+            'header': '#header',
+            'main': '#main',
+            'footer': '#footer'
+        },
+
         views: {/* ? */},
         constantes: {
             /* stored in require ? */

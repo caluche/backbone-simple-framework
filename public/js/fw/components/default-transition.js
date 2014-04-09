@@ -2,8 +2,8 @@ define([
         'backbone',
         'underscore',
         'jquery',
-        'es6-promise'
-    ], function(Backbone, _, $, Promise) {
+        'when'
+    ], function(Backbone, _, $, when) {
 
         'use strict';
 
@@ -39,7 +39,7 @@ define([
                 this.doShow.apply(this, args);
             }, this);
 
-            Promise.all([this.showPromise, this.hidePromise]).then(show);
+            when.all([this.showPromise, this.hidePromise]).then(show);
         }
 
         Transition.extend = Backbone.View.extend;
@@ -48,7 +48,7 @@ define([
             // `hidePromise` should be resolved when
             // `this.resume` is called the first time
             createHidePromise: function() {
-                var promise = new Promise(_.bind(function(resolve, reject) {
+                var promise = when.promise(_.bind(function(resolve, reject) {
                     this.resolveHidePromise = function(prevView) {
                         resolve(prevView);
                     }
@@ -61,7 +61,7 @@ define([
             // its value is the nextView object
             // (we can assume this.method is called when assets are loaded)
             createShowPromise: function() {
-                var promise = new Promise(_.bind(function(resolve, reject) {
+                var promise = when.promise(_.bind(function(resolve, reject) {
                     this.resolveShowPromise = function(nextView) {
                         resolve(nextView);
                     }

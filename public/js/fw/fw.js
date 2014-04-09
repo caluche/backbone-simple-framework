@@ -8,7 +8,6 @@ define([
     ], function(Backbone, _, com, Router, Dispatcher, ModuleAutoLoader) {
 
         'use strict';
-
         /**
          *  @TODO
          *      create a dummy App with at least 3 states (home, content, popin)
@@ -20,6 +19,8 @@ define([
 
         /**
          *  ON PROGRESS
+         *      change `es6-promise` to `when` or `kew`
+         *      cf. http://stackoverflow.com/questions/22294425/promises-ecmascript-6-vs-3rd-party-libraries#answer-22296765
          *
          *  @NOTE : having `com` separated from the framework is a mistake
          *          it should be injected on other objects as a dependency
@@ -57,9 +58,9 @@ define([
                 return obj;
             },
 
-            //  @TODO test
+            //  @TODO needs to be tested
             ensureApi: function(obj, api) {
-                var result = _.difference(api, _.functions(obj);
+                var result = _.difference(api, _.functions(obj));
                 return !!result.length; // === 0 ? true : result;
             },
         });
@@ -148,7 +149,7 @@ define([
             //  com : maybe keeping it external to FW object is more meaningfull
             //        but probably harder to trace/debug (tbd)
             //  get a reference to the `com` object (usefull for plugins construction, should not be used elsewhere)
-            //  com: com,
+            com: com,
 
 
             //  init core services
@@ -167,11 +168,14 @@ define([
             },
 
             initDispatcher: function() {
+                // @TODO create a controller factory to not have to give
+                //       all these deps to the Dispatcher
                 this.dispatcher = new Dispatcher({
                     states: this.config.states,
                     paths: this.config.paths,
                     // forward plugins and services to controller
                     services : this.services,
+                    layout: this.layout,
                 });
             },
 
@@ -204,7 +208,12 @@ define([
 
             // the main layout of the application
             setLayout: function(ctor) {
+                var instance = new ctor({
+                    regions: this.config.regions
+                });
 
+                this.layout = instance;
+                this.dispatcher.setLayout(this.layout);
             },
 
             //  method to install plugins/services to the framework

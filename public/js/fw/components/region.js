@@ -53,6 +53,7 @@ define(
             this.el = options.el;
             this.com = options.com;
             this.currentView = undefined;
+            this.ensureEl();
             // @note bad idea: will break code consumming it
             // should lock UI instead...
             // this.isTransitioning = false;
@@ -82,6 +83,10 @@ define(
                 this.currentView = view;
             },
 
+            getView: function() {
+                return this.currentView;
+            },
+
             endTransition: function() {
                 // should clean the transition in a way
                 // maybe just a call to `this.transition.destroy()` (need to be tested)
@@ -93,8 +98,6 @@ define(
             // is basically a factory method to create Transitions
             // @NOTE    if alternate API - this should be renamed `configure`
             createTransition: function(transitionCtor, autohide) {
-                this.ensureEl();
-
                 switch (arguments.length) {
                     case 0:
                         transitionCtor = DefaultTransition;
@@ -117,6 +120,19 @@ define(
                 }
 
                 return transition;
+            },
+
+            // entry point for extend
+            destroy: function() {
+                this.close();
+            },
+
+            close: function() {
+                if (_.isFunction(this.currentView.close)) {
+                    this.currentView.close();
+                } else {
+                    this.currentView.remove();
+                }
             }
 
         });

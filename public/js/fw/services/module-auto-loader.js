@@ -1,10 +1,10 @@
 define(
     [
         'require',
-        'es6-promise',
-        'backbone'
+        'backbone',
+        'when'
     ],
-    function(require, Promise, Backbone) {
+    function(require, Backbone, when) {
 
         'use strict';
 
@@ -27,9 +27,9 @@ define(
                 // get the real module path (according to `config.paths`)
                 var modulePath = this.findLocation(moduleId);
                 // create a deferred
-                var promise = new Promise(function(resolve, reject) {
+                var promise = when.promise(function(resolve, reject) {
                     require([modulePath], function(module) {
-                        resolve(module)
+                        resolve(module);
                     }, function(err) {
                         reject(new Error('"' + moduleId + '" with path "' + modulePath + '" not found'));
                     });
@@ -38,7 +38,7 @@ define(
                 // on `resolve` execute the callback
                 // @NOTE    allow a more common API (moduleIds, callback) for consuming code
                 //          than returning directly the promise
-                promise.then(callback);
+                promise.done(callback);
             },
 
             //  look if the filename contains some pattern from `config.path`

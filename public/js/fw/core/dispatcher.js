@@ -62,6 +62,11 @@ define(
                 return instance;
             },
 
+            // should be moved to ControllerFactory
+            setLayout: function(layout) {
+                this.layout = layout
+            },
+
             // returns the command from a 'controller::action' pattern
             getCommand: function(pattern) {
                 var parts = pattern.split('::');
@@ -111,15 +116,15 @@ define(
                     }
 
                     // is executed in moduleloader
-                    var createController = _.bind(function(ctor) {
-                        var instance = this.createController(ctor);
-                        this.execute(instance, command, request);
-                    }, this);
+                    // var createController = _.bind(, this);
 
                     // as moduleLoader is async there is no garanty that
                     // controllers will be executed in same order as routes
                     var moduleLoader = this.services.get('core:moduleLoader');
-                    moduleLoader.get(command.controller, createController);
+                    moduleLoader.get(command.controller, _.bind(function(ctor) {
+                        var instance = this.createController(ctor);
+                        this.execute(instance, command, request);
+                    }, this));
                 } else {
                     // 'update' if same action as last one
                     command.method = (this.prevCommand.action === command.action) ? 'update' : 'show';
@@ -129,8 +134,6 @@ define(
 
             // actually execute controller:action command
             execute: function(instance, command, request) {
-
-
                 // @EVENT - entry point
                 // could be used in a plugin/service to create repetive tasks
                 // channel should be 'dispatcher:beforeDispatch'
@@ -161,17 +164,14 @@ define(
             executeCommonControllers: function(request, prevRequest) {
                 var method = this.isFirstCall ? 'show' : 'update';
 
+                // refactor this -> ugly
                 _.forEach(this.commonControllers, function(controller, index) {
-                    var actions = controller.actions;
-
-                    _.forEach(actions, function(action) {
-                        var actionMethod = action[method];
-
-                        if (_.isFunction(actionMethod)) {
-                            actionMethod.call(controller, request, prevRequest);
+                    _.forEach(this.commonControllers[index].actions, function(obj, action) {
+                        if (_.isFunction(this.commonControllers[index].actions[action][method])) {
+                            this.commonControllers[index].actions[action][method].call(this.commonControllers[index], request, prevRequest);
                         }
-                    });
-                });
+                    }, this);
+                }, this);
 
                 this.isFirstCall = false;
             },

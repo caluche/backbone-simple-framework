@@ -4,6 +4,7 @@ define(
         'underscore'
     ], function(Backbone, _) {
 
+        'use strict';
         /*
          *  AbstractController
          *  -------------------------------------------------------

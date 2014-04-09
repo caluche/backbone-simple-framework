@@ -28,7 +28,6 @@ define(
             // override Backbone's constructor method to get precompiled cache
             constructor: function() {
                 Backbone.View.prototype.constructor.apply(this, arguments);
-
                 this.buildTemplateCache();
             },
 
@@ -37,7 +36,6 @@ define(
             //  else rebuild it => no need for add a shim for IE8 only
             buildTemplateCache: function() {
                 if (!this.template) { return; }
-
                 //  if we can access the prototype, get it, else just get current instance (no cache in this case)
                 var host = ('getPrototypeOf' in Object) ? Object.getPrototypeOf(this) : this;
                 // return if already precompiled

@@ -2,14 +2,14 @@ define(
     [
         'module',
         'config',
+        'underscore',
         'fw/fw',
         'fw/components/region',
         'fw/views/base-view',
         'app/controllers/mainController',
         'app/controllers/commonController',
-        'underscore',
-        'es6-promise'
-    ], function(module, config, FW, Region, BaseView, MainController, CommonController, _, Promise) {
+        'app/views/appLayout',
+    ], function(module, config, _, FW, Region, BaseView, MainController, CommonController, AppLayout) {
 
         'use strict';
 
@@ -81,7 +81,7 @@ define(
             // intialize the framework
             FW.initialize(config, env);
             // call these directly or through config extend
-            // FW.setLayout(MyAppLayout);
+            FW.setLayout(AppLayout);
             // FW.setAppController(MyAppController);
             // FW.registerCommonController(HeaderController)
 
