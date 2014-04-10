@@ -13,18 +13,18 @@ define([], function() {
             controllers: 'app/controllers'
         },
         states: {
-            index: {
+            home: {
                 route: '(home)',
                 // controller is the name of the file where the controller object can be found,
                 // allow to create an autoload system with require
                 // example : 'path/to/controller::action'
-                controller: 'controllers/mainController::home',
+                controller: 'controllers/main-controller::home',
                 defaults: {}
             },
 
             content: {
                 route: 'content(/:id)',
-                controller: 'controllers/mainController::content',
+                controller: 'controllers/main-controller::content',
                 defaults: { id: 25 }
             }
             /*

@@ -1,46 +1,38 @@
 define([
+        'backbone',
         'fw/components/abstract-controller',
-        'fw/views/base-view',
-        'text!templates/common/header.tmpl'
-    ], function(AbstractController, BaseView, headerTmpl) {
+        'app/views/header'
+    ], function(Backbone, AbstractController, HeaderView) {
 
+        console.log(arguments);
         'use strict';
-
-        var HeaderView = BaseView.extend({
-            index: 0,
-            template: '<h1>Header Created</h1>',
-
-            update: function() {
-                this.index++;
-                var txt = 'Header Updated ' + this.index;
-                this.$('h1').text(txt);
-            }
-        });
 
         var CommonController = AbstractController.extend({
 
-            // REAL PROBLEM HERE - ERRORS ARE NOT THROWN
             actions: {
                 header: {
                     show: function(request, prevRequest) {
+                        var headerView = new HeaderView({
+                            model: new Backbone.Model()
+                        });
+
                         var region = this.layout.getRegion('header');
                         var transition = region.createTransition(true);
-                        var headerView = new HeaderView();
 
                         transition.show(headerView);
-                        console.log('%c     => header controller: show', 'color: green');
+                        transition.complete(function() {
+                            headerView.model.set('state', request.state.id);
+                        });
                     },
                     update: function(request, prevRequest) {
-                        var header = this.layout.getRegion('header').getView();
-
-                        header.update();
-
-                        console.log('%c     => header controller: update', 'color: green');
+                        var headerView = this.layout.getRegion('header').getView();
+                        headerView.model.set('state', request.state.id);
+                        headerView.randomizeContent();
                     }
                 },
                 footer: {
                     show: function() {
-
+                        console.log('%c     => footer controller: show', 'color: green');
                     },
                     update: function() {
                         console.log('%c     => footer controller: update', 'color: green');

@@ -18,8 +18,7 @@ define([
          */
 
         /**
-         *  ON PROGRESS
-         *      change `es6-promise` to `when` or `kew`
+         *  ON PROGRESS`
          *      cf. http://stackoverflow.com/questions/22294425/promises-ecmascript-6-vs-3rd-party-libraries#answer-22296765
          *
          *  @NOTE : having `com` separated from the framework is a mistake

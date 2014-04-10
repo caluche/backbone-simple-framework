@@ -6,9 +6,9 @@ define(
         'fw/fw',
         'fw/components/region',
         'fw/views/base-view',
-        'app/controllers/mainController',
-        'app/controllers/commonController',
-        'app/views/appLayout',
+        'app/controllers/main-controller',
+        'app/controllers/common-controller',
+        'app/views/layouts/app-layout',
     ], function(module, config, _, FW, Region, BaseView, MainController, CommonController, AppLayout) {
 
         'use strict';

@@ -39,7 +39,7 @@ define([
                 this.doShow.apply(this, args);
             }, this);
 
-            when.all([this.showPromise, this.hidePromise]).then(show);
+            when.all([this.showPromise, this.hidePromise]).done(show);
         }
 
         Transition.extend = Backbone.View.extend;
@@ -97,6 +97,11 @@ define([
                 this.resolveShowPromise(nextView);
             },
 
+            // allow to trigger behavior on `nextView`
+            // while being sure it's fully rendered
+            complete: function(callback) {
+                when.all([this.showPromise, this.hidePromise]).done(callback);
+            },
 
             // @OVERRIDE METHODS
             // override the two following methods to create user defined transitions
