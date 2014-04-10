@@ -4,8 +4,9 @@ define([
         'fw/core/com',
         'fw/core/router',
         'fw/core/dispatcher',
+        'fw/core/assets-manager',
         'fw/services/module-auto-loader'
-    ], function(Backbone, _, com, Router, Dispatcher, ModuleAutoLoader) {
+    ], function(Backbone, _, com, Router, Dispatcher, AssetsManager, ModuleAutoLoader) {
 
         'use strict';
         /**
@@ -62,6 +63,14 @@ define([
                 var result = _.difference(api, _.functions(obj));
                 return !!result.length; // === 0 ? true : result;
             },
+
+            /**
+             *  add sep betwen 3 numbers:
+             *  ex: formatNumber(1000000, ',') return 1,000,000
+             */
+            formatNumber: function(nbr, sep) {
+                return nbr.toString().replace(/\B(?=(\d{3})+(?!\d))/g, sep);
+            }
         });
 
         /**
@@ -154,7 +163,9 @@ define([
             //  init core services
             //  core:services can be eseally overriden just by installing on the same serviceId
             initModuleLoader: function() {
-                this.services['core:moduleLoader'] = new ModuleAutoLoader({ paths: this.config.paths });
+                this.services['core:moduleLoader'] = new ModuleAutoLoader({
+                    paths: this.config.paths
+                });
             },
 
 
@@ -178,6 +189,9 @@ define([
                 });
             },
 
+            // this function is called only if an AssetsLoader is register
+            initAssetManager: function() {},
+
             //  map `config.states` to Backbone.Router compliant routes
             getRoutes: function(config) {
                 var routes = {},
@@ -198,13 +212,6 @@ define([
                 // configure dispatcher to use the given AppController
             },
 
-            // allow to register controllers that will be called for each request
-            // usefull to manage common parts of the site (header, footer)
-            addCommonController: function(id, ctor) {
-                var instance = this.dispatcher.installController(ctor);
-                this.commonControllers[id] = instance;
-            },
-
             // the main layout of the application
             setLayout: function(ctor) {
                 var instance = new ctor({
@@ -213,6 +220,24 @@ define([
 
                 this.layout = instance;
                 this.dispatcher.setLayout(this.layout);
+            },
+
+            // the 2 following can be ignored
+
+            // if no assetsLoader is defined
+            // the app don't use an asset manager
+            setAssetsLoader: function(ctor) {
+                this.assetLoader = new ctor();
+
+                this.services['core:assetLoader']
+                this.initAssetsManager();
+            },
+
+            // allow to register controllers that will be called for each request
+            // usefull to manage common parts of the site (header, footer)
+            addCommonController: function(id, ctor) {
+                var instance = this.dispatcher.installController(ctor);
+                this.commonControllers[id] = instance;
             },
 
             //  method to install plugins/services to the framework
@@ -234,7 +259,7 @@ define([
                 options._com = com;
                 // add a the new plugin to collection
                 // this.plugins[pluginName] = pluginCtor(options);;
-                this.services[plginName] = pluginCtor(options);
+                this.services[pluginName] = pluginCtor(options);
             },
 
             // keep get

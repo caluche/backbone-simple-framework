@@ -115,16 +115,16 @@ define(
                         this.prevControllerInstance.destroy();
                     }
 
-                    // is executed in moduleloader
-                    // var createController = _.bind(, this);
-
                     // as moduleLoader is async there is no garanty that
                     // controllers will be executed in same order as routes
                     var moduleLoader = this.services.get('core:moduleLoader');
+
+                    // not found handling should be done here ?
                     moduleLoader.get(command.controller, _.bind(function(ctor) {
                         var instance = this.createController(ctor);
                         this.execute(instance, command, request);
                     }, this));
+
                 } else {
                     // 'update' if same action as last one
                     command.method = (this.prevCommand.action === command.action) ? 'update' : 'show';
@@ -136,17 +136,15 @@ define(
             execute: function(instance, command, request) {
                 // @EVENT - entry point
                 // could be used in a plugin/service to create repetive tasks
-                // channel should be 'dispatcher:beforeDispatch'
                 com.publish('dispatcher:beforeDispatch', request, this.prevRequest);
+
                 // call a specific controller::action
-                // @TODO should `utils.ensureApi`
-                //       if controller is not found redirect to not found
                 this.executeCommonControllers(request, this.prevRequest);
-                // instance[action](request, this.prevRequest); // should also pass the last request
+
                 var actionMethod = instance.actions[command.action][command.method];
 
                 if (_.isFunction(actionMethod)) {
-                    instance.actions[command.action][command.method].call(instance, request, this.prevRequest);
+                    actionMethod.call(instance, request, this.prevRequest);
                 }
 
                 // @EVENT - entry point

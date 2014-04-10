@@ -4,12 +4,13 @@ define(
         'config',
         'underscore',
         'fw/fw',
-        'fw/components/region',
-        'fw/views/base-view',
-        'app/controllers/main-controller',
         'app/controllers/common-controller',
         'app/views/layouts/app-layout',
-    ], function(module, config, _, FW, Region, BaseView, MainController, CommonController, AppLayout) {
+
+        'fw/components/region',
+        'fw/views/base-view',
+        'createjs',
+    ], function(module, config, _, FW, CommonController, AppLayout, Region, BaseView, createjs) {
 
         'use strict';
 
@@ -103,14 +104,60 @@ define(
              *  FW.install('test-plugin', TestPlugin);
              */
 
+            // PreloadJS testing
+            console.log(createjs);
+            var queue = new createjs.LoadQueue(true);
+
+            var assets = [
+                { id: 'img-1', src: '/assets/img-1.jpeg'},
+                { id: 'img-2', src: '/assets/img-2.jpeg'},
+                { id: 'reddit', src: '/assets/reddit.json'}
+            ];
+
+            queue.loadManifest(assets);
+
+            queue.on('complete', function(e) {
+                console.log('%ccomplete', 'color: green');
+                console.log(e);
+            });
+
+            queue.on('progress', function(e) {
+                console.log('%cprogress', 'color: grey');
+                console.log(e);
+            });
+
+            queue.on('error', function(e) {
+                console.log('%cerror', 'color: red');
+                console.log(e);
+            });
+
+            queue.on('fileload', function(e) {
+                console.log('%cfileload', 'color: blue');
+                console.log(e);
+            });
+
+            var AssetManager = Backbone.Collection.extend({
+                initialize: function(models, options) {
+                    this.model = options.model;
+                },
+
+                load: function() {
+
+                },
+
+            });
+
+            /*
+            queue.on('fileprogress', function(e) {
+                console.log('fileprogress', e);
+            });
+            */
+
             // start the whole stuff
             Backbone.history.start();
 
             // testing transitions
             doStuff();
-            // test controller.actions mutation
-            // mutateController(MainController);
-            // console.log(MainController)
         });
     }
 );

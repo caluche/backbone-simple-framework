@@ -38,6 +38,8 @@ _core_
 
 _components_
 
+    -   * AssetCollection
+    -   * AssetModel
     -   AbstractController
     -   UILocker
     -   * AbstractLayout

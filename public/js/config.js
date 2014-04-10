@@ -21,40 +21,17 @@ define([], function() {
                 controller: 'controllers/main-controller::home',
                 defaults: {}
             },
-
             content: {
                 route: 'content(/:id)',
                 controller: 'controllers/main-controller::content',
                 defaults: { id: 25 }
             }
-            /*
-            routeA: {
-                route: 'route-a/:id(/*slug)',
-                // this controller tries to work
-                controller: 'controllers/mainController::routeA',
-                defaults: {
-                    'slug': 'default-value'
-                }
-            },
-            routeB: {
-                route: 'route-b/:id',
-                controller: 'controllers/mainController::routeB',
-                defaults: {}
-            },
-            shouldNotBeCalled: {
-                route: 'a/:test|b/:niap',
-                controller: 'controllers/mainController::action',
-                defaults: {}
-            }
-            */
         },
         assets: {
-            globals: [],
-            statics: {
-                /* state: { id: url } ? */
-            },
-            dynamics: {
-                //
+            'img-1': {
+                path: '/assets/img-1.jpeg',
+                cache: true,
+                preload: true
             }
         },
         regions: {
@@ -62,9 +39,7 @@ define([], function() {
             'main': '#main',
             'footer': '#footer'
         },
-
-        views: {/* ? */},
-        constantes: {
+        consts: {
             /* stored in require ? */
         }
     }

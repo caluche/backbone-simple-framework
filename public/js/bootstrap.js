@@ -18,34 +18,34 @@
         urlArgs: 'bust=' + new Date().getTime(),
         baseUrl: 'js',
         shim: {
-            'jquery': {
+            jquery: {
                 exports: '$'
             },
-            'underscore': {
+            underscore: {
                 exports: '_'
             },
-            'es6-promise': {
-                exports: 'Promise'
-            },
-            'backbone': {
+            backbone: {
                 deps: ['jquery', 'underscore'],
                 exports: 'Backbone'
             },
-            'fw': {
-                deps: ['backbone', 'es-promise']
+            fw: {
+                deps: ['backbone', 'when']
+            },
+            createjs: {
+                exports: 'createjs'
             }
         },
         packages: [
             { name: 'when', location: 'vendors/when', main: 'when' }
         ],
         paths: {
-            'jquery': 'vendors/jquery/dist/jquery',
-            'underscore': 'vendors/underscore/underscore',
-            'backbone': 'vendors/backbone/backbone',
-            'text': 'vendors/requirejs-text/text',
-            'es6-promise': 'vendors/es6-promise/promise',
-            'fw': 'fw',
-            'templates': '../templates'
+            jquery: 'vendors/jquery/dist/jquery',
+            underscore: 'vendors/underscore/underscore',
+            backbone: 'vendors/backbone/backbone',
+            text: 'vendors/requirejs-text/text',
+            createjs: 'vendors/PreloadJS/lib/preloadjs-0.4.1.min',
+            fw: 'fw',
+            templates: '../templates'
         },
     });
 

@@ -4,7 +4,6 @@ define([
         'app/views/header'
     ], function(Backbone, AbstractController, HeaderView) {
 
-        console.log(arguments);
         'use strict';
 
         var CommonController = AbstractController.extend({
@@ -20,6 +19,8 @@ define([
                         var transition = region.createTransition(true);
 
                         transition.show(headerView);
+                        // defer the callback execution to the end of the transition
+                        // allow being sure headerView is actually rendered
                         transition.complete(function() {
                             headerView.model.set('state', request.state.id);
                         });

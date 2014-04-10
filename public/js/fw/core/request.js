@@ -6,7 +6,7 @@ define(
         'use strict';
 
         /**
-         * Request
+         *  REQUEST
          *
          *  host and format informations about the request
          *  format Backbone's Router given information to create a named parameter
@@ -30,7 +30,7 @@ define(
             this.params = {};
             this.query = {};
 
-            this.route = window.location.hash;
+            this.hash = window.location.hash;
 
             this.mapRouteParameters();
             this.mapQueryParameters();

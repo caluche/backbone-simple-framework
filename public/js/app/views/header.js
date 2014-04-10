@@ -20,6 +20,11 @@ define(
                 this.randomizeContent();
             },
 
+            // is triggered when $el is inserted in the DOM
+            onShow: function() {
+                // console.log('header on show');
+            },
+
             updateNav: function(model, state) {
                 this.$nav.removeClass('active');
                 this.$nav.filter('[data-state="' + state + '"]').addClass('active');

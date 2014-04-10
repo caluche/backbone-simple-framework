@@ -30,6 +30,32 @@ define(
          *       }
          *   });
          */
+
+        /**
+         *  // CONTROLLER - API USE EXAMPLE
+         *  testAction: function() {
+         *      var myRegion = this.layout.get('myRegion');
+         *      var myAsset = this.assets.get('myAsset');
+         *
+         *      // params: name of the transition method, autoHide
+         *      // `myTransition` must be a ref to a `Transition` object
+         *      var transition = myRegion.createTransition(myTransition, false);
+         *      transition.hide(); // or `myRegion.show()` ?
+         *
+         *      // this.assets.on('load') should also be trigerred
+         *      // maybe must hide a deferred object
+         *      myAsset.on('load', function(asset) {
+         *          var myModel = new Backbone.Model(asset);
+         *          var myView = new ModelView({
+         *              model: myModel
+         *          });
+         *
+         *          // is actually an internal call to `defer.resolve` in `transition`
+         *          transition.show(myView); // or `myRegion.hide(myView)` ?
+         *      }, this);
+         *  }
+         */
+
         var AbstractController = function(options) {
             var options = options || {};
             // set layout
