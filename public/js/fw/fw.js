@@ -172,7 +172,7 @@ define([
             // init core middlewares
             initRouter: function() {
                 this.router = new Router({
-                    routes: this.getRoutes(this.config),
+                    routes: this.formatRoutes(this.config),
                     states: this.config.states
                 });
             },
@@ -190,10 +190,14 @@ define([
             },
 
             // this function is called only if an AssetsLoader is register
-            initAssetManager: function() {},
+            initAssetsManager: function() {
+                this.assetsManager = new AssetsManager({
+
+                });
+            },
 
             //  map `config.states` to Backbone.Router compliant routes
-            getRoutes: function(config) {
+            formatRoutes: function(config) {
                 var routes = {},
                     states = config.states;
 
@@ -204,6 +208,11 @@ define([
 
                 return routes;
             },
+
+            formatAssets: function() {
+
+            },
+
 
             //  helpers to configure framework
             //  -----------------------------------------------------
@@ -227,9 +236,10 @@ define([
             // if no assetsLoader is defined
             // the app don't use an asset manager
             setAssetsLoader: function(ctor) {
-                this.assetLoader = new ctor();
+                if (ctor) {
+                    this.assetLoader = new ctor();
+                }
 
-                this.services['core:assetLoader']
                 this.initAssetsManager();
             },
 

@@ -4,23 +4,29 @@ README
 simple framework draft
 (MVC - Plugin oriented)
 
-__dependencies__: backbone, requirejs, underscore, jquery (other deps should be added through plugins)
+## dependencies
+
+-   backbone
+-   underscore
+-   jquery
+-   whenjs
+-   preloadjs _(optionnal)_
+-   requirejs
 
 @TODO :
-- remove requirejs dependency
-- change jQuery Deferred to Promise polyfill
+-   extract project from test app
+-   remove requirejs dependency - prefer `browserify` for build step
+-   allow global, AMD and CommonJS integration
 
 _inspired from Chaplin architecture_
 
 ## install
 
 ```sh
-
 $ cd path/to/project
 $ npm install
 $ bower install
 $ node app.js
-
 ```
 
 the main file is `public/js/main.js`

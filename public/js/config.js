@@ -33,6 +33,7 @@ define([], function() {
                 cache: true,
                 preload: true
             }
+            // for assets with variables in url, use predispatch event to map url to param
         },
         regions: {
             'header': '#header',

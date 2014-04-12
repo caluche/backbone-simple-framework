@@ -81,14 +81,14 @@ define(
         $('document').ready(function() {
             // intialize the framework
             FW.initialize(config, env);
-            // call these directly or through config extend
-            FW.setLayout(AppLayout);
-            // FW.setAppController(MyAppController);
-            // FW.registerCommonController(HeaderController)
 
+            FW.setLayout(AppLayout);
+            FW.setAssetsLoader();
+
+            FW.addCommonController('commonController', CommonController);
             // install plugins
             // FW.install('analytics', MyPluginCtor);
-            FW.addCommonController('commonController', CommonController);
+
 
             /**
              *  // example:
@@ -109,8 +109,8 @@ define(
             var queue = new createjs.LoadQueue(true);
 
             var assets = [
-                { id: 'img-1', src: '/assets/img-1.jpeg'},
-                { id: 'img-2', src: '/assets/img-2.jpeg'},
+                { id: 'img-1', src: '/assets/img-1.jpg'},
+                { id: 'img-2', src: '/assets/img-2.jpg'},
                 { id: 'reddit', src: '/assets/reddit.json'}
             ];
 
