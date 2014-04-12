@@ -191,9 +191,7 @@ define([
 
             // this function is called only if an AssetsLoader is register
             initAssetsManager: function() {
-                this.assetsManager = new AssetsManager({
-
-                });
+                // this.assetsManager = new AssetsManager({});
             },
 
             //  map `config.states` to Backbone.Router compliant routes

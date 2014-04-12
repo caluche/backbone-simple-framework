@@ -124,7 +124,10 @@ define([
                 nextView.render();
                 nextView.$el.hide();
                 nextView.$el.appendTo(this.$el);
-                nextView.onShow();
+
+                if (_.isFunction(nextView.onRender)) {
+                    nextView.onRender();
+                }
 
                 nextView.$el.fadeTo(200, 1, _.bind(function() {
                     this.resume();

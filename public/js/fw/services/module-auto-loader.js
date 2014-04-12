@@ -31,7 +31,7 @@ define(
                     require([modulePath], function(module) {
                         resolve(module);
                     }, function(err) {
-                        reject(new Error('"' + moduleId + '" with path "' + modulePath + '" not found'));
+                        reject(err);
                     });
                 });
 

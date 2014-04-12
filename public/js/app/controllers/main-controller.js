@@ -1,10 +1,12 @@
 define([
         'fw/components/abstract-controller',
         'fw/components/region',
-        'app/views/test-routing-view'
-    ], function(AbstractController, Region, TestRoutingView) {
+        'app/views/home-view'
+    ], function(AbstractController, Region, HomeView) {
 
         'use strict';
+
+        console.log(new HomeView());
 
         // dummy controller for testing
         var MainController = AbstractController.extend({
@@ -27,13 +29,14 @@ define([
                 // if update does not exists, do nothing
                 home: {
                     show: function(request, prevRequest) {
+                        var region = this.layout.getRegion('main');
+                        var homeView = new HomeView();
+
+                        var transition = region.createTransition(true);
+                        transition.show(homeView);
                         // load assets, create model and views,
                         // update regions, etc...
                         console.log('home Show', this, arguments);
-                    },
-                    update: function(request, prevRequest) {
-                        // load assets, update models
-                        console.log('home Update', this, arguments);
                     }
                 },
 
