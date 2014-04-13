@@ -52,8 +52,8 @@ define([
                     update: function(request, prevRequest) {
                         var contentView = this.layout.getRegion('main').getView();
                         contentView.model.set({
-                            'param': request.params.id,
-                            'prevParam': prevRequest.params.id
+                            param: request.params.id,
+                            prevParam: prevRequest.params.id
                         });
                     }
                 },
