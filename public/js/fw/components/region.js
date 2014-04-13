@@ -70,7 +70,7 @@ define(
                 // should clean the transition in a way
                 // maybe just a call to `this.transition.destroy()` (need to be tested)
                 // trigger an event to let the Layout know what appends
-                console.log('   => "region" - end transition');
+                // console.log('   => "region" - end transition');
             },
 
             // PUBLIC API

@@ -63,21 +63,6 @@ define(
             //          events ? dependency injection ?
         */
 
-        // asset model proto
-        var AssetModel = Backbone.Model.extend({
-            defaults: {
-                path: undefined,
-                cache: true,
-                preload: false,
-                timestamp: undefined, // should b set when asset is loaded
-                data: undefined
-            },
-
-            getData: function() {
-                return this.get('data');
-            }
-        });
-
         /**
          *  this must keep all the data in the framework format
          *  if the loader needs a specific data presentation (and it will)
@@ -86,34 +71,34 @@ define(
          *  should create a promise for each asset to be loaded
          *
          */
-        var AssetsManager = Backbone.Collection.extend({
+        var AssetsManager = function() {
+            this.assets = new Backbone.Collection({
+                model: AssetModel
+            });
 
-            initialize: function(models, options) {
-                this.config = options.config; // @TODO remove - automatically done by backbone
+            // this.dynamicAssets = model ? collection ?
+        };
 
-                this.promises = {};
+        _.extend(AssetsManager.prototype, {
+
+            initialize: function() {}
+
+            get: function(id, params) {
+                var asset = this.assets.get(id);
+
+                if (asset.get('cache') === false) {
+                    asset.destroy();
+                    asset = this.assets.create(this.config[id]);
+                }
+
+                return asset;
             },
 
-            load: function(stateId) {
+            loaded: function() {
 
             },
 
-            // receive the collection of the assets to be loaded
-            // for a given state
-            loadAssets: function(collection) {
-
-            },
-
-            // return a collection of the assets to be loaded
-            defineCollection: function(stateId) {
-
-            },
-
-            onLoad: function() {
-
-            }
-
-        });
+        })
 
         return AssetsManager;
 

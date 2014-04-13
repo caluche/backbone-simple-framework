@@ -9,8 +9,10 @@ define(
 
         'fw/components/region',
         'fw/views/base-view',
+        'fw/core/com',
         'createjs',
-    ], function(module, config, _, FW, CommonController, AppLayout, Region, BaseView, createjs) {
+        'when'
+    ], function(module, config, _, FW, CommonController, AppLayout, Region, BaseView, com, createjs, when) {
 
         'use strict';
 
@@ -115,12 +117,37 @@ define(
 
             });
             */
+            var assetsManager = new AssetsManager(config)
 
-            /*
-            queue.on('fileprogress', function(e) {
-                console.log('fileprogress', e);
+
+            var queue = new createjs.LoadQueue(true);
+            // mimic loader service
+            com.subscribe('load:asset', function(asset) {
+                var manifest = { id: asset.id + ' - ' + asset.cid, src: asset.get('path') };
+                queue.loadManifest(manifest);
+
+                queue.on('fileload', function(event) {
+                    console.log('%cfileload', 'color: blue');
+
+                    asset.set({
+                        type: event.type,
+                        data: event.result,
+                        timestamp: new Date().getTime()
+                    });
+
+                    console.log(asset.toJSON());
+                });
             });
-            */
+
+            // instanciate model
+            var model = new AssetModel({ path: '/assets/img-1.jpg' });
+
+            model.loaded(function(model) {
+                var img = new Image();
+                img.src = model.get('path');
+
+                $('body').append(img);
+            }, this);
 
             // start the whole stuff
             Backbone.history.start();

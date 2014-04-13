@@ -10,12 +10,7 @@ define(
             template: contentTmpl,
 
             initialize: function() {
-                this.listenTo(this.model, 'change', this.updateView);
-            },
-
-            updateView: function(model, value) {
-                console.log(this.model.toJSON());
-                this.render();
+                this.listenTo(this.model, 'change', this.render);
             }
         });
 

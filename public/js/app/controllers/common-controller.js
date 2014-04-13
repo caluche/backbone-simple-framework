@@ -36,10 +36,10 @@ define([
                 },
                 footer: {
                     show: function() {
-                        console.log('%c     => footer controller: show', 'color: green');
+                        // console.log('%c     => footer controller: show', 'color: green');
                     },
                     update: function() {
-                        console.log('%c     => footer controller: update', 'color: green');
+                        // console.log('%c     => footer controller: update', 'color: green');
                     }
                 }
             }
