@@ -33,6 +33,20 @@ define(
             randomizeContent: function() {
                 var href = '#content/' + parseInt(Math.random() * 100, 10);
                 this.$contentLink.attr('href', href);
+            },
+
+            updateBgColor: function() {
+                this.$('.navbar-inner').css({ borderColor: this.getRandomColor() });
+            },
+
+            // http://stackoverflow.com/questions/1484506/random-color-generator-in-javascript
+            getRandomColor: function() {
+                var letters = '0123456789abcdef'.split('');
+                var color = '#';
+                for (var i = 0; i < 6; i++ ) {
+                    color += letters[Math.round(Math.random() * 15)];
+                }
+                return color;
             }
         });
 

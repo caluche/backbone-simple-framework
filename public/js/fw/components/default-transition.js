@@ -111,7 +111,12 @@ define([
             doHide: function(prevView) {
                 prevView.$el.fadeTo(200, 0, _.bind(function() {
                     prevView.$el.remove();
-                    prevView.close();
+
+                    if (_.isFunction(prevView.close)) {
+                        prevView.close();
+                    } else {
+                        prevView.remove();
+                    }
 
                     this.resume();
                 }, this));
@@ -130,6 +135,10 @@ define([
                 }
 
                 nextView.$el.fadeTo(200, 1, _.bind(function() {
+                    if (_.isFunction(nextView.onShow)) {
+                        nextView.onShow();
+                    }
+
                     this.resume();
                 }, this));
             }

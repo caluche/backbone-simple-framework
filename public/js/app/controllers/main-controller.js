@@ -1,7 +1,7 @@
 define([
         'fw/components/abstract-controller',
         'fw/components/region',
-        'app/views/home-view'
+        'app/views/home'
     ], function(AbstractController, Region, HomeView) {
 
         'use strict';

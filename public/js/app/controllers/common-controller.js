@@ -27,8 +27,11 @@ define([
                     },
                     update: function(request, prevRequest) {
                         var headerView = this.layout.getRegion('header').getView();
+                        // update through model
                         headerView.model.set('state', request.state.id);
+                        // call method directly
                         headerView.randomizeContent();
+                        headerView.updateBgColor();
                     }
                 },
                 footer: {

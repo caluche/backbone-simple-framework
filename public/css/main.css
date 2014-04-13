@@ -1,1 +1,8 @@
-main.css
+body {
+    margin: 10px;
+}
+
+.navbar-inner {
+    border-width: 3px;
+    transition: border-color 200ms;
+}

@@ -30,11 +30,21 @@ define([
                 });
             },
 
-            toggleContent: function(e) {
-                e.preventDefault();
+            onShow: function() {
+                this.toggleContent();
+            },
 
-                var classname = this.$(e.currentTarget).attr('class');
-                var view = (classname == 'view1') ? new SubView1() : new SubView2();
+            toggleContent: function(e) {
+                var classname;
+
+                if (e) {
+                    e.preventDefault();
+                    classname = this.$(e.currentTarget).attr('class');
+                } else {
+                    classname = 'view1';
+                }
+
+                var view = (classname == 'view2') ? new SubView2() : new SubView1();
                 var transition = this.region.createTransition();
                 transition.hide();
 
