@@ -20,8 +20,12 @@ define(
          *          right channels in it's `initialize` method
          *          override `this.lockedEvents` for alternative use
          *
+         *  extend this object for `layout.AppLocker`: app should be locked from the Disptacher
+         *  and unlocked from the Layout (once all Regions finished their transitions (cf. `_.times`))
+         *  Layout should subscribe to all channels from Dispatcher and Loader
          */
         var UILocker = function(options) {
+            options = options || {};
             this.$el = $(options.el || 'body');
             this.el = this.$el[0];
 
@@ -40,14 +44,14 @@ define(
             // entry point for extention
             initialize: function() {},
 
+            // catch all function
             bypass: function(e) {
                 e.preventDefault();
                 e.stopPropagation();
                 return false;
             },
 
-            // lock user interactions
-            // app should be locked from the Disptacher
+            // API
             lock: function() {
                 if (!('addEventListener' in this.el)) { return; }
 
@@ -57,8 +61,6 @@ define(
                 }
             },
 
-            // and unlocked from the Layout (once all Regions finished their transitions (cf. `_.times`))
-            // Layout should subscribe to all channels from Dispatcher and Loader
             unlock: function() {
                 if (!('addEventListener' in this.el)) { return; }
 

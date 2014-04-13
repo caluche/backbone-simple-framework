@@ -58,8 +58,12 @@ define(
                 this.currentView = view;
             },
 
-            getView: function() {
+            getCurrentView: function() {
                 return this.currentView;
+            },
+            // alias `getCurrentView`
+            getView: function() {
+                return this.getCurrentView();
             },
 
             endTransition: function() {

@@ -1,12 +1,11 @@
 define([
         'fw/components/abstract-controller',
         'fw/components/region',
-        'app/views/home'
-    ], function(AbstractController, Region, HomeView) {
+        'app/views/home',
+        'app/views/content'
+    ], function(AbstractController, Region, HomeView, ContentView) {
 
         'use strict';
-
-        console.log(new HomeView());
 
         // dummy controller for testing
         var MainController = AbstractController.extend({
@@ -28,27 +27,29 @@ define([
                 // to set `this` to the controller
                 // if update does not exists, do nothing
                 home: {
+                    // load assets, create model and views,
+                    // update regions, etc...
                     show: function(request, prevRequest) {
                         var region = this.layout.getRegion('main');
                         var homeView = new HomeView();
 
                         var transition = region.createTransition(true);
                         transition.show(homeView);
-                        // load assets, create model and views,
-                        // update regions, etc...
-                        console.log('home Show', this, arguments);
                     }
                 },
 
                 content: {
                     show: function(request, prevRequest) {
-                        // load assets, create model and views,
-                        // update regions, etc...
-                        console.log('content Show', this, arguments);
+                        var region = this.layout.getRegion('main');
+                        var contentModel = new Backbone.Model({ param: request.params.id });
+                        var contentView = new ContentView({ model: contentModel });
+
+                        var transition = region.createTransition(true);
+                        transition.show(contentView);
                     },
                     update: function(request, prevRequest) {
-                        // load assets, update models
-                        console.log('content Update', this, arguments);
+                        var contentView = this.layout.getRegion('main').getView();
+                        contentView.model.set('param', request.params.id);
                     }
                 },
             }
