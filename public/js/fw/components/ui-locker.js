@@ -9,18 +9,17 @@ define(
         /**
          *  UI LOCKER
          *
-         *  Looks like there is no waay to use `usecapture` = true with jQuery
-         *  must use `addEventListener` and fallback to `attachEvent` for IE8
+         *  Lock all the events defined in `this.lockedEvents` on a given DOM object
+         *
+         *  @IMPORTANT  IE8 and below cannot support this fonctionnality - IE event model only bubbles
+         *  cf. http://stackoverflow.com/questions/3638141/emulate-w3c-event-capturing-model-in-ie
+         *      http://stackoverflow.com/questions/6354079/event-capturing-with-jquery
          *
          *  @NOTE   `BaseView` should host an instance of `UILocker`
          *          the `layout.UILocker` should subscribe to the
          *          right channels in it's `initialize` method
          *          override `this.lockedEvents` for alternative use
          *
-         *  @IMPORTANT  IE8 and below cannot support this fonctionnality
-         *              IE event model only bubbles
-         *  cf. http://stackoverflow.com/questions/3638141/emulate-w3c-event-capturing-model-in-ie
-         *      http://stackoverflow.com/questions/6354079/event-capturing-with-jquery
          */
         var UILocker = function(options) {
             this.$el = $(options.el || 'body');
