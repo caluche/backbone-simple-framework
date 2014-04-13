@@ -10,11 +10,12 @@ define(
             template: contentTmpl,
 
             initialize: function() {
-                this.listenTo(this.model, 'change:param', this.updateParam);
+                this.listenTo(this.model, 'change', this.updateView);
             },
 
-            updateParam: function(model, value) {
-                this.$el.find('.param').text(value);
+            updateView: function(model, value) {
+                console.log(this.model.toJSON());
+                this.render();
             }
         });
 

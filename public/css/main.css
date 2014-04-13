@@ -7,11 +7,12 @@ body {
     transition: border-color 200ms;
 }
 
+.prev-param,
 .param {
     color: green;
     font-size: 30px;
 }
 
-p {
-
+.prev-param {
+    color: red;
 }

@@ -21,14 +21,13 @@ define([
                 this.remove();
             },
 
-            // define all actions
+            // actions are objects with `show` and `update` (maybe `remove`) as possible keys
+            // all other keys will be ignored
+            // `this` refers to the controller object inside actions (called with `call`)
             actions: {
-                // these methods should be called with an apply
-                // to set `this` to the controller
+                // load assets, create model and views, update regions, etc...
                 // if update does not exists, do nothing
                 home: {
-                    // load assets, create model and views,
-                    // update regions, etc...
                     show: function(request, prevRequest) {
                         var region = this.layout.getRegion('main');
                         var homeView = new HomeView();
@@ -41,7 +40,10 @@ define([
                 content: {
                     show: function(request, prevRequest) {
                         var region = this.layout.getRegion('main');
-                        var contentModel = new Backbone.Model({ param: request.params.id });
+                        var contentModel = new Backbone.Model({
+                            param: request.params.id,
+                            prevParam: undefined
+                        });
                         var contentView = new ContentView({ model: contentModel });
 
                         var transition = region.createTransition(true);
@@ -49,7 +51,10 @@ define([
                     },
                     update: function(request, prevRequest) {
                         var contentView = this.layout.getRegion('main').getView();
-                        contentView.model.set('param', request.params.id);
+                        contentView.model.set({
+                            'param': request.params.id,
+                            'prevParam': prevRequest.params.id
+                        });
                     }
                 },
             }
