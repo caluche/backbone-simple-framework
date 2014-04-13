@@ -50,7 +50,7 @@ _components_
 _views_
 
     -   BaseView
-    -   * ModelView
+    -   ModelView
     -   * CollectionView
     -   * ...
 
