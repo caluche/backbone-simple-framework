@@ -1,7 +1,8 @@
 define(
     [
-        'backbone'
-    ], function(Backbone) {
+        'backbone',
+        'fw/components/asset-model'
+    ], function(Backbone, AssetModel) {
 
         'use strict';
 
@@ -62,6 +63,13 @@ define(
             //  @TODO   define how this object should communicate with the AssetLoader
             //          events ? dependency injection ?
         */
+        var AbstractAsset = Backbone.Model.extend({
+
+        });
+
+        var AssetsCollection = Backbone.Collection.extend({
+            model: AssetModel
+        });
 
         /**
          *  this must keep all the data in the framework format
@@ -71,32 +79,114 @@ define(
          *  should create a promise for each asset to be loaded
          *
          */
-        var AssetsManager = function() {
-            this.assets = new Backbone.Collection({
-                model: AssetModel
-            });
 
+        /**
+         *  2 main configuration:
+         *      simple asset - asset path is static and represent only 1 resource
+         *      dynamic asset - asset path contains a variable and can represent several resources
+         *
+         *  these 2 sorts of assets needs a seperate treatement
+         */
+        var protocolRegex = /(http:\/\/|https:\/\/)/;
+
+        var AssetsManager = function(options) {
+            this.config = options.config;
+
+            // order assets accrding to their type [dynamic, static]
+            _.forEach(this.config, function(config) {
+                config.isDynamic = this.isDynamic(config);
+            }, this);
+
+            // console.log(this.config);
+
+            // console.log(this.config);
+            this.assets = new AssetsCollection();
+            // console.log(this.assets);
+
+            var assetsToPreload = _.where(this.config, { preload: true });
+            console.log(assetsToPreload);
+            // toPreload[0].set('data', 'test');
+            //console.log(this.assets.get('img-1'));
             // this.dynamicAssets = model ? collection ?
         };
 
         _.extend(AssetsManager.prototype, {
 
-            initialize: function() {}
+            initialize: function() {},
 
+            //  must define if the required asset is dynamic or not
+            //  throw an error if dynamic and no value (or default value)
             get: function(id, params) {
-                var asset = this.assets.get(id);
+                var asset;
 
-                if (asset.get('cache') === false) {
-                    asset.destroy();
-                    asset = this.assets.create(this.config[id]);
+                // find the asset in the stack
+                if (this.config[id].isDynamic) {
+                    if (!_.isObject(params)) {
+                        throw new Error('asset "' + id + '" requires parameters');
+                    }
+
+                    // find the first asset which match `id` and `params`
+                    asset = this.assets.filter(function(model) {
+                        return (model.get('id') === id && _.isEqual(model.get('params'), params));
+                    })[0];
+                } else {
+                    asset = this.asset.findWhere({ id: id });
+                }
+
+                // if asset exists but has `cache` set to false
+                // remove it from the collection
+                if (asset && asset.get('cache') === false) {
+                    this.assets.remove(asset);
+                    asset = undefined;
+                }
+
+                // if asset does not exists, create the object
+                if (!asset) {
+                    asset = this.createAsset(id, params);
                 }
 
                 return asset;
             },
 
+            createAsset: function(id, params) {
+                var config = _.extend({}, this.config[id]);
+
+                if (params) {
+                    config = _.extend(config, { params: params });
+                }
+
+                var asset = new AssetModel(config);
+                this.assets.add(asset);
+
+                return asset;
+            },
+
+            //  add an asset to the config objects
+            //  returns an AssetModel instance
+            add: function(config) {
+
+            },
+
+            getCollection: function(query) {
+                return new AssetsCollection.where(query);
+            },
+
+            // once called -> create the queue, and the deferreds ?
+            load: function() {
+
+            },
+
+            //
             loaded: function() {
 
             },
+
+            // finds if the `path` contains a variable declaration
+            // just look if ':' is present in the path (remove protocol before testing)
+            isDynamic: function(model) {
+                var path = model.path.replace(protocolRegex, '');
+                return path.indexOf(':') !== -1;
+            }
 
         })
 

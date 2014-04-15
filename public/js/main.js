@@ -10,39 +10,14 @@ define(
         'fw/components/region',
         'fw/views/base-view',
         'fw/core/com',
+        'fw/core/assets-manager',
+        'fw/components/asset-model',
         'createjs',
         'when'
-    ], function(module, config, _, FW, CommonController, AppLayout, Region, BaseView, com, createjs, when) {
+    ], function(module, config, _, FW, CommonController, AppLayout, Region, BaseView, com, AssetsManager, AssetModel, createjs, when) {
 
         'use strict';
 
-
-
-        // take the [show, update] of each action
-        // if this is ketp, a cache system really must be implemented
-        // operations must be done on an instance and transfered to the prototype
-        // or maybe it makes no sens, just apply the instance to the method
-        /*
-        var mutateController = function(ctor) {
-            var actions = ctor.actions;
-            console.log(ctor.actions);
-            console.log(new ctor);
-            // ctor.action === undefined;
-            for (var action in actions) {
-                for (var method in actions[action]) {
-                    var finalMethodName = '_' + action + _.capitalize(method);
-                    console.log(finalMethodName);
-                    ctor[finalMethodName] = function() {
-                        return this.actions.action.method.apply(this, arguments);
-                    }
-                    console.log(ctor);
-                }
-            }
-
-            console.log(ctor);
-            return;
-        }
-        */
         //  get env config from requirejs
         var env = module.config();
         // ---------------------------------------------
@@ -117,9 +92,41 @@ define(
 
             });
             */
-            var assetsManager = new AssetsManager(config)
 
+            /*
+                // assets use
+                show: function(request, prevRequest) {
+                    var region = this.layout.getRegion('main');
+                    var transition = region.createTransition();
+                    var asset = this.assets.get('img-1');
 
+                    transition.hide();
+
+                    asset.loaded(function(assets) {
+                        var myView = new BaseView({
+                            model: new Backbone.Model({ path: asset.path });
+                        });
+
+                        transition.show(myView);
+                    });
+                }
+
+            */
+            // console.log(config);
+            var assetsManager = new AssetsManager({
+                config: _.identify(config.assets, 'id'),
+            });
+
+            // console.log(assetsManager.config);
+            var asset = assetsManager.get('with-params', { id: 23 });
+            console.log(asset.toJSON());
+            // console.log(assetsManager.assets.toJSON());
+            // assetsManager.get('with-params', { id: 54 });
+            // console.log(assetsManager.assets.toJSON());
+            // assetsManager.get('with-params', { id: 23 });
+            // console.log(assetsManager.assets.toJSON());
+
+            /*
             var queue = new createjs.LoadQueue(true);
             // mimic loader service
             com.subscribe('load:asset', function(asset) {
@@ -148,6 +155,7 @@ define(
 
                 $('body').append(img);
             }, this);
+            */
 
             // start the whole stuff
             Backbone.history.start();

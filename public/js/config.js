@@ -30,9 +30,31 @@ define([], function() {
         assets: {
             'img-1': {
                 path: '/assets/img-1.jpeg',
-                cache: true,
+                cache: true, // defaults
                 preload: true
-            }
+            },
+            /*
+            'img-2': {
+                path: '/assets/img-2.jpeg',
+                cache: true, // defaults
+                preload: false // defaults
+            },
+            */
+            'reddit': {
+                path: 'http://my.site.com/assets/reddit.json',
+                cache: false,
+                preload: false
+            },
+
+
+            'with-params': {
+                path: '/assets/test-:id.json'
+            },
+
+            // 'with-range': {
+            //     path: '/assets/range-:id.json',
+            //     range: [100, 120]
+            // }
             // for assets with variables in url, use predispatch event to map url to param
         },
         regions: {

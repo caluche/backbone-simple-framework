@@ -1,0 +1,21 @@
+Retours Vivien - 20140414
+
+Je pose mes premières impressions, elles sont un peu critiques mais sont plus là pour engendrer une discussion, poser un peu les choses pour donner le maximum de cohérence/flexibilité à l'ensemble.
+
+- La séparation MVC est effectivement plus nette et doit permettre plus de découpage, c'est vrai. Par contre je ne sais pas quelle approche est la mieux, c'est vision Rails ou celle plus modulaire avec l'ensemble des couches MVC dans chaque module.
+
+- Il faudrait voir le comportement de la compression, essentielle mais chiante à mettre en place, il faut qu'elle soit contrôlée à chaque étape.
+
+- La gestion des dépendances RequireJS est encore un peu compliquée, il faut bien savoir où sont les choses et simplifier les paths ou ajouter l'ensemble des librairies dans un objet global FW pour n'avoir qu'une dépendance (le plus simple pour les devs novices mais moins souple).
+
+- Il faut garder la gestion de l'environnement pour chaque user ou faire une génération de config par défaut avec un outil comme Grunt. Dans ce dernier cas Il faudra également ajouter le fichier dans l'ignore list de SVN, ce qui est un peu chiant (pas de fichier ignore à la racine comme Git).
+
+- Les contrôleurs semblent faire toujours un peu la même chose (du moins quand ils sont simples), et le code lié aux régions est toujours un peu similaire dans les vues. Il y a surement un moyen d'avoir des comportements par défaut moyennant du paramétrage.
+
+- Je ne comprends parfois pas trop l'arborescence, pourquoi "service" n'est pas dans "components" par exemple...
+
+- Je me pose la question au sujet des régions, j'ai l'impression que ça ajoute pas mal de complexité pour pas grand chose, tel qu'elles sont faites ici, les zones pourraient être ajoutées dans le template html. Leur utilisation avec les transition pourraient être moins visibles à l'utilisateur novice.
+
+- De façon générale il faut quelque chose de plus simple, on doit pouvoir du moins rendre simple à un utilisateur novice l'utilisation du FW afin de le pousser à l'adopter. Afin de garder de la souplesse, les patterns doivent être utilisés coté FW, ces mêmes paradigmes pourront être utilisés par l'utilisateur expert. De la même manière, il faut qu'il soit utilisable et nécessaire sur les petits projets (temps d'apprentissage augmenté). L'idée est là, l'ensemble est plus souple mais perd en facilité immédiate...
+
+Voilà pour commencer les réflexions, si tu as un peu de temps dans la semaine...
