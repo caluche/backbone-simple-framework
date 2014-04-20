@@ -112,7 +112,10 @@ define(
             console.log(asset.toJSON());
 
             // next step:
-            var assets = assetsManager.get(['img-1', 'img-2']);
+            // var assets = assetsManager.get(['img-1', 'img-2']);
+            // then
+            // assetsManager.createStack(['img-1', 'img-2']);
+            // assetsManager.onload(function() {});
 
             // instanciate model
             // var model = new AssetModel({ id: 'test', path: '/assets/img-1.jpg' });
