@@ -12,9 +12,10 @@ define(
         'fw/core/com',
         'fw/core/assets-manager',
         'fw/components/asset-model',
+        'fw/services/assets-loader',
         'createjs',
         'when'
-    ], function(module, config, _, FW, CommonController, AppLayout, Region, BaseView, com, AssetsManager, AssetModel, createjs, when) {
+    ], function(module, config, _, FW, CommonController, AppLayout, Region, BaseView, com, AssetsManager, AssetModel, AssetsLoader, createjs, when) {
 
         'use strict';
 
@@ -80,17 +81,6 @@ define(
                 console.log('%cfileload', 'color: blue');
                 console.log(e);
             });
-
-            var AssetManager = Backbone.Collection.extend({
-                initialize: function(models, options) {
-                    this.model = options.model;
-                },
-
-                load: function() {
-
-                },
-
-            });
             */
 
             /*
@@ -112,50 +102,31 @@ define(
                 }
 
             */
+            // @TODO => put it the controller
             // console.log(config);
-            var assetsManager = new AssetsManager({
-                config: _.identify(config.assets, 'id'),
-            });
+            var assetsManager = new AssetsManager(_.identify(config.assets, 'id'), FW.com);
+            var assetsLoader = new AssetsLoader(FW);
 
             // console.log(assetsManager.config);
-            var asset = assetsManager.get('with-params', { id: 23 });
+            var asset = assetsManager.get('img-1');
             console.log(asset.toJSON());
-            // console.log(assetsManager.assets.toJSON());
-            // assetsManager.get('with-params', { id: 54 });
-            // console.log(assetsManager.assets.toJSON());
-            // assetsManager.get('with-params', { id: 23 });
-            // console.log(assetsManager.assets.toJSON());
 
-            /*
-            var queue = new createjs.LoadQueue(true);
-            // mimic loader service
-            com.subscribe('load:asset', function(asset) {
-                var manifest = { id: asset.id + ' - ' + asset.cid, src: asset.get('path') };
-                queue.loadManifest(manifest);
-
-                queue.on('fileload', function(event) {
-                    console.log('%cfileload', 'color: blue');
-
-                    asset.set({
-                        type: event.type,
-                        data: event.result,
-                        timestamp: new Date().getTime()
-                    });
-
-                    console.log(asset.toJSON());
-                });
-            });
+            // next step:
+            var assets = assetsManager.get(['img-1', 'img-2']);
 
             // instanciate model
-            var model = new AssetModel({ path: '/assets/img-1.jpg' });
+            // var model = new AssetModel({ id: 'test', path: '/assets/img-1.jpg' });
 
-            model.loaded(function(model) {
+            asset.loaded(function(model) {
                 var img = new Image();
                 img.src = model.get('path');
 
-                $('body').append(img);
+                var $img = $(img).hide();
+
+                $('body').append($img);
+                $img.fadeIn();
             }, this);
-            */
+            // */
 
             // start the whole stuff
             Backbone.history.start();

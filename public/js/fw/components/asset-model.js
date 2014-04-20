@@ -8,6 +8,7 @@ define(
         'use strict';
 
         var AssetModel = Backbone.Model.extend({
+            // @TODO    create a real `id` attrbute (if dynamic: concat params)
             idAttribute: 'uniqId', // dummy `id` attribute to allow use duplication of ids
 
             defaults: {
@@ -19,11 +20,11 @@ define(
             },
 
             initialize: function(config) {
-                if (this.get('isDynamic')) { this.mapPath(); };
+                if (this.get('isDynamic')) {
+                    this.mapPath();
+                };
 
                 this.promise = when.promise(_.bind(this.handlePromise, this));
-                // should be done by the asset manager
-                com.publish('load:asset', this);
             },
 
             getData: function() {
@@ -49,7 +50,7 @@ define(
             mapPath: function() {
                 var path = this.get('path');
 
-                _.each(this.params, function(value, key) {
+                _.each(this.get('params'), function(value, key) {
                     path = path.replace(':' + key, value);
                 });
                 // no need to trigger an event here

@@ -89,8 +89,9 @@ define(
          */
         var protocolRegex = /(http:\/\/|https:\/\/)/;
 
-        var AssetsManager = function(options) {
-            this.config = options.config;
+        var AssetsManager = function(config, com) {
+            this.config = config;
+            this.com = com;
 
             // order assets accrding to their type [dynamic, static]
             _.forEach(this.config, function(config) {
@@ -98,16 +99,10 @@ define(
             }, this);
 
             // console.log(this.config);
-
-            // console.log(this.config);
             this.assets = new AssetsCollection();
             // console.log(this.assets);
 
-            var assetsToPreload = _.where(this.config, { preload: true });
-            console.log(assetsToPreload);
-            // toPreload[0].set('data', 'test');
-            //console.log(this.assets.get('img-1'));
-            // this.dynamicAssets = model ? collection ?
+            // var assetsToPreload = _.where(this.config, { preload: true });
         };
 
         _.extend(AssetsManager.prototype, {
@@ -121,7 +116,7 @@ define(
 
                 // find the asset in the stack
                 if (this.config[id].isDynamic) {
-                    if (!_.isObject(params)) {
+                    if (!_.isObject(params) && !this.config[id].defaults) {
                         throw new Error('asset "' + id + '" requires parameters');
                     }
 
@@ -130,7 +125,7 @@ define(
                         return (model.get('id') === id && _.isEqual(model.get('params'), params));
                     })[0];
                 } else {
-                    asset = this.asset.findWhere({ id: id });
+                    asset = this.assets.findWhere({ id: id });
                 }
 
                 // if asset exists but has `cache` set to false
@@ -158,6 +153,8 @@ define(
                 var asset = new AssetModel(config);
                 this.assets.add(asset);
 
+                this.com.publish('load:asset', asset);
+
                 return asset;
             },
 
@@ -171,15 +168,11 @@ define(
                 return new AssetsCollection.where(query);
             },
 
+            // aliases -> @TODO choose the API
             // once called -> create the queue, and the deferreds ?
-            load: function() {
-
-            },
-
-            //
-            loaded: function() {
-
-            },
+            // onload: function(callback) {},
+            // loaded: function(callback) {},
+            // on: function('load', callback) {},
 
             // finds if the `path` contains a variable declaration
             // just look if ':' is present in the path (remove protocol before testing)

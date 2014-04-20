@@ -29,7 +29,7 @@ define([], function() {
         },
         assets: {
             'img-1': {
-                path: '/assets/img-1.jpeg',
+                path: '/assets/img-1.jpg',
                 cache: true, // defaults
                 preload: true
             },
