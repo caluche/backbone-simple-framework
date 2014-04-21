@@ -11,6 +11,14 @@ define([
         'use strict';
         /**
          *  @TODO
+         *      handle multi-routing properly (controller stack in dispatcher)
+         *      refactor controllers:
+         *          - remove autoloading, register in app instead
+         *          - add `before` and `remove` actions
+         *      handle loader
+         *      refacter framework initialization
+         *
+         *  In a prefect world:
          *      create a dummy App with at least 3 states (home, content, popin)
          *      create a scheme of architecture
          *      write docs
@@ -37,7 +45,7 @@ define([
          *          the loader should also listen custom events to allow it's fine control from a controller
          *      - a layout object (used in controllers) hosting regions, building and storing views
          *          (view factory able to create, store and delete view objects)
-         *      - an Default AppController` to handle loader (through events), 404 fallbacks, globals behaviors
+         *      - a Default AppController` to handle loader (through events), 404 fallbacks, globals behaviors
          */
 
         /**
