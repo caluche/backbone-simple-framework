@@ -25,12 +25,21 @@ define(
         // wait for the DOM
         $('document').ready(function() {
             // intialize the framework
+            /**
+             *  should be:
+             *      FW.configure({ layout: AppLayout, assetsLoader: ... })
+             *      FW.initialize(config, env);
+             *  allow to fallback on default components when `initialize` called is launched
+             */
+
             FW.initialize(config, env);
 
             FW.setLayout(AppLayout);
             FW.setAssetsLoader();
 
+
             FW.addCommonController('commonController', CommonController);
+            // FW.registerController('id', ctor)
             // install plugins
             // FW.install('analytics', MyPluginCtor);
 

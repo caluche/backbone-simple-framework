@@ -86,7 +86,7 @@ define(
 
         /**
          *  this must keep all the data in the framework format
-         *  if the loader needs a specific data presentation (and it will)
+         *  if the loader needs a specific data presentation (and it probably will)
          *  it must do the conversion itself
          *
          *  should create a promise for each asset to be loaded
@@ -188,14 +188,16 @@ define(
             },
 
             // factory method to create an AssetModel
-            createAsset: function(id, params) {
+            // @param modelCtor allow to use user defined AssetModel constructor
+            createAsset: function(id, params, modelCtor) {
                 var config = _.extend({}, this.config[id]);
 
                 if (params) {
                     config = _.extend(config, { params: params });
                 }
 
-                var asset = new AssetModel(config);
+                var ctor = modelCtor || AssetModel;
+                var asset = new ctor(config);
                 this.assets.add(asset);
 
                 // maybe move it back to the asset model
@@ -204,6 +206,11 @@ define(
 
                 return asset;
             },
+
+            // set parameters of a dynamic asset
+            setParams: function(id, params) {
+
+            }
 
             //  add an asset to the currentCollection
             //  the given asset is also added to the config objects
