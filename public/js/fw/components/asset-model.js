@@ -9,7 +9,7 @@ define(
 
         var AssetModel = Backbone.Model.extend({
             // @TODO    create a real `id` attrbute (if dynamic: concat params)
-            idAttribute: 'uniqId', // dummy `id` attribute to allow use duplication of ids
+            // idAttribute: 'uniqId', // dummy `id` attribute to allow use duplication of ids
 
             defaults: {
                 timestamp: undefined,  // is setted when the data is loaded,
@@ -20,24 +20,24 @@ define(
             },
 
             initialize: function(config) {
-                if (this.get('isDynamic')) {
-                    this.mapPath();
-                };
+                if (this.get('isDynamic')) { this.mapPath(); };
 
-                this.promise = when.promise(_.bind(this.handlePromise, this));
+                // create promise for `loaded` synhronisation
+                var defer = when.defer();
+
+                this.on('change:data', _.bind(function() {
+                    console.log(this);
+                    defer.resolve(this);
+                }, this));
+
+                this.promise = defer.promise;
             },
 
             getData: function() {
                 return this.get('data');
             },
 
-            handlePromise: function(resolve, reject) {
-                this.on('change:data', function() {
-                    resolve(this);
-                }, this);
-            },
-
-            loaded: function(callback, ctx) {
+            onload: function(callback, ctx) {
                 when(this.promise).done(_.bind(callback, this));
             },
 

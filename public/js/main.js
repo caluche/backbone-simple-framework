@@ -49,39 +49,6 @@ define(
              *  FW.install('test-plugin', TestPlugin);
              */
 
-            // PreloadJS testing
-            /*
-            console.log(createjs);
-            var queue = new createjs.LoadQueue(true);
-
-            var assets = [
-                { id: 'img-1', src: '/assets/img-1.jpg'},
-                { id: 'img-2', src: '/assets/img-2.jpg'},
-                { id: 'reddit', src: '/assets/reddit.json'}
-            ];
-
-            queue.loadManifest(assets);
-
-            queue.on('complete', function(e) {
-                console.log('%ccomplete', 'color: green');
-                console.log(e);
-            });
-
-            queue.on('progress', function(e) {
-                console.log('%cprogress', 'color: grey');
-                console.log(e);
-            });
-
-            queue.on('error', function(e) {
-                console.log('%cerror', 'color: red');
-                console.log(e);
-            });
-
-            queue.on('fileload', function(e) {
-                console.log('%cfileload', 'color: blue');
-                console.log(e);
-            });
-            */
 
             /*
                 // assets use
@@ -103,33 +70,26 @@ define(
 
             */
             // @TODO => put it the controller
-            // console.log(config);
             var assetsManager = new AssetsManager(_.identify(config.assets, 'id'), FW.com);
             var assetsLoader = new AssetsLoader(FW);
 
-            // console.log(assetsManager.config);
-            var asset = assetsManager.get('img-1');
-            console.log(asset.toJSON());
+            // this is done internally from state definition
+            var collection = assetsManager.get(['img-1', 'img-2']);
+            console.log(collection);
 
-            // next step:
-            // var assets = assetsManager.get(['img-1', 'img-2']);
-            // then
-            // assetsManager.createStack(['img-1', 'img-2']);
-            // assetsManager.onload(function() {});
+            // this is done in the controller
+            assetsManager.add({ id: 'img-3', path: '/assets/img-3.jpg' });
 
-            // instanciate model
-            // var model = new AssetModel({ id: 'test', path: '/assets/img-1.jpg' });
+            assetsManager.onload(function(img1, img2, img3) {
 
-            asset.loaded(function(model) {
                 var img = new Image();
-                img.src = model.get('path');
+                img.src = img1.get('path');
 
                 var $img = $(img).hide();
 
                 $('body').append($img);
                 $img.fadeIn();
-            }, this);
-            // */
+            });
 
             // start the whole stuff
             Backbone.history.start();

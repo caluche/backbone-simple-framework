@@ -33,13 +33,13 @@ define([], function() {
                 cache: true, // defaults
                 preload: true
             },
-            /*
+            //*
             'img-2': {
-                path: '/assets/img-2.jpeg',
+                path: '/assets/img-2.jpg',
                 cache: true, // defaults
                 preload: false // defaults
             },
-            */
+            // */
             'reddit': {
                 path: 'http://my.site.com/assets/reddit.json',
                 cache: false,

@@ -1,8 +1,9 @@
 define(
     [
         'backbone',
+        'when',
         'fw/components/asset-model'
-    ], function(Backbone, AssetModel) {
+    ], function(Backbone, when, AssetModel) {
 
         'use strict';
 
@@ -63,12 +64,24 @@ define(
             //  @TODO   define how this object should communicate with the AssetLoader
             //          events ? dependency injection ?
         */
-        var AbstractAsset = Backbone.Model.extend({
 
-        });
+        // @TODO make sure the model are sorted so the done function
+        // is always called at the right order
+        // @NOTE while the models are stored in `this.models` which is an array
+        //      the default sort should be nice and promise should be ordered just in the
+        //      same order model config is defined
+        var AssetCollection = Backbone.Collection.extend({
+            model: AssetModel,
 
-        var AssetsCollection = Backbone.Collection.extend({
-            model: AssetModel
+            initialize: function() {},
+
+            onload: function(callback, ctx) {
+                var promises = _.pluck(this.models, 'promise');
+
+                when.all(promises).done(function() {
+                    callback.apply(this, arguments[0]);
+                });
+            }
         });
 
         /**
@@ -77,7 +90,6 @@ define(
          *  it must do the conversion itself
          *
          *  should create a promise for each asset to be loaded
-         *
          */
 
         /**
@@ -89,6 +101,10 @@ define(
          */
         var protocolRegex = /(http:\/\/|https:\/\/)/;
 
+        /**
+         *  @TODO   handle dynamic assets
+         *
+         */
         var AssetsManager = function(config, com) {
             this.config = config;
             this.com = com;
@@ -99,7 +115,7 @@ define(
             }, this);
 
             // console.log(this.config);
-            this.assets = new AssetsCollection();
+            this.assets = new AssetCollection();
             // console.log(this.assets);
 
             // var assetsToPreload = _.where(this.config, { preload: true });
@@ -109,11 +125,39 @@ define(
 
             initialize: function() {},
 
+            //  this is a host for the current asset collection of the state
+            //  it should be created each time a state is created or updated
+            currentCollection: undefined,
+
             //  must define if the required asset is dynamic or not
             //  throw an error if dynamic and no value (or default value)
-            get: function(id, params) {
+            //  is actually a Facade
+            get: function(ids, params) {
+                if (_.isString(ids)) {
+                    return this.getOneAsset.apply(this, arguments);
+                } else if (_.isArray(ids)) {
+                    var assets = _.map(ids, function(id) {
+                        // id could be a string or object here
+                        return this.getOneAsset.call(this, id);
+                    }, this);
+
+                    var assetCollection = new AssetCollection();
+                    assetCollection.add(assets);
+
+                    // store a ref to the current collection
+                    // this collection is built internally on each request
+                    // @NOTE should be done here
+                    this.currentCollection = assetCollection;
+                    return assetCollection;
+                };
+            },
+
+            getOneAsset: function(id, params) {
                 var asset;
 
+                if (!this.config[id]) {
+                    throw new Error('asset "' + id + '" is not defined');
+                }
                 // find the asset in the stack
                 if (this.config[id].isDynamic) {
                     if (!_.isObject(params) && !this.config[id].defaults) {
@@ -143,6 +187,7 @@ define(
                 return asset;
             },
 
+            // factory method to create an AssetModel
             createAsset: function(id, params) {
                 var config = _.extend({}, this.config[id]);
 
@@ -153,17 +198,46 @@ define(
                 var asset = new AssetModel(config);
                 this.assets.add(asset);
 
+                // maybe move it back to the asset model
+                // it would allow to add an asset directly in any assetCollection
                 this.com.publish('load:asset', asset);
 
                 return asset;
             },
 
-            //  add an asset to the config objects
-            //  returns an AssetModel instance
+            //  add an asset to the currentCollection
+            //  the given asset is also added to the config objects
+            //  @NOTE   maybe don't add it to the `config` object
             add: function(config) {
+                if (!config.id || !config.path) {
+                    throw TypeError('an asset must have an `id` and a `path`');
+                }
 
+                this.config[config.id] = config;
+                var asset = this.createAsset(config.id, config.params);
+
+                this.currentCollection.add(asset);
+
+                return this.currentCollection;
             },
 
+            // operations on the current collection
+            // returns the current collection
+            getCurrentCollection: function() {
+                return this.currentCollection();
+            },
+            // alias `getCurrentCollection`
+            getCurrentStack: function() {
+                return this.getCurrentCollection();
+            },
+
+            onload: function(callback, ctx) {
+                this.currentCollection.onload(callback, ctx);
+            },
+
+
+            // --------
+            // not sure it's usefull...
             getCollection: function(query) {
                 return new AssetsCollection.where(query);
             },
