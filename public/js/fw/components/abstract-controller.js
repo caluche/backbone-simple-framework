@@ -86,7 +86,11 @@ define(
             },
 
             // make a default cleanning (event listeners, subscribes)
-            removeAllHandlers: function() {}
+            removeAllHandlers: function() {},
+
+            // is called before each action on a given controller
+            // can be used to set params on assets
+            beforeAction: function(request, prevRequest) {}
         });
 
         return AbstractController;

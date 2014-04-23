@@ -24,6 +24,7 @@ define(
          */
         var Dispatcher = function(options) {
             this.states = options.states;
+            this.layout = options.layout;
             //  map the filesystem with namespaces (basically allow factories to work)
             this.paths = options.paths;
             //  store references to framework plugins and services
@@ -31,8 +32,7 @@ define(
             //  @TODO   host `services`, `plugins` ... clean that
             this.services = options.services;
 
-            this.prevCommand = {};
-            this.prevControllerInstance;
+            this.prevController;
             this.prevRequest;
 
             this.isExecutionCanceled = false;
@@ -62,11 +62,6 @@ define(
                 return instance;
             },
 
-            // should be moved to ControllerFactory
-            setLayout: function(layout) {
-                this.layout = layout
-            },
-
             // returns the command from a 'controller::action' pattern
             getCommand: function(pattern) {
                 var parts = pattern.split('::');
@@ -84,19 +79,21 @@ define(
 
             //  find the pair `controller.action` and execute it
             dispatch: function(request) {
+                console.log(request);
                 // reset cancel ability
                 this.isExecutionCanceled = false;
 
                 // process the command for controller::action
                 var command = this.getCommand(request.state.controller);
+                request.command = command;
 
                 // @EVENT - entry point
                 // publish dispatch
                 // could be used to monitor some global stuff (user access, ...)
                 // @TODO check for routing alteration possibility
-                com.publish('dispatcher:beforeLoad', command, request, this);
+                com.publish('dispatcher:beforeLoad', request, this);
                 // if (this.isExecutionCanceled) { return; }
-                this.findController(command, request);
+                this.findController(request);
             },
 
             // compare the new controller with previous one
@@ -104,44 +101,61 @@ define(
             // @TODO    if multirouting (cannot work properly for now)
             //          just instanciate the second controller,
             //          store their references only to destroy it cleanly
-            findController: function(command, request) {
+            findController: function(request) {
                 if (this.isExecutionCanceled) { return; }
 
-                if (this.prevCommand.controller !== command.controller) {
+                if (
+                    !this.prevRequest ||
+                    (this.prevRequest.command.controller !== request.command.controller)
+                ) {
                     // cannot be an 'update' while its's a new controller
-                    command.method = 'show';
+                    request.command.method = 'show';
 
-                    if (this.prevControllerInstance) {
-                        this.prevControllerInstance.destroy();
+                    if (this.prevController) {
+                        this.prevController.destroy();
                     }
 
                     // as moduleLoader is async there is no garanty that
                     // controllers will be executed in same order as routes
                     var moduleLoader = this.services.get('core:moduleLoader');
-
                     // not found handling should be done here ?
-                    moduleLoader.get(command.controller, _.bind(function(ctor) {
+                    moduleLoader.get(request.command.controller, _.bind(function(ctor) {
+                        // get the controller instance
                         var instance = this.createController(ctor);
-                        this.execute(instance, command, request);
+                        // execute new controller
+                        this.execute(instance, request);
                     }, this));
 
                 } else {
-                    // 'update' if same action as last one
-                    command.method = (this.prevCommand.action === command.action) ? 'update' : 'show';
-                    this.execute(this.prevControllerInstance, command, request);
+                    // if the action is the same as in the prevRequest : call `update` method
+                    request.command.method = (this.prevRequest.command.action === request.command.action) ? 'update' : 'show';
+                    this.execute(this.prevController, request);
                 }
             },
 
             // actually execute controller:action command
-            execute: function(instance, command, request) {
+            execute: function(instance, request) {
                 // @EVENT - entry point
                 // could be used in a plugin/service to create repetive tasks
                 com.publish('dispatcher:beforeDispatch', request, this.prevRequest);
 
-                // call a specific controller::action
+                // execute all the registered `commonControllers`
                 this.executeCommonControllers(request, this.prevRequest);
 
-                var actionMethod = instance.actions[command.action][command.method];
+                // close the previous controller if needed
+                if (this.prevRequest && (
+                        this.prevRequest.command.controller !== request.command.controller ||
+                        this.prevRequest.command.action !== request.command.action
+                    )
+                ) {
+                    var closeMethod = this.prevController.actions[this.prevRequest.command.action].close;
+                    if (_.isFunction(closeMethod)) { closeMethod.apply(this.prevController); }
+                }
+
+                // call the `beforeAction` method
+                instance.beforeAction(request, this.prevRequest);
+
+                var actionMethod = instance.actions[request.command.action][request.command.method];
 
                 if (_.isFunction(actionMethod)) {
                     actionMethod.call(instance, request, this.prevRequest);
@@ -150,9 +164,13 @@ define(
                 // @EVENT - entry point
                 com.publish('dispatcher:afterDispatch', request, this.prevRequest);
 
-                this.prevCommand = command;
                 this.prevRequest = request;
-                this.prevControllerInstance = instance;
+                this.prevController = instance;
+            },
+
+            //
+            closeController: function(controller, command) {
+
             },
 
             // ugly but will work for now

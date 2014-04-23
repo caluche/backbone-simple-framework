@@ -21,6 +21,10 @@ define([
                 this.remove();
             },
 
+            beforeAction: function(request, prevRequest) {
+                console.log('%c    => before action: ', request.command.controller, request.command.action, request.command.method);
+            },
+
             // actions are objects with `show` and `update` (maybe `remove`) as possible keys
             // all other keys will be ignored
             // `this` refers to the controller object inside actions (called with `call`)
@@ -34,6 +38,9 @@ define([
 
                         var transition = region.createTransition(true);
                         transition.show(homeView);
+                    },
+                    close: function() {
+                        console.log('home closed');
                     }
                 },
 
@@ -55,6 +62,9 @@ define([
                             param: request.params.id,
                             prevParam: prevRequest.params.id
                         });
+                    },
+                    close: function() {
+                        console.log('content closed');
                     }
                 },
             }

@@ -26,7 +26,6 @@ define(
                 var defer = when.defer();
 
                 this.on('change:data', _.bind(function() {
-                    console.log(this);
                     defer.resolve(this);
                 }, this));
 

@@ -34,6 +34,7 @@ define([
                         headerView.updateBgColor();
                     }
                 },
+
                 footer: {
                     show: function() {
                         // console.log('%c     => footer controller: show', 'color: green');

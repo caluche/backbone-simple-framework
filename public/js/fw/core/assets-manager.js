@@ -210,7 +210,7 @@ define(
             // set parameters of a dynamic asset
             setParams: function(id, params) {
 
-            }
+            },
 
             //  add an asset to the currentCollection
             //  the given asset is also added to the config objects

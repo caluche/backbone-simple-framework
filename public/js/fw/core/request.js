@@ -29,6 +29,7 @@ define(
 
             this.params = {};
             this.query = {};
+            this.command = undefined; // is setted in the dispatcher
 
             this.hash = window.location.hash;
 

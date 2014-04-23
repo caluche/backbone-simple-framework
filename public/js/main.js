@@ -12,10 +12,10 @@ define(
         'fw/core/com',
         'fw/core/assets-manager',
         'fw/components/asset-model',
-        'fw/services/assets-loader',
+        'fw/services/asset-loader',
         'createjs',
         'when'
-    ], function(module, config, _, FW, CommonController, AppLayout, Region, BaseView, com, AssetsManager, AssetModel, AssetsLoader, createjs, when) {
+    ], function(module, config, _, FW, CommonController, AppLayout, Region, BaseView, com, AssetsManager, AssetModel, AssetLoader, createjs, when) {
 
         'use strict';
 
@@ -31,14 +31,20 @@ define(
              *      FW.initialize(config, env);
              *  allow to fallback on default components when `initialize` called is launched
              */
+            FW.configure({
+                layout: AppLayout,
+                assetLoader: AssetLoader
+            });
 
             FW.initialize(config, env);
 
-            FW.setLayout(AppLayout);
-            FW.setAssetsLoader();
+            // FW.setLayout(AppLayout);
+            // FW.setAssetsLoader();
 
 
-            FW.addCommonController('commonController', CommonController);
+            FW.registerCommonControllers({
+                commonController: CommonController
+            });
             // FW.registerController('id', ctor)
             // install plugins
             // FW.install('analytics', MyPluginCtor);
@@ -80,11 +86,11 @@ define(
             */
             // @TODO => put it the controller
             var assetsManager = new AssetsManager(_.identify(config.assets, 'id'), FW.com);
-            var assetsLoader = new AssetsLoader(FW);
+            var assetLoader = new AssetLoader(FW);
 
             // this is done internally from state definition
             var collection = assetsManager.get(['img-1', 'img-2']);
-            console.log(collection);
+            // console.log(collection);
 
             // this is done in the controller
             assetsManager.add({ id: 'img-3', path: '/assets/img-3.jpg' });

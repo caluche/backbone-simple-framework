@@ -11,12 +11,13 @@ define([
         'use strict';
         /**
          *  @TODO
+         *      refactor framework initialization - ok
+         *      refactor dispatcher:
+         *          - remove autoloading, register controllers in app instead (fix the compression problem, even if it's more verbose)
+         *      test compression
+         *      handle dynamic assets
          *      handle multi-routing properly (controller stack in dispatcher)
-         *      refactor controllers:
-         *          - remove autoloading, register in app instead
-         *          - add `before` and `remove` actions
          *      handle loader
-         *      refacter framework initialization
          *
          *  In a prefect world:
          *      create a dummy App with at least 3 states (home, content, popin)
@@ -121,12 +122,23 @@ define([
          *  bootstrap - init and configure core parts of the framework
          */
         var FW = {
+            // inject all dependencies or override defaults deps here
+            configure: function(deps) {
+                this.deps = deps;
+            },
+
             initialize: function(config, env) {
+                // layout
+                if (!this.deps['layout']) {
+                    throw new Error('app must have a layout');
+                }
+
                 this.config = config;
                 this.env = env;
 
                 _.identify(this.config.states, 'id');
 
+                // override backbone's history if needed
                 if (this.config.useMultiRouting) {
                     allowMultiRouting(this.config.multiRouteSeparator);
                 }
@@ -145,17 +157,21 @@ define([
                 //              make a choice between concept `plugins` and `services` (`services` seems to win)
 
                 // convenience method - public API
-                // `set` is not needed as it's should be kept internal through `this`
-                var _getItem = function(id) {
-                    return this[id] || false;
+                var abstractObjectBag = {
+                    get: function(id) { return this[id] || false; }
                 };
 
                 // stores - object bags
-                this.services = this.plugins = { get: _getItem };
-                this.commonControllers = { get: _getItem };
+                this.services = this.plugins = _.extend({}, abstractObjectBag);
+                this.commonControllers = _.extend({}, abstractObjectBag);
+                this.controllers = _.extend({}, abstractObjectBag);
 
                 // install core services
                 this.initModuleLoader();
+
+                // deps
+                this.initLayout();
+                this.initAssetsManager();
 
                 // create core middlewares
                 this.initRouter();
@@ -167,25 +183,57 @@ define([
             //  get a reference to the `com` object (usefull for plugins construction, should not be used elsewhere)
             com: com,
 
-
-            //  init core services
-            //  core:services can be eseally overriden just by installing on the same serviceId
-            initModuleLoader: function() {
-                this.services['core:moduleLoader'] = new ModuleAutoLoader({
-                    paths: this.config.paths
-                });
+            //  INIT CORE DEPS - see FW.configure
+            //  -----------------------------------------------------
+            setAppController: function(ctor) {
+                // if `ctor` is undefined fallback to default AppController
+                // configure dispatcher to use the given AppController
             },
 
+            // the main layout of the application
+            initLayout: function() {
+                var ctor = this.deps.layout;
 
-            // init core middlewares
+                var instance = new ctor({
+                    regions: this.config.regions
+                });
+
+                this.layout = instance;
+            },
+
+            // this function is called only if an AssetsLoader is register
+            initAssetsManager: function() {
+                // if no asset loader is defined - don't init assets manager
+                if (!this.deps['assetLoader']) { return; }
+                // install assetLoader
+                this.install('core:assetLoader', this.deps['assetLoader']);
+                // init assetsManager
+                var assetsConfig = _.identify(this.config.assets, 'id');
+                this.assetsManager = new AssetsManager(assetsConfig);
+
+            },
+
+            //  INIT CORE MIDDLEWARES
+            //  ------------------------------------------------------------
             initRouter: function() {
+                //  map `config.states` to Backbone.Router compliant routes
+                var routes = {},
+                    states = this.config.states;
+
+                for (var key in states) {
+                    var route = states[key].route;
+                    routes[route] = key;
+                }
+
+                // launch Backbone's router
                 this.router = new Router({
-                    routes: this.formatRoutes(this.config),
+                    routes: routes,
                     states: this.config.states
                 });
             },
 
             initDispatcher: function() {
+                console.log(this.layout);
                 // @TODO create a controller factory to not have to give
                 //       all these deps to the Dispatcher
                 this.dispatcher = new Dispatcher({
@@ -197,65 +245,38 @@ define([
                 });
             },
 
-            // this function is called only if an AssetsLoader is register
-            initAssetsManager: function() {
-                // this.assetsManager = new AssetsManager({});
-            },
-
-            //  map `config.states` to Backbone.Router compliant routes
-            formatRoutes: function(config) {
-                var routes = {},
-                    states = config.states;
-
-                for (var key in states) {
-                    var route = states[key].route;
-                    routes[route] = key;
-                }
-
-                return routes;
-            },
-
-            formatAssets: function() {
-
-            },
-
-
-            //  helpers to configure framework
-            //  -----------------------------------------------------
-            setAppController: function(ctor) {
-                // if `ctor` is undefined fallback to default AppController
-                // configure dispatcher to use the given AppController
-            },
-
-            // the main layout of the application
-            setLayout: function(ctor) {
-                var instance = new ctor({
-                    regions: this.config.regions
+            //  INIT CORE SERVICES
+            //  ------------------------------------------------------------
+            //  core:services can be eseally overriden just by installing on the same serviceId
+            //  @TODO remove
+            initModuleLoader: function() {
+                this.install('core:moduleLoader', ModuleAutoLoader, {
+                    paths: this.config.paths
                 });
-
-                this.layout = instance;
-                this.dispatcher.setLayout(this.layout);
             },
 
-            // the 2 following can be ignored
 
-            // if no assetsLoader is defined
-            // the app don't use an asset manager
-            setAssetsLoader: function(ctor) {
-                if (ctor) {
-                    this.assetLoader = new ctor();
-                }
-
-                this.initAssetsManager();
-            },
-
-            // allow to register controllers that will be called for each request
-            // usefull to manage common parts of the site (header, footer)
-            addCommonController: function(id, ctor) {
+            //  INSTALL CONTROLLERS
+            //  ------------------------------------------------------------
+            //  allow to register controllers that will be called for each request
+            //  usefull to manage common parts of the site (header, footer)
+            registerCommonController: function(id, ctor) {
                 var instance = this.dispatcher.installController(ctor);
                 this.commonControllers[id] = instance;
             },
 
+            registerCommonControllers: function(obj) {
+                _.each(obj, function(ctor, id) {
+                    this.registerCommonController(id, ctor);
+                }, this);
+            },
+
+            // register all the app controllers
+            registerController: function(id, ctor) {},
+            registerControllers: function(obj) {},
+
+            //  INSTALL PLUGINS
+            //  ------------------------------------------------------------
             //  method to install plugins/services to the framework
             //
             //  @param pluginName <string> id of the plugin to get it back in controllers
@@ -265,36 +286,11 @@ define([
             //
             //  @TODO (maybe)   allow switch between service and plugin installation
             install: function(pluginName, pluginCtor, options) {
-                if (this.plugins[pluginName]) {
-                    return;
-                }
-
-                options = options || {};
-                // extends options with the framework and coms as parameters
-                options._core = this;
-                options._com = com;
+                if (this.services[pluginName]) { return; }
                 // add a the new plugin to collection
-                // this.plugins[pluginName] = pluginCtor(options);;
-                this.services[pluginName] = pluginCtor(options);
+                this.services[pluginName] = new pluginCtor(this, options);
             },
 
-            // keep get
-
-            // install everything as a service via `install` is maybe strange
-            // we know what core services needs
-            /*
-            installFallbackServices: function() {
-                // should kept private outside of BB (more readable)
-                var requiredServices = {
-                    // 'moduleLoader': ModuleAutoLoader,
-                };
-
-                _.forEach(neededServices, function(ctor, id) {
-                    if (!this.services[id]) {
-                        this.install(id, ctor)
-                    }
-                });
-            } */
         };
 
         return FW;

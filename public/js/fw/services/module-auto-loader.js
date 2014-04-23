@@ -14,7 +14,8 @@ define(
          *  Basically a module loader wrapping `require`
          *  deps: require, $.deferred
          */
-        var ModuleAutoLoader = function(options) {
+        var ModuleAutoLoader = function(framework, options) {
+            console.log(arguments);
             this.paths = options.paths;
             // console.log(this.paths);
         };
