@@ -9,15 +9,14 @@ define(
         'use strict';
 
         /**
-         *  MODULE AUTO LOADER
+         *  MODULE AUTO LOADER - NOT USED ANYMORE
+         *  @TODO   configuration option to use it ?
          *
          *  Basically a module loader wrapping `require`
          *  deps: require, $.deferred
          */
         var ModuleAutoLoader = function(framework, options) {
-            console.log(arguments);
             this.paths = options.paths;
-            // console.log(this.paths);
         };
 
         _.extend(ModuleAutoLoader.prototype, Backbone.Events, {

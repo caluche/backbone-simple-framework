@@ -5,6 +5,7 @@ define(
         'underscore',
         'fw/fw',
         'app/controllers/common-controller',
+        'app/controllers/main-controller',
         'app/views/layouts/app-layout',
 
         'fw/components/region',
@@ -15,96 +16,64 @@ define(
         'fw/services/asset-loader',
         'createjs',
         'when'
-    ], function(module, config, _, FW, CommonController, AppLayout, Region, BaseView, com, AssetsManager, AssetModel, AssetLoader, createjs, when) {
+    ], function(module, config, _, FW, CommonController, MainController, AppLayout, Region, BaseView, com, AssetsManager, AssetModel, AssetLoader, createjs, when) {
 
         'use strict';
 
         //  get env config from requirejs
         var env = module.config();
+
         // ---------------------------------------------
+        // erase console if `env.debug` is set to `false`
+        // else "avoid errors in browser that lack a console"
+        // cf. https://github.com/h5bp/html5-boilerplate/blob/master/js/plugins.js
+        (function() {
+            var method;
+            var noop = function () {};
+            var methods = [
+                'assert', 'clear', 'count', 'debug', 'dir', 'dirxml', 'error',
+                'exception', 'group', 'groupCollapsed', 'groupEnd', 'info', 'log',
+                'markTimeline', 'profile', 'profileEnd', 'table', 'time', 'timeEnd',
+                'timeStamp', 'trace', 'warn'
+            ];
+            var length = methods.length;
+            var console = (window.console = window.console || {});
+
+            while (length--) {
+                method = methods[length];
+
+                // Only stub undefined methods.
+                if (env.debug) {
+                    if (!console[method]) {
+                        console[method] = noop;
+                    }
+                } else {
+                    console[method] = noop;
+                }
+            }
+        }());
+        // ---------------------------------------------
+
         // wait for the DOM
         $('document').ready(function() {
-            // intialize the framework
-            /**
-             *  should be:
-             *      FW.configure({ layout: AppLayout, assetsLoader: ... })
-             *      FW.initialize(config, env);
-             *  allow to fallback on default components when `initialize` called is launched
-             */
+
+            // configure framework
             FW.configure({
-                layout: AppLayout,
-                assetLoader: AssetLoader
+                layout: AppLayout,          // optionnal
+                assetLoader: AssetLoader,   // optionnal
+                controllers: {
+                    'main-controller': MainController
+                },
+                commonControllers: {
+                    'commonController': CommonController
+                }
             });
 
+            // initialize framework
             FW.initialize(config, env);
 
-            // FW.setLayout(AppLayout);
-            // FW.setAssetsLoader();
-
-
-            FW.registerCommonControllers({
-                commonController: CommonController
-            });
-            // FW.registerController('id', ctor)
             // install plugins
             // FW.install('analytics', MyPluginCtor);
-
-
-            /**
-             *  // example:
-             *  var TestPlugin = function(options) {
-             *      this.name = 'plugin-test';
-             *
-             *      options._com.subscribe('router:change', function() {
-             *          console.log('   ->  from plugin', arguments, this)
-             *      }, this);
-             *  }
-             *
-             *  // install
-             *  FW.install('test-plugin', TestPlugin);
-             */
-
-
-            /*
-                // assets use
-                show: function(request, prevRequest) {
-                    var region = this.layout.getRegion('main');
-                    var transition = region.createTransition();
-                    var asset = this.assets.get('img-1');
-
-                    transition.hide();
-
-                    asset.loaded(function(assets) {
-                        var myView = new BaseView({
-                            model: new Backbone.Model({ path: asset.path });
-                        });
-
-                        transition.show(myView);
-                    });
-                }
-
-            */
-            // @TODO => put it the controller
-            var assetsManager = new AssetsManager(_.identify(config.assets, 'id'), FW.com);
-            var assetLoader = new AssetLoader(FW);
-
-            // this is done internally from state definition
-            var collection = assetsManager.get(['img-1', 'img-2']);
-            // console.log(collection);
-
-            // this is done in the controller
-            assetsManager.add({ id: 'img-3', path: '/assets/img-3.jpg' });
-
-            assetsManager.onload(function(img1, img2, img3) {
-
-                var img = new Image();
-                img.src = img1.get('path');
-
-                var $img = $(img).hide();
-
-                $('body').append($img);
-                $img.fadeIn();
-            });
 
             // start the whole stuff
             Backbone.history.start();

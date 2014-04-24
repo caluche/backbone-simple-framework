@@ -33,11 +33,18 @@ define([
                 // if update does not exists, do nothing
                 home: {
                     show: function(request, prevRequest) {
-                        var region = this.layout.getRegion('main');
-                        var homeView = new HomeView();
+                        var asset = this.assets.get(['img-1', 'img-2', 'reddit']);
 
+                        var region = this.layout.getRegion('main');
                         var transition = region.createTransition(true);
-                        transition.show(homeView);
+
+                        asset.onload(function(img1) {
+                            var homeView = new HomeView({
+                                model: img1
+                            });
+
+                            transition.show(homeView);
+                        }, this);
                     },
                     close: function() {
                         console.log('home closed');

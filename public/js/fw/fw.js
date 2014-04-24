@@ -5,19 +5,17 @@ define([
         'fw/core/router',
         'fw/core/dispatcher',
         'fw/core/assets-manager',
-        'fw/services/module-auto-loader'
-    ], function(Backbone, _, com, Router, Dispatcher, AssetsManager, ModuleAutoLoader) {
+        'fw/components/abstract-layout',
+    ], function(Backbone, _, com, Router, Dispatcher, AssetsManager, AbstractLayout) {
 
         'use strict';
         /**
          *  @TODO
-         *      refactor framework initialization - ok
-         *      refactor dispatcher:
-         *          - remove autoloading, register controllers in app instead (fix the compression problem, even if it's more verbose)
          *      test compression
+         *      handle assets in controllers
+         *      handle loader
          *      handle dynamic assets
          *      handle multi-routing properly (controller stack in dispatcher)
-         *      handle loader
          *
          *  In a prefect world:
          *      create a dummy App with at least 3 states (home, content, popin)
@@ -41,12 +39,24 @@ define([
          *  -   make a test plugin with [https://github.com/ftlabs/fastclick](https://github.com/ftlabs/fastclick)
          *
          *  implements the following:
-         *      - an asset loader acting as an interface between third party library and framework
-         *          cf. https://gist.github.com/b-ma/9456220
-         *          the loader should also listen custom events to allow it's fine control from a controller
-         *      - a layout object (used in controllers) hosting regions, building and storing views
-         *          (view factory able to create, store and delete view objects)
+         *      - create a controller factory
          *      - a Default AppController` to handle loader (through events), 404 fallbacks, globals behaviors
+         */
+
+        /**
+         *  FOLDER STRUCTURE
+         *  /components
+         *      objects that can be used outside the framework,
+         *      we should be able to use these objects in any backbone project
+         *  /views
+         *      idem as components but all these object extends Backbones.View
+         *  /core
+         *      core objects of the framework
+         *  /services
+         *      should be removed
+         *      PubSub should be moved to `components`
+         *      asset-loader should be ketp external (or just keep it here as default loader)
+         *      module-auto-loader will be removed as it is not usable with r.js
          */
 
         /**
@@ -83,7 +93,7 @@ define([
         });
 
         /**
-         *  Multi-routing
+         *  MULTI-ROUTING
          */
         var allowMultiRouting = function(separator) {
             /**
@@ -119,7 +129,7 @@ define([
         };
 
         /**
-         *  bootstrap - init and configure core parts of the framework
+         *  BOOTSTRAP - init and configure core parts of the framework
          */
         var FW = {
             // inject all dependencies or override defaults deps here
@@ -128,11 +138,6 @@ define([
             },
 
             initialize: function(config, env) {
-                // layout
-                if (!this.deps['layout']) {
-                    throw new Error('app must have a layout');
-                }
-
                 this.config = config;
                 this.env = env;
 
@@ -142,19 +147,6 @@ define([
                 if (this.config.useMultiRouting) {
                     allowMultiRouting(this.config.multiRouteSeparator);
                 }
-
-                // install global services/plugin that could used in controllers
-                // allow plugin developpement and code reuse without altering the framework
-                // @NOTE    a plugin must be able to load its wrapped library from config
-                //          find a way to inject some defined dependencies in its context/module
-                // examples:
-                //      maybe a kind of window monitoring could be registered as a service or plugin
-                //      could be used to install proxies with third party services (asset loader, etc...)
-                //
-                // @TODO    define which parts should be installed has a service (cf. layout, appController)
-                //
-                // @IMPORTANT   AssetLoader, ModuleAutoLoader must be services
-                //              make a choice between concept `plugins` and `services` (`services` seems to win)
 
                 // convenience method - public API
                 var abstractObjectBag = {
@@ -167,15 +159,23 @@ define([
                 this.controllers = _.extend({}, abstractObjectBag);
 
                 // install core services
-                this.initModuleLoader();
 
-                // deps
+                // optionnal deps
                 this.initLayout();
                 this.initAssetsManager();
 
                 // create core middlewares
                 this.initRouter();
                 this.initDispatcher();
+
+                // install `controllers` and `commonControllers` if defined in `configure`
+                if (_.isObject(this.deps.commonControllers)) {
+                    this.registerCommonController(this.deps.commonControllers);
+                }
+
+                if (_.isObject(this.deps.controllers)) {
+                    this.registerController(this.deps.controllers);
+                }
             },
 
             //  com : maybe keeping it external to FW object is more meaningfull
@@ -192,7 +192,7 @@ define([
 
             // the main layout of the application
             initLayout: function() {
-                var ctor = this.deps.layout;
+                var ctor = this.deps.layout || AbstractLayout;
 
                 var instance = new ctor({
                     regions: this.config.regions
@@ -209,7 +209,7 @@ define([
                 this.install('core:assetLoader', this.deps['assetLoader']);
                 // init assetsManager
                 var assetsConfig = _.identify(this.config.assets, 'id');
-                this.assetsManager = new AssetsManager(assetsConfig);
+                this.assetsManager = new AssetsManager(assetsConfig, this.com);
 
             },
 
@@ -233,47 +233,48 @@ define([
             },
 
             initDispatcher: function() {
-                console.log(this.layout);
-                // @TODO create a controller factory to not have to give
-                //       all these deps to the Dispatcher
-                this.dispatcher = new Dispatcher({
+                // @TODO
+                // this.controllerFactory = new ControllerFactory({ ... });
+                var options = {
                     states: this.config.states,
-                    paths: this.config.paths,
-                    // forward plugins and services to controller
+                    // forward plugins and services to controller - move this to ControllerFactory
                     services : this.services,
                     layout: this.layout,
-                });
-            },
+                    // factory: this.controllerFactory
+                };
 
-            //  INIT CORE SERVICES
-            //  ------------------------------------------------------------
-            //  core:services can be eseally overriden just by installing on the same serviceId
-            //  @TODO remove
-            initModuleLoader: function() {
-                this.install('core:moduleLoader', ModuleAutoLoader, {
-                    paths: this.config.paths
-                });
-            },
+                if (this.assetsManager) {
+                    options.assetsManager = this.assetsManager;
+                }
 
+                this.dispatcher = new Dispatcher(options);
+            },
 
             //  INSTALL CONTROLLERS
             //  ------------------------------------------------------------
             //  allow to register controllers that will be called for each request
             //  usefull to manage common parts of the site (header, footer)
             registerCommonController: function(id, ctor) {
-                var instance = this.dispatcher.installController(ctor);
+                if (_.isObject(id)) {
+                    return _.each(id, function(ctor, id) {
+                        this.registerCommonController(id, ctor);
+                    }, this);
+                }
+
+                var instance = this.dispatcher.installCommonController(ctor);
                 this.commonControllers[id] = instance;
             },
 
-            registerCommonControllers: function(obj) {
-                _.each(obj, function(ctor, id) {
-                    this.registerCommonController(id, ctor);
-                }, this);
-            },
-
             // register all the app controllers
-            registerController: function(id, ctor) {},
-            registerControllers: function(obj) {},
+            registerController: function(id, ctor) {
+                if (_.isObject(id)) {
+                    return _.each(id, function(ctor, id) {
+                        this.dispatcher.registerController(id, ctor);
+                    }, this);
+                }
+
+                this.dispatcher.registerController(ctor);
+            },
 
             //  INSTALL PLUGINS
             //  ------------------------------------------------------------

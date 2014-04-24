@@ -61,6 +61,9 @@ define(
             // set layout
             this.layout = options.layout;
             this.services = options.services;
+            // @NOTE    `this.assets` could be the current assetCollection for the state,
+            //          while `this.assetsManager` should be the real service
+            this.assets = options.assetsManager;
 
             this.initialize(options);
         };
@@ -81,7 +84,7 @@ define(
             */
 
             // keep it as the entry points
-            destroy: function() {
+            remove: function() {
                 this.removeAllHandlers();
             },
 

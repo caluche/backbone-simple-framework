@@ -2,8 +2,9 @@ define([
         'backbone',
         'fw/components/region',
         'fw/views/base-view',
+        'fw/views/model-view',
         'text!templates/home.tmpl'
-    ], function(Backbone, Region, BaseView, homeTmpl) {
+    ], function(Backbone, Region, BaseView, ModelView, homeTmpl) {
 
         'use strict';
 
@@ -15,7 +16,7 @@ define([
             template: '<h1 id="second-view">My Second View</h1>',
         });
 
-        var HomeView = BaseView.extend({
+        var HomeView = ModelView.extend({
             id: 'home',
 
             events: {
@@ -25,9 +26,7 @@ define([
             template: homeTmpl,
 
             onRender: function() {
-                this.region = new Region({
-                    el: this.$('#test-region')
-                });
+                this.innerRegion = new Region({ el: this.$('#test-region') });
             },
 
             onShow: function() {
@@ -45,7 +44,7 @@ define([
                 }
 
                 var view = (classname == 'view2') ? new SubView2() : new SubView1();
-                var transition = this.region.createTransition();
+                var transition = this.innerRegion.createTransition();
                 transition.hide();
 
                 // mimic loading time

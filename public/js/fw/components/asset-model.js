@@ -19,8 +19,16 @@ define(
                 preload: false
             },
 
-            initialize: function(config) {
+            // allow this object to be extended by a user
+            constructor: function() {
+                Backbone.Model.prototype.constructor.apply(this, arguments);
+
                 if (this.get('isDynamic')) { this.mapPath(); };
+
+                // add a timestamp if cache === false to force new file download
+                if (this.get('cache') === false) {
+                    this.set('path', this.get('path') + '?t=' + new Date().getTime());
+                }
 
                 // create promise for `loaded` synhronisation
                 var defer = when.defer();
@@ -30,20 +38,11 @@ define(
                 }, this));
 
                 this.promise = defer.promise;
+
+                this.initialize();
             },
 
-            getData: function() {
-                return this.get('data');
-            },
-
-            onload: function(callback, ctx) {
-                when(this.promise).done(_.bind(callback, this));
-            },
-
-            // clean events
-            destroy: function() {
-                this.off('change:data');
-            },
+            initialize: function() {},
 
             // create the path according to given params
             mapPath: function() {
@@ -54,6 +53,20 @@ define(
                 });
                 // no need to trigger an event here
                 this.set('path', path, { silent: true });
+            },
+
+            onload: function(callback, ctx) {
+                when(this.promise).done(_.bind(callback, this));
+            },
+
+            // usefull ?
+            getData: function() {
+                return this.get('data');
+            },
+
+            // clean events
+            destroy: function() {
+                this.off('change:data');
             }
         });
 

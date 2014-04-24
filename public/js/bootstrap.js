@@ -1,5 +1,4 @@
 (function() {
-
     //  define environment configuration
     //  parse url, etc...
     //  init requirejs with env config
@@ -9,7 +8,7 @@
             main: {
                 // can be accessed in `main.js` from `module.config()`
                 env: 'dev',
-                debug: true,
+                debug: false,
                 minify: false
             }
         },

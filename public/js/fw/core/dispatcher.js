@@ -24,19 +24,19 @@ define(
          */
         var Dispatcher = function(options) {
             this.states = options.states;
+
+            // @TODO    this should be dependecies of the controllerFactory
             this.layout = options.layout;
-            //  map the filesystem with namespaces (basically allow factories to work)
-            this.paths = options.paths;
-            //  store references to framework plugins and services
-            //  allow controllers to use services
-            //  @TODO   host `services`, `plugins` ... clean that
+            this.assetsManager = options.assetsManager;
             this.services = options.services;
 
+            //
             this.prevController;
             this.prevRequest;
 
             this.isExecutionCanceled = false;
             this.commonControllers = [];
+            this.controllers = {};
 
             // @EVENT : listen `route:change` from router
             com.subscribe('router:change', this.dispatch, this);
@@ -47,19 +47,34 @@ define(
             createController: function(ctor) {
                 var instance = new ctor({
                     layout: this.layout,
-                    services: this.services
+                    services: this.services,
+                    assetsManager: this.assetsManager
                 });
 
                 return instance;
             },
+            // find a controller constructor by id
+            getController: function(id) {
+                var ctor = this.controllers[id];
+
+                if (!ctor) {
+                    throw new Error('controller "' + id + '" is not registered');
+                }
+
+                return ctor;
+            },
 
             // install controllers to be called on each route
-            // `action` once then `update` for the whole time
-            installController: function(ctor) {
+            // `action` once then `update` forever
+            installCommonController: function(ctor) {
                 var instance = this.createController(ctor);
                 this.commonControllers.push(instance);
                 // return the instance to the framework
                 return instance;
+            },
+
+            registerController: function(id, ctor) {
+                this.controllers[id] = ctor;
             },
 
             // returns the command from a 'controller::action' pattern
@@ -79,7 +94,6 @@ define(
 
             //  find the pair `controller.action` and execute it
             dispatch: function(request) {
-                console.log(request);
                 // reset cancel ability
                 this.isExecutionCanceled = false;
 
@@ -111,21 +125,14 @@ define(
                     // cannot be an 'update' while its's a new controller
                     request.command.method = 'show';
 
+                    var ctor = this.getController(request.command.controller);
+                    var instance = this.createController(ctor);
+                    this.execute(instance, request);
+
+                    // destroy prev controller
                     if (this.prevController) {
                         this.prevController.destroy();
                     }
-
-                    // as moduleLoader is async there is no garanty that
-                    // controllers will be executed in same order as routes
-                    var moduleLoader = this.services.get('core:moduleLoader');
-                    // not found handling should be done here ?
-                    moduleLoader.get(request.command.controller, _.bind(function(ctor) {
-                        // get the controller instance
-                        var instance = this.createController(ctor);
-                        // execute new controller
-                        this.execute(instance, request);
-                    }, this));
-
                 } else {
                     // if the action is the same as in the prevRequest : call `update` method
                     request.command.method = (this.prevRequest.command.action === request.command.action) ? 'update' : 'show';
@@ -182,9 +189,12 @@ define(
 
                 // refactor this -> ugly
                 _.forEach(this.commonControllers, function(controller, index) {
-                    _.forEach(this.commonControllers[index].actions, function(obj, action) {
-                        if (_.isFunction(this.commonControllers[index].actions[action][method])) {
-                            this.commonControllers[index].actions[action][method].call(this.commonControllers[index], request, prevRequest);
+                    var controller = this.commonControllers[index];
+                    var actions = controller.actions;
+
+                    _.forEach(actions, function(obj, action) {
+                        if (_.isFunction(actions[action][method])) {
+                            actions[action][method].call(controller, request, prevRequest);
                         }
                     }, this);
                 }, this);
