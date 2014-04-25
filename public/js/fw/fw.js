@@ -195,11 +195,11 @@ define([
             initLayout: function() {
                 var ctor = this.deps.layout || AbstractLayout;
 
-                var instance = new ctor({
+                this.layout = new ctor({
                     regions: this.config.regions
                 });
 
-                this.layout = instance;
+                this.layout.render();
             },
 
             // this function is called only if an AssetsLoader is register

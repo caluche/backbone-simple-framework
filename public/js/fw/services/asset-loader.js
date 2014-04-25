@@ -51,7 +51,7 @@ define(
                 model.set({
                     type: event.type,
                     data: event.result,
-                    timestamp: new Date().getTime(),
+                    timestamp: _.now(),
                 });
 
                 // remove from stack

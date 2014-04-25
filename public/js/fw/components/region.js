@@ -29,9 +29,6 @@ define(
             this.com = options.com;
             this.currentView = undefined;
             this.ensureEl();
-            // @note bad idea: will break code consumming it
-            // should lock UI instead...
-            // this.isTransitioning = false;
         }
 
         // steal Backbone's `extend` ability
@@ -93,11 +90,9 @@ define(
                 }
 
                 var transition = new transitionCtor(this, this.currentView);
+                if (autohide) { transition.hide(); }
 
-                if (autohide/* || (this.currentView === undefined) */) {
-                    transition.hide();
-                }
-
+                //  @TODO layout must keep track of transitions in a way
                 return transition;
             },
 

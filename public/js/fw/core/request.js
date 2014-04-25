@@ -20,12 +20,12 @@ define(
         var namedParam    = /(\(\?)?:\w+/g;
         var splatParam    = /\*\w+/g;
 
-        var Request = function(state, params, counter) {
+        var Request = function(state, params, controllersInfos) {
             // params can be Array or Object
             // `mapRouteParameters` should be called only if Array
             this.originalParams = params;
             this.state = state;
-            this.controllers = counter;
+            this.controllers = controllersInfos;
 
             this.params = {};
             this.query = {};
