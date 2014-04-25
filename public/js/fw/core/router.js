@@ -38,6 +38,7 @@ define([
              *  @EVENT global `route:change`
              */
             forwardRequest: function(route, params) {
+                console.log(route, params);
                 var that = this;
                 var state = this.getState(route);
                 this.counter++;

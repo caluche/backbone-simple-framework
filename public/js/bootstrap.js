@@ -8,7 +8,7 @@
             main: {
                 // can be accessed in `main.js` from `module.config()`
                 env: 'dev',
-                debug: false,
+                debug: true,
                 minify: false
             }
         },

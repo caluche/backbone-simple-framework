@@ -11,11 +11,10 @@ define([
         'use strict';
         /**
          *  @TODO
-         *      test compression
          *      handle assets in controllers
          *      handle loader
          *      handle dynamic assets
-         *      handle multi-routing properly (controller stack in dispatcher)
+         *      handle multi-routing properly (add a controller stack in dispatcher)
          *
          *  In a prefect world:
          *      create a dummy App with at least 3 states (home, content, popin)
@@ -94,6 +93,8 @@ define([
 
         /**
          *  MULTI-ROUTING
+         *  @FIXME  this breaks catch all route for 404...
+         *          must be refactor or changed
          */
         var allowMultiRouting = function(separator) {
             /**
@@ -121,7 +122,7 @@ define([
                         if (handler.route.test(fragment)) {
                             // execute the callback
                             handler.callback(fragment);
-                            // return true;
+                            return true;
                         }
                     });
                 }, this);
@@ -220,6 +221,14 @@ define([
                 var routes = {},
                     states = this.config.states;
 
+                if (states.notFound) {
+                    states.notFound = {
+                        route: '*notFound',
+                        controller: 'main-controller::notFound'
+                    };
+                }
+
+                // format to backbone's compliant argument
                 for (var key in states) {
                     var route = states[key].route;
                     routes[route] = key;
