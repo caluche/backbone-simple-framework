@@ -1,10 +1,5 @@
-FRAMEWORK
-============================================
-
-__Should be locate into `vendors` (easier for now...)__
-
 README
-=======================================================
+============================================
 
 simple framework draft
 (MVC - Plugin oriented)
