@@ -2,9 +2,9 @@
   "name": "backbone-simple-framework",
   "version": "0.0.0",
   "authors": [
-    "b-ma <benjamin.matuszewski@gmail.com>"
+    "Benjamin Matuszewski <benjamin.matuszewski@gmail.com>"
   ],
-  "description": "test application for FW",
+  "description": "test application for backbone based framework",
   "license": "MIT",
   "ignore": [
     "**/.*",

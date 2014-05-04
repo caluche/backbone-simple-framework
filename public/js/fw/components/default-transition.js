@@ -128,17 +128,15 @@ define([
             doShow: function(nextView, prevView) {
                 nextView.render();
                 nextView.$el.hide();
-                nextView.$el.appendTo(this.$el);
+                this.$el.html(nextView.$el);
 
-                if (_.isFunction(nextView.onRender)) {
-                    nextView.onRender();
+                // `onRender` is called internally in the view
+                // call `onShow` once the view is in the DOM
+                if (_.isFunction(nextView.onShow)) {
+                    nextView.onShow();
                 }
 
                 nextView.$el.fadeTo(200, 1, _.bind(function() {
-                    if (_.isFunction(nextView.onShow)) {
-                        nextView.onShow();
-                    }
-
                     this.resume();
                 }, this));
             }
@@ -147,4 +145,4 @@ define([
         return Transition;
 
     }
-)
+);

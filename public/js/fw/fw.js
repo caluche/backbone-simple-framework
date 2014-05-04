@@ -11,9 +11,7 @@ define([
         'use strict';
         /**
          *  @TODO
-         *      handle assets in controllers
          *      handle loader
-         *      handle dynamic assets
          *      handle multi-routing properly (add a controller stack in dispatcher)
          *
          *  In a prefect world:
@@ -40,22 +38,6 @@ define([
          *  implements the following:
          *      - create a controller factory
          *      - a Default AppController` to handle loader (through events), 404 fallbacks, globals behaviors
-         */
-
-        /**
-         *  FOLDER STRUCTURE
-         *  /components
-         *      objects that can be used outside the framework,
-         *      we should be able to use these objects in any backbone project
-         *  /views
-         *      idem as components but all these object extends Backbones.View
-         *  /core
-         *      core objects of the framework
-         *  /services
-         *      should be removed
-         *      PubSub should be moved to `components`
-         *      asset-loader should be ketp external (or just keep it here as default loader)
-         *      module-auto-loader will be removed as it is not usable with r.js
          */
 
         /**

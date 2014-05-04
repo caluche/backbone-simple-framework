@@ -7,6 +7,8 @@ define(
 
         'use strict';
 
+        var noop = function() {};
+
         var AssetModel = Backbone.Model.extend({
             // @TODO    create a real `id` attrbute (if dynamic: concat params)
             // idAttribute: 'uniqId', // dummy `id` attribute to allow use duplication of ids
@@ -21,9 +23,14 @@ define(
 
             // allow this object to be extended by a user
             constructor: function() {
+                var initialize = this.initialize;
+                this.initialize = function() {};
                 Backbone.Model.prototype.constructor.apply(this, arguments);
+                this.initialize = initialize;
 
-                if (this.get('isDynamic')) { this.mapPath(); };
+                if (this.get('isDynamic')) {
+                    this.mapPath();
+                };
 
                 // add a timestamp if cache === false to force new file download
                 if (this.get('cache') === false) {
@@ -42,7 +49,9 @@ define(
                 this.initialize();
             },
 
-            initialize: function() {},
+            initialize: function() {
+                console.log(this.id);
+            },
 
             // create the path according to given params
             mapPath: function() {
@@ -59,10 +68,9 @@ define(
                 when(this.promise).done(_.bind(callback, this));
             },
 
-            // usefull ?
-            getData: function() {
-                return this.get('data');
-            },
+            // aliases
+            getData: function() { return this.get('data'); },
+            data: function() { return this.get('data'); },
 
             // clean events
             destroy: function() {
