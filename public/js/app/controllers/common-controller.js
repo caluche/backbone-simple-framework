@@ -12,18 +12,16 @@ define([
                 header: {
                     show: function(request, prevRequest) {
                         var headerView = new HeaderView({
-                            model: new Backbone.Model()
+                            model: new Backbone.Model({
+                                state: request.state.id
+                            })
                         });
 
-                        var region = this.layout.getRegion('header');
-                        var transition = region.createTransition(true);
+                        // var region = this.layout.getRegion('header');
+                        // var transition = region.createTransition(true);
+                        var transition = this.layout.createTransition('header', true);
 
                         transition.show(headerView);
-                        // defer the callback execution to the end of the transition
-                        // allow being sure headerView is actually rendered
-                        transition.complete(function() {
-                            headerView.model.set('state', request.state.id);
-                        });
                     },
                     update: function(request, prevRequest) {
                         var headerView = this.layout.getRegion('header').getView();

@@ -10,9 +10,11 @@ define(
             template: tmpl,
 
             initialize: function() {
+                console.log('header initialized');
                 this.listenTo(this.model, 'change:state', this.updateNav);
             },
 
+            // overriden methods
             onRender: function() {
                 this.$nav = this.$('.nav li');
                 this.$contentLink = this.$nav.filter('[data-state="content"]').children('a');
@@ -22,12 +24,13 @@ define(
 
             // is triggered when $el is inserted in the DOM
             onShow: function() {
-                // console.log('header on show');
+                this.updateNav();
             },
 
+            // user methods
             updateNav: function(model, state) {
                 this.$nav.removeClass('active');
-                this.$nav.filter('[data-state="' + state + '"]').addClass('active');
+                this.$nav.filter('[data-state="' + this.model.get('state') + '"]').addClass('active');
             },
 
             randomizeContent: function() {

@@ -72,8 +72,37 @@ define(
 
             // PUBLIC API
             // is basically a factory method to create Transitions
+            // @API     signature can also be (autohide)
             // @NOTE    if alternate API - this should be renamed `configure`
-            createTransition: function(transitionCtor, autohide) {
+            createTransition: function(transitionCtor, autohide, synchronize) {
+                // synchronize can only be called with 3 params signature
+                switch (arguments.length) {
+                    case 0:
+                        transitionCtor = DefaultTransition;
+                        autohide = false;
+                        break;
+                    case 1:
+                        if (_.isBoolean(transitionCtor)) {
+                            autohide = transitionCtor;
+                            transitionCtor = DefaultTransition;
+                        } else {
+                            autohide = false;
+                        }
+                        break;
+                    case 2:
+                        synchronize = falsek
+                        break;
+                }
+
+                var transition = new transitionCtor(this, this.currentView, synchronize);
+                if (autohide) { transition.hide(); }
+
+                //  @TODO layout must keep track of transitions in some way
+                return transition;
+            },
+
+            // could probably be a lot more elegant
+            createSynchronizedTransition: function(transitionCtor, autohide) {
                 switch (arguments.length) {
                     case 0:
                         transitionCtor = DefaultTransition;
@@ -89,11 +118,7 @@ define(
                         break;
                 }
 
-                var transition = new transitionCtor(this, this.currentView);
-                if (autohide) { transition.hide(); }
-
-                //  @TODO layout must keep track of transitions in a way
-                return transition;
+                return this.createTransition(transitionCtor, autohide, true);
             },
 
             // entry point for extend

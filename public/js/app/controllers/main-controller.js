@@ -56,8 +56,9 @@ define([
                             'with-params': { id: request.params.id }
                         });
 
-                        var region = this.layout.getRegion('main');
-                        var transition = region.createTransition(true);
+                        // var region = this.layout.getRegion('main');
+                        // var transition = region.createTransition(true);
+                        var transition = this.layout.createTransition('main', true);
 
                         this.assets.onload(function(withParamsAsset) {
                             var contentModel = new Backbone.Model({

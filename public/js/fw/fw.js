@@ -23,9 +23,6 @@ define([
          */
 
         /**
-         *  ON PROGRESS`
-         *      cf. http://stackoverflow.com/questions/22294425/promises-ecmascript-6-vs-3rd-party-libraries#answer-22296765
-         *
          *  @NOTE : having `com` separated from the framework is a mistake
          *          it should be injected on other objects as a dependency
          */
@@ -50,6 +47,7 @@ define([
 
             //  add an entry to each object of the given `obj`
             //  with `attrName` setted to its key
+            //  usefull to add a kind of `id` key to each element of a config object
             identify: function(obj, attrName) {
                 for (var key in obj) {
                     obj[key][attrName] = key;
@@ -67,6 +65,7 @@ define([
             /**
              *  add sep betwen 3 numbers:
              *  ex: formatNumber(1000000, ',') return 1,000,000
+             *  @TODO add a third argument nbrOfDecimal (default=0)
              */
             formatNumber: function(nbr, sep) {
                 return nbr.toString().replace(/\B(?=(\d{3})+(?!\d))/g, sep);

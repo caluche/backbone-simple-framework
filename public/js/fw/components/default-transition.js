@@ -18,7 +18,8 @@ define([
          *      maybe the whole logic except `doShow` and `doHide`
          *      could be moved into the Region
          */
-        function Transition(region, prevView) {
+        function Transition(region, prevView, isSync) {
+            this.isSync = !!isSync || false;
             this.region = region;
             this.$el = region.$el;
             this.prevView = prevView;
@@ -31,15 +32,23 @@ define([
             this.hidePromise = this.createHidePromise();
             this.showPromise = this.createShowPromise();
 
-            // the `doShow` method should be called only when
-            // the `hideDeferred` and `showDeferred` are resolved
-            // showPromise is called first in order to keep correct param order
-            // @NOTE    create a wrapper to bind context and stick on `doShow` API
-            var show = _.bind(function(args) {
-                this.doShow.apply(this, args);
-            }, this);
 
-            when.all([this.showPromise, this.hidePromise]).done(show);
+
+            // use when.settke
+            this.donePromise = when.all([this.showPromise, this.hidePromise])
+
+            if (!this.isSync) {
+                // the `doShow` method should be called only when
+                // the `hideDeferred` and `showDeferred` are resolved
+                // showPromise is registered first in order to keep correct param order
+                // @NOTE    create a wrapper to bind context and stick on `doShow` API
+                // this works when
+                var show = _.bind(function(args) {
+                    this.doShow.apply(this, args);
+                }, this);
+
+                this.donePromise.done(show);
+            }
         }
 
         Transition.extend = Backbone.View.extend;
@@ -95,12 +104,6 @@ define([
             show: function(nextView) {
                 this.region.setCurrentView(nextView);
                 this.resolveShowPromise(nextView);
-            },
-
-            // allow to trigger behavior on `nextView`
-            // while being sure it's fully rendered
-            complete: function(callback) {
-                when.all([this.showPromise, this.hidePromise]).done(callback);
             },
 
             // @OVERRIDE METHODS

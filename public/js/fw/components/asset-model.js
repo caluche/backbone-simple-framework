@@ -50,7 +50,7 @@ define(
             },
 
             initialize: function() {
-                console.log(this.id);
+                // console.log(this.id);
             },
 
             // create the path according to given params
