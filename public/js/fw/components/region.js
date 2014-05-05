@@ -90,7 +90,7 @@ define(
                         }
                         break;
                     case 2:
-                        synchronize = falsek
+                        synchronize = false
                         break;
                 }
 

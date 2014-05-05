@@ -101,11 +101,6 @@ define(
                 var command = this.getCommand(request.state.controller);
                 request.command = command;
 
-                // @EVENT - entry point
-                // publish dispatch
-                // could be used to monitor some global stuff (user access, ...)
-                // @TODO check for routing alteration possibility
-                com.publish('dispatcher:beforeLoad', request, this);
                 // if (this.isExecutionCanceled) { return; }
                 this.findController(request);
             },
@@ -168,7 +163,9 @@ define(
                     actionMethod.call(instance, request, this.prevRequest);
                 }
 
-                // @EVENT - entry point
+                //  @EVENT - entry point
+                //  must be triggered only once after each controllers
+                //  is used by layout to control transitions
                 com.publish('dispatcher:afterDispatch', request, this.prevRequest);
 
                 this.prevRequest = request;

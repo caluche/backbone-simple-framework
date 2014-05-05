@@ -9,7 +9,7 @@ exports.index = function(req, res) {
 
 exports.dynamicAsset = function(req, res) {
     var document = { asset: req.params.id };
-    var timeout = parseInt(Math.random() * 3000, 10);
+    var timeout = parseInt(Math.random() * 3 * 1000, 10);
     // mimic async behavior and heavy file
     setTimeout(function() {
         res.send(200, document);

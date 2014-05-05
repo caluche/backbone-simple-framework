@@ -6,13 +6,14 @@ define([
         'fw/core/dispatcher',
         'fw/core/assets-manager',
         'fw/components/abstract-layout',
-    ], function(Backbone, _, com, Router, Dispatcher, AssetsManager, AbstractLayout) {
+        'fw/components/abstract-loader',
+    ], function(Backbone, _, com, Router, Dispatcher, AssetsManager, AbstractLayout, AbstractLoader) {
 
         'use strict';
         /**
          *  @TODO
-         *      handle loader
          *      handle multi-routing properly (add a controller stack in dispatcher)
+         *      clean `com` problem
          *
          *  In a prefect world:
          *      create a dummy App with at least 3 states (home, content, popin)
@@ -144,6 +145,7 @@ define([
 
                 // optionnal deps
                 this.initLayout();
+                this.initLoader();
                 this.initAssetsManager();
 
                 // create core middlewares
@@ -177,10 +179,20 @@ define([
                 var ctor = this.deps.layout || AbstractLayout;
 
                 this.layout = new ctor({
-                    regions: this.config.regions
+                    regions: this.config.regions,
+                    com: this.com
                 });
 
                 this.layout.render();
+            },
+
+            initLoader: function() {
+                var ctor = this.deps.loader || AbstractLoader;
+
+                this.loader = new ctor({
+                    layout: this.layout,
+                    com: this.com
+                });
             },
 
             // this function is called only if an AssetsLoader is register

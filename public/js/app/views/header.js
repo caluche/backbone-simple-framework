@@ -10,7 +10,6 @@ define(
             template: tmpl,
 
             initialize: function() {
-                console.log('header initialized');
                 this.listenTo(this.model, 'change:state', this.updateNav);
             },
 

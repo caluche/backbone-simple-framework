@@ -5,8 +5,7 @@ define(
         'when',
         'fw/views/model-view',
         'fw/components/region',
-        'fw/core/com'
-    ], function(Backbone, _, when, ModelView, Region, com) {
+    ], function(Backbone, _, when, ModelView, Region) {
 
         'use strict';
 
@@ -21,14 +20,20 @@ define(
          *  - lock the app
          *  - synchonize the `transition.show` methods
          *      this can be done if it knows all the asset loading
+         *
+         *  @EVENTS:
+         *      subscriptions `disptacher:afterDipatch`
+         *      publish       `transition:start`
+         *                    `transition:end` (for loader)
          */
         var AbstractLayout = ModelView.extend({
             el: 'body', // default - can be overriden
 
-            constructor: function(params) {
+            constructor: function(config) {
                 ModelView.prototype.constructor.apply(this, arguments);
 
-                this.regionsConfiguration = params.regions || {};
+                this.com = config.com;
+                this.regionsConfiguration = config.regions || {};
                 this.regionsConfiguration['body'] = 'body';
                 this.regions = {};
                 this.transitionStack = [];
@@ -37,7 +42,7 @@ define(
 
                 // subscribe to this channel to synchronise transition resolution
                 // we are sure at this moment that every controller has been called
-                com.subscribe('dispatcher:afterDispatch', this.resolveTransitions, this);
+                this.com.subscribe('dispatcher:afterDispatch', this.resolveTransitions, this);
             },
 
             // create a Region object foreach configured regions
@@ -97,11 +102,14 @@ define(
             // allow to synchronize view shows among the whole layout
             resolveTransitions: function() {
                 if (!this.transitionStack.length) { return; }
+                this.com.publish('transition:start');
 
                 var promises = _.pluck(this.transitionStack, 'donePromise');
                 var that = this;
 
                 when.all(promises).done(_.bind(function() {
+                    this.com.publish('transition:end');
+
                     _.forEach(arguments[0], function(args, index) {
                         var transition = this.transitionStack[index];
                         transition.doShow.apply(transition, args);
