@@ -14,6 +14,7 @@ simple framework draft
 -   requirejs
 
 @TODO :
+
 -   extract project from test app
 -   remove requirejs dependency - prefer `browserify` for build step
 -   allow global, AMD and CommonJS integration
@@ -33,5 +34,5 @@ the main file is `public/js/main.js`
 
 ## notes
 
-for local dev of bower module, see: [https://oncletom.io/2013/live-development-bower-component/](https://oncletom.io/2013/live-development-bower-component/)
+for local dev of bower module, _cf. [https://oncletom.io/2013/live-development-bower-component/](https://oncletom.io/2013/live-development-bower-component/)_
 
