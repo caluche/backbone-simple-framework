@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>fw.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>fw.js</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>define([
+        <span class="hljs-string">'backbone'</span>,
+        <span class="hljs-string">'underscore'</span>,
+        <span class="hljs-string">'fw/core/com'</span>,
+        <span class="hljs-string">'fw/core/router'</span>,
+        <span class="hljs-string">'fw/core/dispatcher'</span>,
+        <span class="hljs-string">'fw/core/assets-manager'</span>,
+        <span class="hljs-string">'fw/components/abstract-layout'</span>,
+        <span class="hljs-string">'fw/components/abstract-loader'</span>,
+    ], <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(Backbone, _, com, Router, Dispatcher, AssetsManager, AbstractLayout, AbstractLoader)</span> {</span>
+<span class="hljs-pi">
+        'use strict'</span>;
+        <span class="hljs-comment">/**
+         *  @TODO
+         *      handle multi-routing properly (add a controller stack in dispatcher)
+         *      clean `com` problem
+         *
+         *  In a prefect world:
+         *      create a dummy App with at least 3 states (home, content, popin)
+         *      create a scheme of architecture
+         *      write docs
+         *      write a cookbook (to test api as well as a list of howTo)
+         *      unit tests
+         */</span>
+
+        <span class="hljs-comment">/**
+         *  @NOTE : having `com` separated from the framework is a mistake
+         *          it should be injected on other objects as a dependency
+         */</span>
+
+        <span class="hljs-comment">/**
+         *  NEXT STEPS
+         *
+         *  -   make a test plugin with [https://github.com/ftlabs/fastclick](https://github.com/ftlabs/fastclick)
+         *
+         *  implements the following:
+         *      - create a controller factory
+         *      - a Default AppController` to handle loader (through events), 404 fallbacks, globals behaviors
+         */</span>
+
+        <span class="hljs-comment">/**
+         *  UNDERSCORE MIXINS
+         */</span>
+        _.mixin({
+            capitalize: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(str)</span> {</span>
+                <span class="hljs-keyword">return</span> str.charAt(<span class="hljs-number">0</span>).toUpperCase() + str.slice(<span class="hljs-number">1</span>);
+            },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p> add an entry to each object of the given <code>obj</code>
+ with <code>attrName</code> setted to its key
+ usefull to add a kind of <code>id</code> key to each element of a config object</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            identify: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(obj, attrName)</span> {</span>
+                <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> key <span class="hljs-keyword">in</span> obj) {
+                    obj[key][attrName] = key;
+                }
+
+                <span class="hljs-keyword">return</span> obj;
+            },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p> @TODO needs to be tested</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            ensureApi: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(obj, api)</span> {</span>
+                <span class="hljs-keyword">var</span> result = _.difference(api, _.functions(obj));
+                <span class="hljs-keyword">return</span> !!result.length; <span class="hljs-comment">// === 0 ? true : result;</span>
+            },
+
+            <span class="hljs-comment">/**
+             *  add sep betwen 3 numbers:
+             *  ex: formatNumber(1000000, ',') return 1,000,000
+             *  @TODO add a third argument nbrOfDecimal (default=0)
+             */</span>
+            formatNumber: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(nbr, sep)</span> {</span>
+                <span class="hljs-keyword">return</span> nbr.toString().replace(<span class="hljs-regexp">/\B(?=(\d{3})+(?!\d))/g</span>, sep);
+            }
+        });
+
+        <span class="hljs-comment">/**
+         *  MULTI-ROUTING
+         *  @FIXME  this breaks catch all route for 404...
+         *          must be refactor or changed
+         */</span>
+        <span class="hljs-keyword">var</span> allowMultiRouting = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(separator)</span> {</span>
+            <span class="hljs-comment">/**
+             *  this could be a simple way to handle common problems like
+             *  -   popins
+             *  -   particular state of a view not related to the current app state
+             *  needs to be discussed and tested
+             *
+             *  @OVERRIDE Backbone.History to allow multiple controler calls
+             *  @TODO check if `loadUrl` is the best entry point (maybe its callee)
+             *  @NOTE not sure it still supports Backbone's regexp in url
+             */</span>
+            Backbone.History.prototype.multiRouteSeparator = separator || <span class="hljs-string">'|'</span>;
+
+            Backbone.History.prototype.loadUrl = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(fragment)</span> {</span>
+                fragment = <span class="hljs-keyword">this</span>.fragment = <span class="hljs-keyword">this</span>.getFragment(fragment);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>split the fragment according to the defined separator</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">var</span> fragments = fragment.split(<span class="hljs-keyword">this</span>.multiRouteSeparator);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>test handlers with each fragments
+the function doesn’t return anything like the real one
+but it doesn’t seems to create problems</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                _.forEach(fragments, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(fragment)</span> {</span>
+                    _.any(<span class="hljs-keyword">this</span>.handlers, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(handler)</span> {</span>
+                        <span class="hljs-keyword">if</span> (handler.route.test(fragment)) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>execute the callback</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                            handler.callback(fragment);
+                            <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+                        }
+                    });
+                }, <span class="hljs-keyword">this</span>);
+            };
+        };
+
+        <span class="hljs-comment">/**
+         *  BOOTSTRAP - init and configure core parts of the framework
+         */</span>
+        <span class="hljs-keyword">var</span> FW = {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p>inject all dependencies or override defaults deps here</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            configure: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(deps)</span> {</span>
+                <span class="hljs-keyword">this</span>.deps = deps;
+            },
+
+            initialize: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(config, env)</span> {</span>
+                <span class="hljs-keyword">this</span>.config = config;
+                <span class="hljs-keyword">this</span>.env = env;
+
+                _.identify(<span class="hljs-keyword">this</span>.config.states, <span class="hljs-string">'id'</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>override backbone’s history if needed</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.config.useMultiRouting) {
+                    allowMultiRouting(<span class="hljs-keyword">this</span>.config.multiRouteSeparator);
+                }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p>convenience method - public API</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">var</span> abstractObjectBag = {
+                    get: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(id)</span> {</span> <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>[id] || <span class="hljs-literal">false</span>; }
+                };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>stores - object bags</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">this</span>.services = <span class="hljs-keyword">this</span>.plugins = _.extend({}, abstractObjectBag);
+                <span class="hljs-keyword">this</span>.commonControllers = _.extend({}, abstractObjectBag);
+                <span class="hljs-keyword">this</span>.controllers = _.extend({}, abstractObjectBag);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <p>install core services</p>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <p>optionnal deps</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">this</span>.initLayout();
+                <span class="hljs-keyword">this</span>.initLoader();
+                <span class="hljs-keyword">this</span>.initAssetsManager();</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <p>create core middlewares</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">this</span>.initRouter();
+                <span class="hljs-keyword">this</span>.initDispatcher();</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-14">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-14">&#182;</a>
+              </div>
+              <p>install <code>controllers</code> and <code>commonControllers</code> if defined in <code>configure</code></p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">if</span> (_.isObject(<span class="hljs-keyword">this</span>.deps.commonControllers)) {
+                    <span class="hljs-keyword">this</span>.registerCommonController(<span class="hljs-keyword">this</span>.deps.commonControllers);
+                }
+
+                <span class="hljs-keyword">if</span> (_.isObject(<span class="hljs-keyword">this</span>.deps.controllers)) {
+                    <span class="hljs-keyword">this</span>.registerController(<span class="hljs-keyword">this</span>.deps.controllers);
+                }
+            },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-15">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-15">&#182;</a>
+              </div>
+              <p> com : maybe keeping it external to FW object is more meaningfull
+       but probably harder to trace/debug (tbd)
+ get a reference to the <code>com</code> object (usefull for plugins construction, should not be used elsewhere)</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            com: com,</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-16">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-16">&#182;</a>
+              </div>
+              <h2 id="-init-core-deps-see-fw-configure"> INIT CORE DEPS - see FW.configure</h2>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            setAppController: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(ctor)</span> {</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-17">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-17">&#182;</a>
+              </div>
+              <p>if <code>ctor</code> is undefined fallback to default AppController
+configure dispatcher to use the given AppController</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-18">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-18">&#182;</a>
+              </div>
+              <p>the main layout of the application</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            initLayout: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+                <span class="hljs-keyword">var</span> ctor = <span class="hljs-keyword">this</span>.deps.layout || AbstractLayout;
+
+                <span class="hljs-keyword">this</span>.layout = <span class="hljs-keyword">new</span> ctor({
+                    regions: <span class="hljs-keyword">this</span>.config.regions,
+                    com: <span class="hljs-keyword">this</span>.com
+                });
+
+                <span class="hljs-keyword">this</span>.layout.render();
+            },
+
+            initLoader: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+                <span class="hljs-keyword">var</span> ctor = <span class="hljs-keyword">this</span>.deps.loader || AbstractLoader;
+
+                <span class="hljs-keyword">this</span>.loader = <span class="hljs-keyword">new</span> ctor({
+                    layout: <span class="hljs-keyword">this</span>.layout,
+                    com: <span class="hljs-keyword">this</span>.com
+                });
+            },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-19">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-19">&#182;</a>
+              </div>
+              <p>this function is called only if an AssetsLoader is register</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            initAssetsManager: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-20">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-20">&#182;</a>
+              </div>
+              <p>if no asset loader is defined - don’t init assets manager</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.deps[<span class="hljs-string">'assetLoader'</span>]) { <span class="hljs-keyword">return</span>; }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-21">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-21">&#182;</a>
+              </div>
+              <p>install assetLoader</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">this</span>.install(<span class="hljs-string">'core:assetLoader'</span>, <span class="hljs-keyword">this</span>.deps[<span class="hljs-string">'assetLoader'</span>]);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-22">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-22">&#182;</a>
+              </div>
+              <p>init assetsManager</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">var</span> assetsConfig = _.identify(<span class="hljs-keyword">this</span>.config.assets, <span class="hljs-string">'id'</span>);
+                <span class="hljs-keyword">this</span>.assetsManager = <span class="hljs-keyword">new</span> AssetsManager(assetsConfig, <span class="hljs-keyword">this</span>.com);
+
+            },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-23">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-23">&#182;</a>
+              </div>
+              <h2 id="-init-core-middlewares"> INIT CORE MIDDLEWARES</h2>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            initRouter: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-24">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-24">&#182;</a>
+              </div>
+              <p> map <code>config.states</code> to Backbone.Router compliant routes</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">var</span> routes = {},
+                    states = <span class="hljs-keyword">this</span>.config.states;
+
+                <span class="hljs-keyword">if</span> (states.notFound) {
+                    states.notFound = {
+                        route: <span class="hljs-string">'*notFound'</span>,
+                        controller: <span class="hljs-string">'main-controller::notFound'</span>
+                    };
+                }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-25">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-25">&#182;</a>
+              </div>
+              <p>format to backbone’s compliant argument</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> key <span class="hljs-keyword">in</span> states) {
+                    <span class="hljs-keyword">var</span> route = states[key].route;
+                    routes[route] = key;
+                }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-26">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-26">&#182;</a>
+              </div>
+              <p>launch Backbone’s router</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">this</span>.router = <span class="hljs-keyword">new</span> Router({
+                    routes: routes,
+                    states: <span class="hljs-keyword">this</span>.config.states
+                });
+            },
+
+            initDispatcher: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-27">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-27">&#182;</a>
+              </div>
+              <p>@TODO
+this.controllerFactory = new ControllerFactory({ … });</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">var</span> options = {
+                    states: <span class="hljs-keyword">this</span>.config.states,</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-28">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-28">&#182;</a>
+              </div>
+              <p>forward plugins and services to controller - move this to ControllerFactory</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                    services : <span class="hljs-keyword">this</span>.services,
+                    layout: <span class="hljs-keyword">this</span>.layout,</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-29">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-29">&#182;</a>
+              </div>
+              <p>factory: this.controllerFactory</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                };
+
+                <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.assetsManager) {
+                    options.assetsManager = <span class="hljs-keyword">this</span>.assetsManager;
+                }
+
+                <span class="hljs-keyword">this</span>.dispatcher = <span class="hljs-keyword">new</span> Dispatcher(options);
+            },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-30">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-30">&#182;</a>
+              </div>
+              <h2 id="-install-controllers"> INSTALL CONTROLLERS</h2>
+<p> allow to register controllers that will be called for each request
+ usefull to manage common parts of the site (header, footer)</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            registerCommonController: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(id, ctor)</span> {</span>
+                <span class="hljs-keyword">if</span> (_.isObject(id)) {
+                    <span class="hljs-keyword">return</span> _.each(id, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(ctor, id)</span> {</span>
+                        <span class="hljs-keyword">this</span>.registerCommonController(id, ctor);
+                    }, <span class="hljs-keyword">this</span>);
+                }
+
+                <span class="hljs-keyword">var</span> instance = <span class="hljs-keyword">this</span>.dispatcher.installCommonController(ctor);
+                <span class="hljs-keyword">this</span>.commonControllers[id] = instance;
+            },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-31">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-31">&#182;</a>
+              </div>
+              <p>register all the app controllers</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            registerController: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(id, ctor)</span> {</span>
+                <span class="hljs-keyword">if</span> (_.isObject(id)) {
+                    <span class="hljs-keyword">return</span> _.each(id, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(ctor, id)</span> {</span>
+                        <span class="hljs-keyword">this</span>.dispatcher.registerController(id, ctor);
+                    }, <span class="hljs-keyword">this</span>);
+                }
+
+                <span class="hljs-keyword">this</span>.dispatcher.registerController(ctor);
+            },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-32">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-32">&#182;</a>
+              </div>
+              <h2 id="-install-plugins"> INSTALL PLUGINS</h2>
+<p> method to install plugins/services to the framework</p>
+<p> @param pluginName <string> id of the plugin to get it back in controllers
+ @param pluginCtor <object>
+         constructor of the plugin
+         the current instance of the framework and <code>com</code> object are passed as argument</p>
+<p> @TODO (maybe)   allow switch between service and plugin installation</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            install: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(pluginName, pluginCtor, options)</span> {</span>
+                <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.services[pluginName]) { <span class="hljs-keyword">return</span>; }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-33">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-33">&#182;</a>
+              </div>
+              <p>add a the new plugin to collection</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">this</span>.services[pluginName] = <span class="hljs-keyword">new</span> pluginCtor(<span class="hljs-keyword">this</span>, options);
+            },
+
+        };
+
+        <span class="hljs-keyword">return</span> FW;
+
+    }
+);</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

@@ -76,8 +76,12 @@ define([
                             'with-params': { id: request.params.id }
                         });
 
+                        // internally trigger loader
+                        // this.layout.com.publish('transition:start');
+
                         this.assets.onload(function(withParamsAsset) {
                             var contentView = this.layout.getRegion('main').getView();
+                            // this.layout.com.publish('transition:end');
                             contentView.model.set({
                                 param: request.params.id,
                                 prevParam: prevRequest.params.id,
