@@ -18,7 +18,8 @@ define([
          *      maybe the whole logic except `doShow` and `doHide`
          *      could be moved into the Region
          */
-        function Transition(region, prevView) {
+        function Transition(region, prevView, isSync) {
+            this.isSync = !!isSync || false;
             this.region = region;
             this.$el = region.$el;
             this.prevView = prevView;
@@ -31,15 +32,23 @@ define([
             this.hidePromise = this.createHidePromise();
             this.showPromise = this.createShowPromise();
 
-            // the `doShow` method should be called only when
-            // the `hideDeferred` and `showDeferred` are resolved
-            // showPromise is called first in order to keep correct param order
-            // @NOTE    create a wrapper to bind context and stick on `doShow` API
-            var show = _.bind(function(args) {
-                this.doShow.apply(this, args);
-            }, this);
 
-            when.all([this.showPromise, this.hidePromise]).done(show);
+
+            // use when.settke
+            this.donePromise = when.all([this.showPromise, this.hidePromise])
+
+            if (!this.isSync) {
+                // the `doShow` method should be called only when
+                // the `hideDeferred` and `showDeferred` are resolved
+                // showPromise is registered first in order to keep correct param order
+                // @NOTE    create a wrapper to bind context and stick on `doShow` API
+                // this works when
+                var show = _.bind(function(args) {
+                    this.doShow.apply(this, args);
+                }, this);
+
+                this.donePromise.done(show);
+            }
         }
 
         Transition.extend = Backbone.View.extend;
@@ -97,12 +106,6 @@ define([
                 this.resolveShowPromise(nextView);
             },
 
-            // allow to trigger behavior on `nextView`
-            // while being sure it's fully rendered
-            complete: function(callback) {
-                when.all([this.showPromise, this.hidePromise]).done(callback);
-            },
-
             // @OVERRIDE METHODS
             // override the two following methods to create user defined transitions
 
@@ -128,17 +131,15 @@ define([
             doShow: function(nextView, prevView) {
                 nextView.render();
                 nextView.$el.hide();
-                nextView.$el.appendTo(this.$el);
+                this.$el.html(nextView.$el);
 
-                if (_.isFunction(nextView.onRender)) {
-                    nextView.onRender();
+                // `onRender` is called internally in the view
+                // call `onShow` once the view is in the DOM
+                if (_.isFunction(nextView.onShow)) {
+                    nextView.onShow();
                 }
 
                 nextView.$el.fadeTo(200, 1, _.bind(function() {
-                    if (_.isFunction(nextView.onShow)) {
-                        nextView.onShow();
-                    }
-
                     this.resume();
                 }, this));
             }
@@ -147,4 +148,4 @@ define([
         return Transition;
 
     }
-)
+);

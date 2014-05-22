@@ -27,8 +27,8 @@ define(
 
             // override Backbone's constructor method to get precompiled cache
             constructor: function() {
-                Backbone.View.prototype.constructor.apply(this, arguments);
                 this.buildTemplateCache();
+                Backbone.View.prototype.constructor.apply(this, arguments);
             },
 
             //  if Object.getPrototypeOf is available (IE9+)
@@ -48,7 +48,6 @@ define(
 
             render: function() {
                 var data;
-
                 // call method `serializeData` if exists
                 if (this.serializeData) {
                     data = this.serializeData();

@@ -1,18 +1,66 @@
-FW
+README
 ============================================
 
-__Should be locate into `vendors` (easier for now...)__
+simple framework draft
+(MVC - Plugin oriented)
+
+dependencies
+--------------------------------------------
+
+-   backbone
+-   underscore
+-   jquery
+-   whenjs
+-   requirejs
+-   preloadjs _(optionnal)_
+
+_inspired from Chaplin architecture_
+
+install
+--------------------------------------------
+
+```sh
+$ cd path/to/project
+$ npm install
+$ bower install
+$ node app.js
+```
 
 
 todos
 --------------------------------------------
 
-maybe use `browserify` to create a standalone library (remove requirejs dependency)
+-   remove requirejs dependency - prefer `grunt` or `browserify` for build step to create a standalone library with `browserify`
+    _cf. [http://learnjs.io/blog/2014/02/06/creating-js-library-builds-with-browserify-and-other-npm-modules/](http://learnjs.io/blog/2014/02/06/creating-js-library-builds-with-browserify-and-other-npm-modules/)_
 
-cf. [http://learnjs.io/blog/2014/02/06/creating-js-library-builds-with-browserify-and-other-npm-modules/](http://learnjs.io/blog/2014/02/06/creating-js-library-builds-with-browserify-and-other-npm-modules/)
+-   allow global, AMD and CommonJS integration - add a wrapper for commonJS and AMD compatibility
 
-_add a wrapper for commonJS and AMD compatibility_
-_install grunt for build step_
+-   extract project from test app
+    _for local dev of bower module, see: [https://oncletom.io/2013/live-development-bower-component/](https://oncletom.io/2013/live-development-bower-component/)_
+
+
+folder structure
+--------------------------------------------
+
+/components
+
+    -   objects that can be used outside the framework, we should be able to use these objects in any backbone project
+
+/views
+
+    -   idem as components but all these object extends Backbones.View
+
+/core
+
+    -   core objects of the framework
+
+/services
+
+    -   should be removed
+    -   PubSub should be moved to `components`
+    -   asset-loader should be ketp external (or just keep it here as default loader)
+    -   module-auto-loader will be removed as it is not usable with r.js
+
 
 
 object list
@@ -34,18 +82,17 @@ _core_
     -   Router
     -   Dispatcher
     -   Request
-    -   * AssetManager
+    -   AssetManager
 
 _components_
 
-    -   * AssetCollection
-    -   * AssetModel
+    -   AssetCollection
+    -   AssetModel
     -   AbstractController
     -   UILocker
-    -   * AbstractLayout
+    -   AbstractLayout
     -   DefaultTransition
     -   Region
-    -   * LockedModel (is this usefull ?)
 
 _views_
 

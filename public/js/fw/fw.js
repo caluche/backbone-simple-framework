@@ -6,15 +6,14 @@ define([
         'fw/core/dispatcher',
         'fw/core/assets-manager',
         'fw/components/abstract-layout',
-    ], function(Backbone, _, com, Router, Dispatcher, AssetsManager, AbstractLayout) {
+        'fw/components/abstract-loader',
+    ], function(Backbone, _, com, Router, Dispatcher, AssetsManager, AbstractLayout, AbstractLoader) {
 
         'use strict';
         /**
          *  @TODO
-         *      handle assets in controllers
-         *      handle loader
-         *      handle dynamic assets
          *      handle multi-routing properly (add a controller stack in dispatcher)
+         *      clean `com` problem
          *
          *  In a prefect world:
          *      create a dummy App with at least 3 states (home, content, popin)
@@ -25,9 +24,6 @@ define([
          */
 
         /**
-         *  ON PROGRESS`
-         *      cf. http://stackoverflow.com/questions/22294425/promises-ecmascript-6-vs-3rd-party-libraries#answer-22296765
-         *
          *  @NOTE : having `com` separated from the framework is a mistake
          *          it should be injected on other objects as a dependency
          */
@@ -43,22 +39,6 @@ define([
          */
 
         /**
-         *  FOLDER STRUCTURE
-         *  /components
-         *      objects that can be used outside the framework,
-         *      we should be able to use these objects in any backbone project
-         *  /views
-         *      idem as components but all these object extends Backbones.View
-         *  /core
-         *      core objects of the framework
-         *  /services
-         *      should be removed
-         *      PubSub should be moved to `components`
-         *      asset-loader should be ketp external (or just keep it here as default loader)
-         *      module-auto-loader will be removed as it is not usable with r.js
-         */
-
-        /**
          *  UNDERSCORE MIXINS
          */
         _.mixin({
@@ -68,6 +48,7 @@ define([
 
             //  add an entry to each object of the given `obj`
             //  with `attrName` setted to its key
+            //  usefull to add a kind of `id` key to each element of a config object
             identify: function(obj, attrName) {
                 for (var key in obj) {
                     obj[key][attrName] = key;
@@ -85,6 +66,7 @@ define([
             /**
              *  add sep betwen 3 numbers:
              *  ex: formatNumber(1000000, ',') return 1,000,000
+             *  @TODO add a third argument nbrOfDecimal (default=0)
              */
             formatNumber: function(nbr, sep) {
                 return nbr.toString().replace(/\B(?=(\d{3})+(?!\d))/g, sep);
@@ -163,6 +145,7 @@ define([
 
                 // optionnal deps
                 this.initLayout();
+                this.initLoader();
                 this.initAssetsManager();
 
                 // create core middlewares
@@ -196,10 +179,20 @@ define([
                 var ctor = this.deps.layout || AbstractLayout;
 
                 this.layout = new ctor({
-                    regions: this.config.regions
+                    regions: this.config.regions,
+                    com: this.com
                 });
 
                 this.layout.render();
+            },
+
+            initLoader: function() {
+                var ctor = this.deps.loader || AbstractLoader;
+
+                this.loader = new ctor({
+                    layout: this.layout,
+                    com: this.com
+                });
             },
 
             // this function is called only if an AssetsLoader is register

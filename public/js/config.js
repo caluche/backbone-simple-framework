@@ -40,7 +40,9 @@ define([], function() {
                 preload: false
             },
             'with-params': {
-                path: '/assets/test-:id.json'
+                path: '/dynamic-assets/:id',
+                cache: false,
+                // @TODO test defaults
             }
         },
         regions: {

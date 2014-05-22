@@ -9,6 +9,7 @@ define(
         'app/views/layouts/app-layout',
 
         'fw/components/region',
+        'fw/components/abstract-loader',
         'fw/views/base-view',
         'fw/core/com',
         'fw/core/assets-manager',
@@ -16,7 +17,7 @@ define(
         'fw/services/asset-loader',
         'createjs',
         'when'
-    ], function(module, config, _, FW, CommonController, MainController, AppLayout, Region, BaseView, com, AssetsManager, AssetModel, AssetLoader, createjs, when) {
+    ], function(module, config, _, FW, CommonController, MainController, AppLayout, Region, AbstractLoader, BaseView, com, AssetsManager, AssetModel, AssetLoader, createjs, when) {
 
         'use strict';
 
@@ -54,12 +55,40 @@ define(
         }());
         // ---------------------------------------------
 
+        var Loader = AbstractLoader.extend({
+
+            template: '<p>loading...</p>',
+
+            initialize: function() {
+                this.$container = $('body');
+                this.render();
+            },
+
+            onRender: function() {
+                this.$el.hide();
+            },
+
+            onTransitionStart: function() {
+                this.$el.prependTo(this.$container);
+                console.timeEnd('loader timer');
+                this.$el.fadeTo(50, 1);
+            },
+
+            onTransitionEnd: function() {
+                this.$el.fadeTo(200, 0, function() {
+                    this.remove();
+                });
+            }
+        });
+
+
         // wait for the DOM
         $('document').ready(function() {
-
+            console.time('loader timer');
             // configure framework
             FW.configure({
                 layout: AppLayout,          // optionnal
+                loader: Loader,             // optionnal
                 assetLoader: AssetLoader,   // optionnal
                 controllers: {
                     'main-controller': MainController

@@ -25,7 +25,7 @@
             },
             backbone: {
                 deps: ['jquery', 'underscore'],
-                exports: 'Backbone'
+                // exports: 'Backbone'
             },
             fw: {
                 deps: ['backbone', 'when']

@@ -10,6 +10,7 @@ define(
             template: contentTmpl,
 
             initialize: function() {
+                console.log('content initialized');
                 this.listenTo(this.model, 'change', this.render);
             }
         });

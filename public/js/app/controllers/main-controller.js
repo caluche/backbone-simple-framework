@@ -34,7 +34,6 @@ define([
                 home: {
                     show: function(request, prevRequest) {
                         var asset = this.assets.get(['img-1', 'img-2', 'reddit']);
-
                         var region = this.layout.getRegion('main');
                         var transition = region.createTransition(true);
 
@@ -53,22 +52,42 @@ define([
 
                 content: {
                     show: function(request, prevRequest) {
-                        var region = this.layout.getRegion('main');
-                        var contentModel = new Backbone.Model({
-                            param: request.params.id,
-                            prevParam: undefined
+                        this.assets.get('with-params', {
+                            'with-params': { id: request.params.id }
                         });
-                        var contentView = new ContentView({ model: contentModel });
 
-                        var transition = region.createTransition(true);
-                        transition.show(contentView);
+                        // var region = this.layout.getRegion('main');
+                        // var transition = region.createTransition(true);
+                        var transition = this.layout.createTransition('main', true);
+
+                        this.assets.onload(function(withParamsAsset) {
+                            var contentModel = new Backbone.Model({
+                                param: request.params.id,
+                                prevParam: undefined,
+                                asset: withParamsAsset.data()
+                            });
+                            var contentView = new ContentView({ model: contentModel });
+
+                            transition.show(contentView);
+                        }, this);
                     },
                     update: function(request, prevRequest) {
-                        var contentView = this.layout.getRegion('main').getView();
-                        contentView.model.set({
-                            param: request.params.id,
-                            prevParam: prevRequest.params.id
+                        this.assets.get('with-params', {
+                            'with-params': { id: request.params.id }
                         });
+
+                        // internally trigger loader
+                        // this.layout.com.publish('transition:start');
+
+                        this.assets.onload(function(withParamsAsset) {
+                            var contentView = this.layout.getRegion('main').getView();
+                            // this.layout.com.publish('transition:end');
+                            contentView.model.set({
+                                param: request.params.id,
+                                prevParam: prevRequest.params.id,
+                                asset: withParamsAsset.data()
+                            });
+                        }, this);
                     },
                     close: function() {
                         console.log('content closed');
