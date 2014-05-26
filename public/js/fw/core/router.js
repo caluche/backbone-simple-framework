@@ -17,6 +17,7 @@ define([
         var Router = Backbone.Router.extend({
             initialize: function(options) {
                 this.states = options.states;
+                // @TODO try listen '*'
                 this.on('route', _.bind(this.forwardRequest, this));
             },
 
@@ -25,11 +26,11 @@ define([
 
             /**
              *  forward the request to the dispatcher
-             *  @EVENT global `route:change`
+             *  @EVENT global `router:change`
              */
-            forwardRequest: function(route, params) {
+            forwardRequest: function(stateId, params) {
                 var that = this;
-                var state = this.getState(route);
+                var state = this.states[stateId];
                 this.counter++;
 
                 // this allow to know if we are currently in a multiple route configuration or not
@@ -48,11 +49,6 @@ define([
                         _.defer(function() { that.counter = 0; });
                     });
                 }(this.counter));
-            },
-
-            //  @NOTE - allow access to the controllers ?
-            getState: function(stateId) {
-                return this.states[stateId];
             },
 
         });

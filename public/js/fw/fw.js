@@ -1,13 +1,13 @@
 define([
         'backbone',
         'underscore',
-        'fw/core/com',
         'fw/core/router',
         'fw/core/dispatcher',
         'fw/core/assets-manager',
         'fw/components/abstract-layout',
         'fw/components/abstract-loader',
-    ], function(Backbone, _, com, Router, Dispatcher, AssetsManager, AbstractLayout, AbstractLoader) {
+        'fw/components/pubsub'
+    ], function(Backbone, _, Router, Dispatcher, AssetsManager, AbstractLayout, AbstractLoader, PubSub) {
 
         'use strict';
         /**
@@ -115,6 +115,7 @@ define([
          *  BOOTSTRAP - init and configure core parts of the framework
          */
         var FW = {
+            com: undefined,
             // inject all dependencies or override defaults deps here
             configure: function(deps) {
                 this.deps = deps;
@@ -123,6 +124,8 @@ define([
             initialize: function(config, env) {
                 this.config = config;
                 this.env = env;
+                // internal communications PubSub
+                this.com = new PubSub();
 
                 _.identify(this.config.states, 'id');
 
@@ -161,11 +164,6 @@ define([
                     this.registerController(this.deps.controllers);
                 }
             },
-
-            //  com : maybe keeping it external to FW object is more meaningfull
-            //        but probably harder to trace/debug (tbd)
-            //  get a reference to the `com` object (usefull for plugins construction, should not be used elsewhere)
-            com: com,
 
             //  INIT CORE DEPS - see FW.configure
             //  -----------------------------------------------------
@@ -214,6 +212,7 @@ define([
                 var routes = {},
                     states = this.config.states;
 
+                // @FIXME - cannot work, should not hard code controller's name
                 if (states.notFound) {
                     states.notFound = {
                         route: '*notFound',
@@ -264,6 +263,7 @@ define([
                 }
 
                 var instance = this.dispatcher.installCommonController(ctor);
+                // is this realy usefull ?
                 this.commonControllers[id] = instance;
             },
 

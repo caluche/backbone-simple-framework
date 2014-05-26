@@ -7,20 +7,26 @@ define(
 
         'use strict';
 
+        // constructor should be a part of AbstractPlugin
         var AssetsLoader = function(framework) {
             this.framework = framework;
             this.com = framework.com;
-            // initialize createjs
-            this.queue = new createjs.LoadQueue();
-            this.stack = {};
 
-            // subscriptions
-            this.queue.on('fileload', _.bind(this.handleFileLoad, this));
-            this.com.on('load:asset', this.loadAsset, this);
-            // this.com.on('load:assets', this.loadAssets, this);
+            this.initialize();
         }
 
         _.extend(AssetsLoader.prototype, Backbone.Events, {
+
+            initialize: function() {
+                // initialize createjs
+                this.queue = new createjs.LoadQueue();
+                this.stack = {};
+
+                // subscriptions
+                this.queue.on('fileload', _.bind(this.handleFileLoad, this));
+                this.com.on('load:asset', this.loadAsset, this);
+                // this.com.on('load:assets', this.loadAssets, this);
+            },
 
             loadAsset: function(model) {
                 this.stack[model.cid] = model;

@@ -14,7 +14,7 @@ define(
         'fw/core/com',
         'fw/core/assets-manager',
         'fw/components/asset-model',
-        'fw/services/asset-loader',
+        'fw/plugins/asset-loader',
         'createjs',
         'when'
     ], function(module, config, _, FW, CommonController, MainController, AppLayout, Region, AbstractLoader, BaseView, com, AssetsManager, AssetModel, AssetLoader, createjs, when) {

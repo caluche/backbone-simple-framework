@@ -41,8 +41,7 @@ define([
             //      - ...
             trace: function(key) {},
             // remove all subscriptions of an object at once
-            removeHandler: function(obj) {
-                // needs to be tested
+            removeHandler: function(ctx) {
                 this.off(null, null, ctx);
             }
         });

@@ -12,16 +12,14 @@ dependencies
 -   jquery
 -   whenjs
 -   requirejs
-<<<<<<< HEAD
+-   preloadjs _(optionnal)_
+
 
 @TODO :
 
 -   extract project from test app
 -   remove requirejs dependency - prefer `browserify` for build step
 -   allow global, AMD and CommonJS integration
-=======
--   preloadjs _(optionnal)_
->>>>>>> 3e8253fb533d7e5c76ce74a18a453e722c4b2948
 
 _inspired from Chaplin architecture_
 

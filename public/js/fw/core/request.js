@@ -87,12 +87,7 @@ define(
                     pair = pair.split('=');
                     this.query[pair[0]] = pair[1];
                 }, this);
-            },
-
-            // create a route according to a state and given parameters
-            getUrl: function(params, absolute) {
-                // @param absolute default false
-            },
+            }
 
         });
 
