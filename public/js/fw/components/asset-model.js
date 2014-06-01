@@ -2,8 +2,7 @@ define(
     [
         'backbone',
         'when',
-        'fw/core/com'
-    ], function(Backbone, when, com) {
+    ], function(Backbone, when) {
 
         'use strict';
 

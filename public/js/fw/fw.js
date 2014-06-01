@@ -6,8 +6,19 @@ define([
         'fw/core/assets-manager',
         'fw/components/abstract-layout',
         'fw/components/abstract-loader',
-        'fw/components/pubsub'
-    ], function(Backbone, _, Router, Dispatcher, AssetsManager, AbstractLayout, AbstractLoader, PubSub) {
+        'fw/components/pubsub',
+        'fw/views/base-view'
+    ], function(
+        Backbone,
+        _,
+        Router,
+        Dispatcher,
+        AssetsManager,
+        AbstractLayout,
+        AbstractLoader,
+        PubSub,
+        BaseView
+    ) {
 
         'use strict';
         /**
@@ -155,6 +166,8 @@ define([
                 this.initRouter();
                 this.initDispatcher();
 
+                this.configureBaseView();
+
                 // install `controllers` and `commonControllers` if defined in `configure`
                 if (_.isObject(this.deps.commonControllers)) {
                     this.registerCommonController(this.deps.commonControllers);
@@ -167,9 +180,10 @@ define([
 
             //  INIT CORE DEPS - see FW.configure
             //  -----------------------------------------------------
-            setAppController: function(ctor) {
-                // if `ctor` is undefined fallback to default AppController
-                // configure dispatcher to use the given AppController
+            configureBaseView: function(ctor) {
+                BaseView.configure({
+                    shared: (this.config.shared || {})
+                });
             },
 
             // the main layout of the application
@@ -229,7 +243,8 @@ define([
                 // launch Backbone's router
                 this.router = new Router({
                     routes: routes,
-                    states: this.config.states
+                    states: this.config.states,
+                    com: this.com
                 });
             },
 
@@ -241,6 +256,7 @@ define([
                     // forward plugins and services to controller - move this to ControllerFactory
                     services : this.services,
                     layout: this.layout,
+                    com: this.com
                     // factory: this.controllerFactory
                 };
 

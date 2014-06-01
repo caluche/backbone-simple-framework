@@ -1,8 +1,7 @@
 define([
         'backbone',
-        'fw/core/request',
-        'fw/core/com'
-    ], function(Backbone, Request, com) {
+        'fw/core/request'
+    ], function(Backbone, Request) {
 
         'use strict';
 
@@ -17,6 +16,7 @@ define([
         var Router = Backbone.Router.extend({
             initialize: function(options) {
                 this.states = options.states;
+                this.com = options.com;
                 // @TODO try listen '*'
                 this.on('route', _.bind(this.forwardRequest, this));
             },
@@ -43,7 +43,7 @@ define([
                             index: currentIndex
                         });
 
-                        com.publish('router:change', request, request);
+                        that.com.publish('router:change', request, request);
 
                         // reset counter at the end of routing stack
                         _.defer(function() { that.counter = 0; });

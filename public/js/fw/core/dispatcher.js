@@ -1,8 +1,7 @@
 define(
     [
         'backbone',
-        'fw/core/com'
-    ], function(Backbone, com) {
+    ], function(Backbone) {
 
         'use strict';
 
@@ -29,6 +28,7 @@ define(
             this.layout = options.layout;
             this.assetsManager = options.assetsManager;
             this.services = options.services;
+            this.com = options.com;
 
             //
             this.prevController;
@@ -39,7 +39,7 @@ define(
             this.controllers = {};
 
             // @EVENT : listen `route:change` from router
-            com.subscribe('router:change', this.dispatch, this);
+            this.com.subscribe('router:change', this.dispatch, this);
         }
 
         _.extend(Dispatcher.prototype, Backbone.Events, {
@@ -139,7 +139,7 @@ define(
             execute: function(instance, request) {
                 // @EVENT - entry point
                 // could be used in a plugin/service to create repetive tasks
-                com.publish('dispatcher:beforeDispatch', request, this.prevRequest);
+                this.com.publish('dispatcher:beforeDispatch', request, this.prevRequest);
 
                 // execute all the registered `commonControllers`
                 this.executeCommonControllers(request, this.prevRequest);
@@ -166,7 +166,7 @@ define(
                 //  @EVENT - entry point
                 //  must be triggered only once after each controllers
                 //  is used by layout to control transitions
-                com.publish('dispatcher:afterDispatch', request, this.prevRequest);
+                this.com.publish('dispatcher:afterDispatch', request, this.prevRequest);
 
                 this.prevRequest = request;
                 this.prevController = instance;

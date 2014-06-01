@@ -28,7 +28,15 @@ define(
             // override Backbone's constructor method to get precompiled cache
             constructor: function() {
                 this.buildTemplateCache();
+                this.sharedData = (BaseView._shared || {});
                 Backbone.View.prototype.constructor.apply(this, arguments);
+            },
+
+            serializeData: function() {
+                var data = {};
+                data._shared = this.sharedData;
+
+                return data;
             },
 
             //  if Object.getPrototypeOf is available (IE9+)
@@ -43,7 +51,7 @@ define(
 
                 // assume we use underscore's template engine,
                 // add some config to change that if needed
-                host.cachedTemplate = _.template(this.template);
+                host.cachedTemplate = BaseView.templateEngine(this.template);
             },
 
             render: function() {
@@ -71,6 +79,22 @@ define(
             }
 
         });
+
+        // default template engine
+        BaseView.templateEngine = _.template;
+
+        // static method to set helpers and template engine
+        BaseView.configure = function(options) {
+            // replace default template engine
+            if (options.engine) {
+                BaseView._engine = options.engine;
+            }
+
+            //
+            if (options.shared) {
+                BaseView._shared = options.shared
+            }
+        }
 
         return BaseView;
     }

@@ -50,8 +50,8 @@ define([], function() {
             'main': '#main',
             'footer': '#footer'
         },
-        consts: {
-            /* stored in require ? */
+        shared: {
+            url: 'http://www.google.com'
         }
     }
 });

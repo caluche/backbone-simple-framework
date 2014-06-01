@@ -11,13 +11,12 @@ define(
         'fw/components/region',
         'fw/components/abstract-loader',
         'fw/views/base-view',
-        'fw/core/com',
         'fw/core/assets-manager',
         'fw/components/asset-model',
         'fw/plugins/asset-loader',
         'createjs',
         'when'
-    ], function(module, config, _, FW, CommonController, MainController, AppLayout, Region, AbstractLoader, BaseView, com, AssetsManager, AssetModel, AssetLoader, createjs, when) {
+    ], function(module, config, _, FW, CommonController, MainController, AppLayout, Region, AbstractLoader, BaseView, AssetsManager, AssetModel, AssetLoader, createjs, when) {
 
         'use strict';
 
@@ -80,6 +79,12 @@ define(
                 });
             }
         });
+
+        BaseView.configure({
+            shared: {
+                test: 'test shared'
+            }
+        })
 
 
         // wait for the DOM

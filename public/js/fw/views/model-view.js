@@ -1,16 +1,17 @@
 define(
     [
+        'underscore',
         'fw/views/base-view'
-    ], function(BaseView) {
+    ], function(_, BaseView) {
 
         'use strict';
 
         var ModelView = BaseView.extend({
             serializeData: function() {
-                var data;
+                var data = BaseView.prototype.serializeData.apply(this);
 
                 if (this.model) {
-                    data = this.model.toJSON()
+                    data = _.extend(data, this.model.toJSON());
                 }
 
                 return data;

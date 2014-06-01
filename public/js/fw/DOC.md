@@ -27,7 +27,8 @@ GEORGETTE JS
     - Loader
 
 
-Georgette is an architectural framework build on top of [Backbone](backbonejs.org), it's primary purpose is provide an clean way to organize code by creating a contoller layer between `Backbone.Router` and `Backbone.View`. Aside, it include some generic features to handle views, cf. `Layout`, `Region` and `Transition` abstractions.
+Georgette is an architectural framework build on top of [Backbone](backbonejs.org), it's primary purpose is provide an clean way to organize code by creating a contoller layer between `Backbone.Router` and `Backbone.View`.
+Aside, it include some generic features to handle views, cf. `Layout`, `Region` and `Transition` abstractions. We should be able to use these components in a standalone mode, without the whole framework.
 The framework can also be extended through the use of plugins and an `AssetManager` is available if an `AssetLoader` plugin is installed
 
 Installation and configuration
