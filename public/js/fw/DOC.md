@@ -200,7 +200,7 @@ delete window.Env;
 Georgette.initialize(app, env);
 ```
 
-`env` is and should never be used directly by the framework, but is available and can be consumed in your own controllers or plugins
+`env` is and should never be used directly inside the framework, but is available and can be consumed in final users controllers or plugins
 
 
 ### Application configuration
