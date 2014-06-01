@@ -1,3 +1,6 @@
+GEORGETTE JS
+============
+
 1.  [Installation and Configuration](#installation-and-configuration)
     -   [Dependencies](#dependencies)
     -   [Installing with bower](#installing-with-bower)
@@ -22,6 +25,10 @@
 12. Assets
     - configuration
     - Loader
+
+
+Georgette is an architectural framework build on top of [Backbone](backbonejs.org), it's primary purpose is provide an clean way to organize code by creating a contoller layer between `Backbone.Router` and `Backbone.View`. Aside, it include some generic features to handle views, cf. `Layout`, `Region` and `Transition` abstractions.
+The framework can also be extended through the use of plugins and an `AssetManager` is available if an `AssetLoader` plugin is installed
 
 Installation and configuration
 ==============================
@@ -127,7 +134,7 @@ requirejs offers it's own [minification tools](http://requirejs.org/docs/optimiz
 
 `$  npm install -g requirejs`
 
-configure `r.js`, simply add this file at the root of your project to tell r.js to parse your bootstrap file for configuration information, this allow to not duplicate the confiuration file.
+to configure `r.js`, simply add this file at the root of your project to tell `r.js` to parse your bootstrap file for configuration information, this allow to not duplicate the `requirejs` configuration informations.
 
 ```javascript
 //  build.js
@@ -147,7 +154,7 @@ $   r.js -o build.js`
 
 ### Environment configuration
 
-to easilly switch environments (from developpment to production servers), the following file should be created in your `js` folder
+to easily switch environments (from developpment to production servers), the following file should be created in your `js` folder
 
 ```javascript
 //  public/js/env-config.js.dist
