@@ -18,7 +18,6 @@
     -   BaseView
     -   ModelView
     -   Loader
-
 11. Plugins
 12. Assets
     - configuration
@@ -30,27 +29,19 @@ Installation and configuration
 ### Dependencies :
 
 - underscore
-
 - jquery
-
 - backbone
-
 - whenjs (should probably be replaced for a lighter implementation)
-
-- es5-polyfill (needed by when.js in IE8-9)
-
-_NOTE: `es6-promise` cannot be used as is, cause it silently fails when an error is thrown in a `then` callback_
-
+- es5-shim (needed by when.js in IE8-9)
 - requirejs (hard dependency - _should be replaced by Grunt or Browserify_)
-
 - PreloadJS (default plugin for assets loading - _optionnal_)
 
-_At that time, Georgette cannot be used without RequireJS._
+_NOTES:_
+- `es6-promise` cannot be used as is, cause it silently fails when an error is thrown in a `then` callback_
+- _At that time, Georgette cannot be used without RequireJS._
 
 
 ### Installing with [bower](http://bower.io/#installing-bower)
-
-_bower.json_
 
 your `bower.json` configuration file must include these lines
 
@@ -273,7 +264,7 @@ states: {
 
 see also:
 
-    - State controllers
+- State controllers
 
 ####    `app.regions`
 
@@ -291,8 +282,8 @@ regions: {
 
 see also:
 
-    - BaseLayout
-    - Region
+- BaseLayout
+- Region
 
 
 
