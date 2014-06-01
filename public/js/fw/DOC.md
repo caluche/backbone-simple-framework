@@ -27,8 +27,10 @@ GEORGETTE JS
     - Loader
 
 
-Georgette is an architectural framework build on top of [Backbone](backbonejs.org), it's primary purpose is provide an clean way to organize code by creating a contoller layer between `Backbone.Router` and `Backbone.View`.
+Georgette is an architectural framework build on top of [Backbone](backbonejs.org), it's primary goal is to provide an clean way to organize code by creating a controller layer between `Backbone.Router` and `Backbone.View`s.
+
 Aside, it include some generic features to handle views, cf. `Layout`, `Region` and `Transition` abstractions. We should be able to use these components in a standalone mode, without the whole framework.
+
 The framework can also be extended through the use of plugins and an `AssetManager` is available if an `AssetLoader` plugin is installed
 
 Installation and configuration
@@ -183,7 +185,7 @@ At the end of the `index.html`, the following strategy can be used to switch env
 </script>
 ```
 
-In you application main file, the `window.Env` can be passed as a second argument of the Georgette `initialize` method.
+In you application main file, the `window.Env` can be passed as a second argument of the `Georgette.initialize` method.
 
 ```javascript
 //  public/js/main.js
@@ -238,20 +240,20 @@ define(
     [
         'app-config'
     ],
-    function(app) {
+    function(config) {
         // do stuff with `env` configuration
         $(document).ready(function() {
             Georgette.configure({
                 // ....
             });
 
-            Georgette.initialize(app, env);
+            Georgette.initialize(config, env);
         });
     }
 );
 ```
 
-####    `app.states`
+####    `config.states`
 
 This entry is used to configure each state of your application. It allows to configure the route, controller and action to be called when the route match, and default values for optionnal parameters. An example state configuration could look like the following :
 
@@ -278,7 +280,7 @@ see also:
 
 - State controllers
 
-####    `app.regions`
+####    `config.regions`
 
 This entry is used to configure the layout instance created by the framework. Here is an example configuration for regions
 
