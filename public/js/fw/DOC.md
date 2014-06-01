@@ -1,6 +1,6 @@
-1.  Installation and Configuration
-    -   Dependencies
-    -   Installing with [bower](http://bower.io/#installing-bower)
+1.  [Installation and Configuration](#installation-and-configuration)
+    -   [Dependencies](#dependencies)
+    -   [Installing with [bower](http://bower.io/#installing-bower)](#installing-with-bower)
     -   Configure [require.js](http://requirejs.org/docs/start.html#add)
     -   Minification / Production
     -   Environment configuration
@@ -26,7 +26,7 @@
 Installation and configuration
 ==============================
 
-### Dependencies :
+### Dependencies
 
 - underscore
 - jquery
