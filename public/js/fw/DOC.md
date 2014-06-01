@@ -1,10 +1,10 @@
 1.  [Installation and Configuration](#installation-and-configuration)
     -   [Dependencies](#dependencies)
-    -   [Installing with [bower](http://bower.io/#installing-bower)](#installing-with-bower)
-    -   Configure [require.js](http://requirejs.org/docs/start.html#add)
-    -   Minification / Production
-    -   Environment configuration
-    -   Application configuration
+    -   [Installing with bower](#installing-with-bower)
+    -   [Configure require.js](#configure-requirejs)
+    -   [Minification / Production](#minification--production)
+    -   [Environment configuration](#environment-configuration)
+    -   [Application configuration](#application-configuration)
 3.  Initialization
 4.  Routing / Dispatching
 5.  Controllers
@@ -84,8 +84,9 @@ sample configuration file for `requirejs`
 ```javascript
 //  public/js/bootstrap.js
 requirejs.config({
-    // traditionnal requirejs config
-    urlArgs: 'bust=' + new Date().getTime(), // add timestamp on required urls to force resource refresh (usefull for dev)
+    //  add timestamp on required urls to force resource refresh
+    //  (usefull for dev)
+    urlArgs: 'bust=' + new Date().getTime(),
     baseUrl: 'js',
     shim: {
         jquery: {
@@ -163,7 +164,10 @@ This file is actually never used by the application, it should be shared in your
 At the end of the `index.html`, the following strategy can be used to switch environments according to your own configuration file
 
 ```html
-//  public/index.html (assuming the root directory is properly configured side-side)
+<!--
+    public/index.html
+    (assuming the root directory is properly configured side-side)
+-->
 <script src="/js/env-config.js"></script>
 <script>
     var filepath = window.Env.minify ? '/js/app-built.js' : '/js/boostrap.js';
