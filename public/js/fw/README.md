@@ -1,3 +1,14 @@
+@TODOS
+--------------------------------------------
+
+rename :
+    abstract-layout     =>  base-layout
+    abstract-loader     =>  base-loader
+    default-transition  =>  base-transition
+
+(semantic consistency with views)
+
+
 Georgette
 ============================================
 
