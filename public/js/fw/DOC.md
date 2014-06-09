@@ -329,7 +329,7 @@ The `dispatcher` listen this event and receive the partial `request` object, its
 
 The `dispatcher` keeps track of the previous route to define if a new controller must be instanciated or if the previous controller should be reused. It also define which part of the action (`show`, `update` or `close`) should be triggered based on the last route
 
-    _Example:_
+_Example:_
 
     Assuming a first route associated with the command `main::blog` and an url parameter `blogId` with value 4,
     -   the controller `MainController` is instanciated
