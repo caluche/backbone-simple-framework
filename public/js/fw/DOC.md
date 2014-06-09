@@ -331,11 +331,15 @@ The `dispatcher` keeps track of the previous route to define if a new controller
 
     _Example:_
 
-    Assuming a first route associated with the command `main:blog` and an url parameter `blogId` with value 4, the controller `MainController` is instanciated and is method `blog.show` is triggered
+    Assuming a first route associated with the command `main::blog` and an url parameter `blogId` with value 4,
+    -   the controller `MainController` is instanciated
+    -   its `blog.show` method is triggered
 
-    In a second time, the url parameter `blogId` changes to 2. The instance of mainController is reused, but as the command didn't change, the method triggered is `blog.update` with a new `request` object containing the updated parameters.
+    In a second time, the url parameter `blogId` changes to 2.
+    -   as the command didn't changed, the instance of `mainController` is reused
+    -   the method `blog.update` is triggered with a new `request` object containing the updated parameters.
 
-    Finally, the route changes to the command `newsletter:subscribe`:
+    Finally, the route changes to the command `newsletter::subscribe`:
     -   a new controller `NewsletterController` is instanciated
     -   the method `blog.close` is triggered on the `MainController` which is then destroyed (`destroy` method is called).
     -   finally the method `subscribe.show` is called on the new `NewsletterController` instance with a new `request` object
