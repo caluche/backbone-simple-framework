@@ -48,6 +48,7 @@ define(
                 var instance = new ctor({
                     layout: this.layout,
                     services: this.services,
+                    com: this.com,
                     assetsManager: this.assetsManager
                 });
 
@@ -78,7 +79,9 @@ define(
             },
 
             // returns the command from a 'controller::action' pattern
-            getCommand: function(pattern) {
+            // @NOTE :  maybe should be in the router
+            //          request definition would be in a single place
+            parseCommand: function(pattern) {
                 var parts = pattern.split('::');
 
                 return {
@@ -98,7 +101,7 @@ define(
                 this.isExecutionCanceled = false;
 
                 // process the command for controller::action
-                var command = this.getCommand(request.state.controller);
+                var command = this.parseCommand(request.state.command);
                 request.command = command;
 
                 // if (this.isExecutionCanceled) { return; }

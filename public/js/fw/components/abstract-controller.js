@@ -57,9 +57,10 @@ define(
          */
 
         var AbstractController = function(options) {
-            var options = options || {};
+            options = (options || {});
             // set layout
             this.layout = options.layout;
+            this.com = options.com;
             this.services = options.services;
             // @NOTE    `this.assets` could be the current assetCollection for the state,
             //          while `this.assetsManager` should be the real service

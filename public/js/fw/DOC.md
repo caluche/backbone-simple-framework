@@ -10,10 +10,10 @@ GEORGETTE JS
     -   [Application configuration](#application-configuration)
 3.  Initialization
 4.  Routing / Dispatching
-5.  Controllers
+5.  Request
+6.  Controllers
     -   common controllers
     -   state controllers
-6.  Request
 7.  Layout
 8.  Region
 9.  Transition
@@ -25,6 +25,16 @@ GEORGETTE JS
 12. Assets
     - configuration
     - Loader
+
+
+@TODOS
+======
+
+-   `config.states`: rename attribute `controller` to `command` - DONE
+
+
+
+
 
 
 Georgette is an architectural framework build on top of [Backbone](backbonejs.org), it's primary goal is to provide an clean way to organize code by creating a controller layer between `Backbone.Router` and `Backbone.View`s.
@@ -188,7 +198,7 @@ At the end of the `index.html`, the following strategy can be used to switch env
 In you application main file, the `window.Env` can be passed as a second argument of the `Georgette.initialize` method.
 
 ```javascript
-//  public/js/main.js
+//  public/js/app.js
 
 //  copy window.Env in a new object
 var env = _.extend({}, window.Env);
@@ -232,10 +242,10 @@ define([], function() {
 });
 ```
 
-consume this file as a dependency in the `main.js` file to bootstrap Georgette.
+consume this file as a dependency in the `app.js` file to bootstrap Georgette.
 
 ```javascript
-//  public/js/main.js
+//  public/js/app.js
 define(
     [
         'app-config'
@@ -298,6 +308,208 @@ see also:
 
 - BaseLayout
 - Region
+
+
+Initialization
+==============
+
+
+Routing - Dispatching
+=====================
+
+While the Backbone's router is available in controllers (`this.router`), the naviagation is mainly handled by native behavior of the browser, and Backbone router implementation on hash change. Links must be written in templates, allowing deep linking. The Backbone's `Router.navigate` method should only be used for actions forwarding or redictions (`{ trigger: true }`)
+
+When a route is triggered on hash change (@TODO : add a catch all route to handle 404 response), the Router creates a `Request` object for the given route and publish an event (`router:change`)
+
+_Notes on events: all Georgette internal events are share through a `PubSub` instance which is accessible in `Georgette.com` namespace. A list of internal events is available in Appendix A [Events](#events)_
+
+This event is a good entry point to create plugins for analytics.
+
+The `dispatcher` listen this event and receive the partial `request` object, its purporse is to find which state is associated to this route, instanciate controllers and trigger the requested action.
+
+The `dispatcher` keeps track of the previous route to define if a new controller must be instanciated or if the previous controller should be reused. It also define which part of the action (`show`, `update` or `close`) should be triggered based on the last route
+
+_Example:_
+
+Assuming a first route associated with the command `main:blog` and an url parameter `blogId` with value 4, the controller `MainController` is instanciated and is method `blog.show` is triggered
+
+In a second time, the url parameter `blogId` changes to 2. The instance of mainController is reused, but as the command didn't change, the method triggered is `blog.update` with a new `request` object containing the updated parameters.
+
+Finally, the route changes to the command `newsletter:subscribe`:
+-   a new controller `NewsletterController` is instanciated
+-   the method `blog.close` is triggered on the `MainController` which is then destroyed (`destroy` method is called).
+-   finally the method `subscribe.show` is called on the new `NewsletterController` instance with a new `request` object
+
+
+Request
+=======
+
+Each time an action is called, it receive a `request` object as parameter. This object is a parameter bag grouping all available informations about the current route.
+
+```javascript
+//  anatomy of a `request` object
+request = {
+    //  original parameters created by Backbone's route
+    originalParams: Array
+    //  based on `config.states` informations
+    command: {
+        controller: 'main-controller',
+        action: 'home'
+    }
+    //  controllers: Object - not used for the moment
+    //  window.location.hash
+    hash: "#home"
+    //  mapped object url parameter
+    //  for a given state, if route definition is 'content/:id'
+    //  and actual hash is `#content/16`
+    //  the params object would be populated with { id: 16 }
+    //  this object is merged with the defaults defined in the state config
+    params: Object
+    //  a mapped object of the query parameters:
+    //  for the url `index.html?param=abcd#home`, the query object
+    //  would be { param: 'abcd' }
+    query: Object
+    //  a reference to the definition of the state. Should be considered as
+    //  read-only at it is a reference, but could probably be altered for
+    //  some specific use case
+    state: Object
+}
+```
+
+
+Controllers
+===========
+
+Controllers must extend `Georgette.AbstractController`
+
+The controllers are supposed to be a layer between router and views, this is the place where business logic must be done and views instanciated. This allow to have a better separation of concern, while keeping views simple and reusable. It also permit to dispatch the work in the team based on tasks and specializations more easily.
+
+It receives as dependencies the instances of : `layout`, `com`, `services` (all registered plugins) and the `assetsManager` if assets loading is configured.
+
+#### `initialize()`
+
+called when the object is instanciated
+
+#### `destroy()`
+
+called when the object is destroyed
+
+#### `beforeAction(request, previousRequest)`
+
+this method is called before each action of the current controller and received the same params as a standart action method
+
+#### `actions`
+
+this object is main purpose of the controller, it defines all the actions for this controller as well as their 3 possible behaviors (`show`, `update`, `close`). Each of these methods receive as parameter the current `request` object and the previous `request` object.
+
+```javascript
+//  app/controller/main-controller.js
+var MainController = Georgette.AbstractController.extend({
+    initialize: function(options) {
+        // ...
+    },
+
+    actions: {
+        home: {
+            show: function(request, prevRequest) {
+                var homeView = new HomeView({
+                    model: new Backbone.Model({ id: request.params.id });
+                });
+                var region = this.layout.getRegion('main');
+                var transition = region.createTransition(true);
+                transition.show(homeView);
+            },
+            update: function(request, prevRequest) {
+                var homeView = this.layout.getRegion('main').getView();
+                // the view is binded to its model and then updated
+                homeView.model.set('id', request.params.id);
+            },
+            close: function(request, prevRequest) {
+                // clean subscriptions, etc...
+            }
+        },
+        // ...
+    }
+});
+```
+
+While the syntax for `actions` can looks odd, it offers a good way to group related logic. The context inside actions is ketp to the current controller so any controller attribute can be accessed the way we expect.
+
+
+### Common Controllers
+
+Common Controllers are a special type of controllers wich are not related to a state, so it's not related to the config object neither. All the actions defined in these controllers are triggered on each requests. Should be used for common parts of the website such as header, nav, footer...
+
+The foolowing example show how to update the header or the navigation according to the current state.
+
+Note: as a matter of fact, the `show` method is only called once, then the action is always updated.
+
+```javascript
+// app/controllers/common-controller.js
+actions: {
+    header: {
+        show: function(request, prevRequest) {
+            var headerView = new HeaderView({
+                model: new Backbone.Model({ state: request.state.id });
+            });
+
+            var transition = this.layout.createTransition('header', true);
+            transition.show(headerView);
+        },
+        update: function(request, prevRequest) {
+            var headerView = this.layout.getRegion('header').getView();
+            // update through model
+            headerView.model.set('state', request.state.id);
+        }
+    },
+    // ...
+}
+```
+
+Common Controllers are registered in Georgette.Configure
+
+_(@TODO should allow array as well as object, controller id will never be used)_
+
+```javascript
+Georgette.configure({
+    // ...
+    commonControllers: {
+        'commonController': CommonController
+    },
+    // ...
+})
+```
+
+### State Controllers
+
+State controllers are bound to a state. they are instanciated and triggered according to the application current state and the application configuration.
+
+These controllers are registered this way, the `key` (its `id`) of the controller must match the first part of the `command` defined in the state configuration:
+
+```javascript
+//  app-config.js
+states: {
+    home: {
+        command: 'static-controller::home'
+    }
+}
+
+//  app.js
+Georgette.configure({
+    controllers: {
+        'static-controller': StaticController
+    },
+});
+```
+
+```
+
+
+See also:
+
+-   (cf. [Routing - Dispatching](#routing_-_dispatching))
+
+
 
 
 

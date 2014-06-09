@@ -11,6 +11,8 @@ define([
             actions: {
                 header: {
                     show: function(request, prevRequest) {
+                        console.log(request);
+
                         var headerView = new HeaderView({
                             model: new Backbone.Model({
                                 state: request.state.id

@@ -14,12 +14,12 @@ define([], function() {
                 // controller is the name of the file where the controller object can be found,
                 // allow to create an autoload system with require
                 // example : 'path/to/controller::action'
-                controller: 'main-controller::home',
+                command: 'main-controller::home',
                 defaults: {}
             },
             content: {
                 route: 'content(/:id)',
-                controller: 'main-controller::content',
+                command: 'main-controller::content',
                 defaults: { id: 25 }
             }
         },
