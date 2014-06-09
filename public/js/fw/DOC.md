@@ -12,8 +12,8 @@ GEORGETTE JS
 4.  [Routing / Dispatching](#routing--dispatching)
 5.  [Request](#request)
 6.  [Controllers](#controllers)
-    -   [common controllers](common-controllers)
-    -   [state controllers](state-controllers)
+    -   [Common Controllers](#common-controllers)
+    -   [State Controllers](#state-controllers)
 7.  Layout
 8.  Region
 9.  Transition
@@ -288,7 +288,7 @@ states: {
 
 see also:
 
-- State controllers
+- [State controllers](#state-controllers)
 
 ####    `config.regions`
 
