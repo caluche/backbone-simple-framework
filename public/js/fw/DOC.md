@@ -9,11 +9,11 @@ GEORGETTE JS
     -   [Environment configuration](#environment-configuration)
     -   [Application configuration](#application-configuration)
 3.  Initialization
-4.  Routing / Dispatching
-5.  Request
-6.  Controllers
-    -   common controllers
-    -   state controllers
+4.  [Routing / Dispatching](#routing--dispatching)
+5.  [Request](#request)
+6.  [Controllers](#controllers)
+    -   [common controllers](common-controllers)
+    -   [state controllers](state-controllers)
 7.  Layout
 8.  Region
 9.  Transition
@@ -314,7 +314,7 @@ Initialization
 ==============
 
 
-Routing - Dispatching
+Routing / Dispatching
 =====================
 
 While the Backbone's router is available in controllers (`this.router`), the naviagation is mainly handled by native behavior of the browser, and Backbone router implementation on hash change. Links must be written in templates, allowing deep linking. The Backbone's `Router.navigate` method should only be used for actions forwarding or redictions (`{ trigger: true }`)
@@ -502,12 +502,9 @@ Georgette.configure({
 });
 ```
 
-```
-
-
 See also:
 
--   (cf. [Routing - Dispatching](#routing_-_dispatching))
+-   (cf. [Routing - Dispatching](#routing--dispatching))
 
 
 
