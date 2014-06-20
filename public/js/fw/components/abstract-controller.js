@@ -85,12 +85,15 @@ define(
             */
 
             // keep it as the entry points
-            remove: function() {
+            destroy: function() {
                 this.removeAllHandlers();
             },
 
             // make a default cleanning (event listeners, subscribes)
-            removeAllHandlers: function() {},
+            removeAllHandlers: function() {
+                this.off(null, null, this);
+                this.stopListening();
+            },
 
             // is called before each action on a given controller
             // can be used to set params on assets

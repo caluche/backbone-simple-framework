@@ -131,6 +131,9 @@ define(
                     if (this.prevController) {
                         this.prevController.destroy();
                     }
+
+                    this.prevRequest = request;
+                    this.prevController = instance;
                 } else {
                     // if the action is the same as in the prevRequest : call `update` method
                     request.command.method = (this.prevRequest.command.action === request.command.action) ? 'update' : 'show';
@@ -170,9 +173,6 @@ define(
                 //  must be triggered only once after each controllers
                 //  is used by layout to control transitions
                 this.com.publish('dispatcher:afterDispatch', request, this.prevRequest);
-
-                this.prevRequest = request;
-                this.prevController = instance;
             },
 
             //
