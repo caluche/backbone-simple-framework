@@ -29,6 +29,7 @@ define(
             this.assetsManager = options.assetsManager;
             this.services = options.services;
             this.com = options.com;
+            this.config = options.config;
 
             //
             this.prevController;
@@ -49,7 +50,8 @@ define(
                     layout: this.layout,
                     services: this.services,
                     com: this.com,
-                    assetsManager: this.assetsManager
+                    assetsManager: this.assetsManager,
+                    config: this.config
                 });
 
                 return instance;

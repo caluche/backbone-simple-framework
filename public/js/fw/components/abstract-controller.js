@@ -62,6 +62,8 @@ define(
             this.layout = options.layout;
             this.com = options.com;
             this.services = options.services;
+            this.config = options.config;
+            this.env = options.env;
             // @NOTE    `this.assets` could be the current assetCollection for the state,
             //          while `this.assetsManager` should be the real service
             this.assets = options.assetsManager;

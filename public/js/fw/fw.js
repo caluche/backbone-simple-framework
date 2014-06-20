@@ -256,8 +256,9 @@ define([
                     // forward plugins and services to controller - move this to ControllerFactory
                     services : this.services,
                     layout: this.layout,
-                    com: this.com
+                    com: this.com,
                     // factory: this.controllerFactory
+                    config: this.config
                 };
 
                 if (this.assetsManager) {
