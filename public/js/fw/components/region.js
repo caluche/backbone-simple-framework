@@ -42,7 +42,7 @@ define(
                 this.$el = $(this.el);
 
                 if (!this.$el.length) {
-                    throw new Error('selector "' + this.$el + '" match no element');
+                    throw new Error('selector "' + this.el + '" match no element');
                 }
             },
 
