@@ -26,7 +26,6 @@ define(
          */
         function Region(options) {
             this.el = options.el;
-            this.com = options.com;
             this.currentView = undefined;
             this.ensureEl();
         }
@@ -122,8 +121,9 @@ define(
             },
 
             // entry point for extend
-            destroy: function() {
+            destroy: function(removeEl) {
                 this.close();
+                if (removeEl) { this.$el.remove(); }
             },
 
             close: function() {
@@ -138,4 +138,4 @@ define(
 
         return Region;
     }
-)
+);

@@ -38,7 +38,7 @@ define(
                 this.regions = {};
                 this.transitionStack = [];
 
-                this.createRegions();
+                this.buildRegions();
 
                 // subscribe to this channel to synchronise transition resolution
                 // we are sure at this moment that every controller has been called
@@ -46,9 +46,9 @@ define(
             },
 
             // create a Region object foreach configured regions
-            createRegions: function() {
+            buildRegions: function() {
                 _.each(this.regionsConfiguration, function(selector, name) {
-                    this.addRegion(name, selector);
+                    this.createRegion(name, selector);
                 }, this);
             },
 
@@ -61,23 +61,30 @@ define(
             },
 
             // should destroy the DOM element
-            removeRegion: function(name) {
+            removeRegion: function(name, removeEl) {
+                removeEl = (removeEl === false) ? false : true;
                 var region = this.regions[name];
                 if (!region) return;
 
-                region.destroy();
+                region.destroy(removeEl);
                 // remove from stack - `delete` seems to be performance problem
                 this.regions[name] = undefined;
             },
 
-            // this must be improved we should be able to create
-            // the DOM element as well
-            addRegion: function(name, selector) {
-                if (this.regions[name]) {
-                    this.removeRegion(name)
-                }
+            // this must be improved we should be able to create - the DOM element as well
 
-                this.regions[name] = new Region({ el: selector });
+            //  if `elm` already exists in the DOM, it can be a selector,
+            //  otherwise it must be DOM element (or a jQuery element);
+            //  the moethod arguments allow to personalize the way the new node is inserted
+            //  it must be a jQuery method from the target context
+            createRegion: function(name, elm, target, method) {
+                if (this.regions[name]) { this.removeRegion(name); }
+
+                // console.log(name, elm)
+                method = method || 'append';
+                if (target) { this.$(target)[method](elm) }
+
+                this.regions[name] = new Region({ el: elm });
             },
 
             // shortcut form region.createTransition
