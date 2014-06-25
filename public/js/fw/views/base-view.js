@@ -57,21 +57,18 @@ define(
             render: function() {
                 var data;
                 // call method `serializeData` if exists
-                if (this.serializeData) {
+                if (_.isFunction(this.serializeData)) {
                     data = this.serializeData();
                 }
 
-                // render template
-                // @TODO must find a way to allow template definition at runtime
-                if (!this.cachedTemplate) {
-                    throw new Error('no template defined for view "' + (this.id || this.cid) + '"');
+                // render template if any
+                if (this.cachedTemplate) {
+                    var renderedHtml = this.cachedTemplate(data);
+                    this.$el.html(renderedHtml);
                 }
 
-                var renderedHtml = this.cachedTemplate(data);
-                this.$el.html(renderedHtml);
-
                 // call method `onRender` if exists
-                if (this.onRender) {
+                if (_.isFunction(this.onRender)) {
                     this.onRender();
                 }
 

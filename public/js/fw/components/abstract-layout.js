@@ -73,18 +73,16 @@ define(
 
             // this must be improved we should be able to create - the DOM element as well
 
-            //  if `elm` already exists in the DOM, it can be a selector,
-            //  otherwise it must be DOM element (or a jQuery element);
-            //  the moethod arguments allow to personalize the way the new node is inserted
-            //  it must be a jQuery method from the target context
-            createRegion: function(name, elm, target, method) {
+            // if elm already exists in the DOM, it can be a selector,
+            // otherwise it must be DOM element (or a jQuery element);
+            createRegion: function(name, el, target, method) {
                 if (this.regions[name]) { this.removeRegion(name); }
 
                 // console.log(name, elm)
                 method = method || 'append';
-                if (target) { this.$(target)[method](elm) }
+                if (target) { this.$(target)[method](el); }
 
-                this.regions[name] = new Region({ el: elm });
+                this.regions[name] = new Region({ el: el });
             },
 
             // shortcut form region.createTransition
