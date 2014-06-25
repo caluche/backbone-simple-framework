@@ -62,6 +62,11 @@ define(
                 }
 
                 // render template
+                // @TODO must find a way to allow template definition at runtime
+                if (!this.cachedTemplate) {
+                    throw new Error('no template defined for view "' + (this.id || this.cid) + '"');
+                }
+
                 var renderedHtml = this.cachedTemplate(data);
                 this.$el.html(renderedHtml);
 
