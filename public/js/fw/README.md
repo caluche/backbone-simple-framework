@@ -8,6 +8,8 @@ rename :
 
 (semantic consistency with views)
 
+/!\ whenjs should be removed as it needs es5shim to work in old browsers and es5shim breaks `for ... in` loops without `hasOwnProperty` check
+
 
 Georgette
 ============================================
