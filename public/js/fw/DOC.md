@@ -30,16 +30,19 @@ GEORGETTE JS
 @TODOS
 ======
 
--   `config.states`: rename attribute `controller` to `command` - DONE
+- create a controllerFactory
+- remove config from DI (create some host to allow global access)
+- remove `com` from DI (?)
+- add a setLayout to BaseLayout to allow switching layout (?)
 
-
+- properly define what is a service - apply it to AssetsManager
 
 
 
 
 Georgette is an architectural framework build on top of [Backbone](backbonejs.org), it's primary goal is to provide an clean way to organize code by creating a controller layer between `Backbone.Router` and `Backbone.View`s.
 
-Aside, it include some generic features to handle views, cf. `Layout`, `Region` and `Transition` abstractions. We should be able to use these components in a standalone mode, without the whole framework.
+Aside, it include some generic features to handle views, cf. `Layout`, `Region` and `Transition` abstractions inspired from Backbone.Marionnette. We should be able to use these components in a standalone mode, without the whole framework.
 
 The framework can also be extended through the use of plugins and an `AssetManager` is available if an `AssetLoader` plugin is installed
 
