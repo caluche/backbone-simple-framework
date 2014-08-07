@@ -90,7 +90,7 @@ define(
             // to be synchronized
             // @API     signature can also be (regionName, autohide)
             createTransition: function(regionName, transitionCtor, autohide) {
-                var region = this.regions[regionName];
+                var region = this.getRegion(regionName);
                 var args = _.toArray(arguments).slice(1);
                 var transition = region.createSynchronizedTransition.apply(region, args);
 
