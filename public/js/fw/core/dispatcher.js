@@ -134,13 +134,14 @@ define(
                         this.prevController.destroy();
                     }
 
-                    this.prevRequest = request;
                     this.prevController = instance;
                 } else {
                     // if the action is the same as in the prevRequest : call `update` method
                     request.command.method = (this.prevRequest.command.action === request.command.action) ? 'update' : 'show';
                     this.execute(this.prevController, request);
                 }
+
+                this.prevRequest = request;
             },
 
             // actually execute controller:action command
